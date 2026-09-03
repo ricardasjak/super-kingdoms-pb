@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Mail, Lock, Eye, EyeOff, AlertCircle, ArrowLeft } from 'lucide-react';
-import { useAuth } from '../context/useAuth';
+import { useAuth } from '../context/use-auth.hook';
 import { ClientResponseError } from 'pocketbase';
 
 export const LoginPage: React.FC = () => {

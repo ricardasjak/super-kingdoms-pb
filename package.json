@@ -4,8 +4,18 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
+    "setup": "bash scripts/setup.sh",
+    "gen:types": "bash scripts/gen-types.sh",
+    "dev:pb": "./pb/pocketbase serve --dev --dir=pb/pb_data --publicDir=pb/pb_public --hooksDir=pb/pb_hooks --migrationsDir=pb/pb_migrations --http=127.0.0.1:8090",
+    "dev:vite": "vite",
+    "dev": "concurrently -n PB,VITE -c cyan,magenta \"npm run dev:pb\" \"npm run dev:vite\"",
+    "build:spa": "vite build",
+    "build": "npm run build:spa",
+    "serve:prod": "./pb/pocketbase serve --dir=pb_prod_data --publicDir=pb/pb_public --hooksDir=pb/pb_hooks --migrationsDir=pb/pb_migrations --http=127.0.0.1:8091",
+    "deploy:prod": "npm run build && npm run serve:prod",
+    "test:pb": "./pb/pocketbase serve --dir=pb_test_data --hooksDir=pb/pb_hooks --migrationsDir=pb/pb_migrations --http=127.0.0.1:8092",
+    "test": "vitest run --config vitest.config.ts",
+    "test:watch": "vitest --config vitest.config.ts",
     "lint": "oxlint",
     "preview": "vite preview"
   },
@@ -21,8 +31,12 @@
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^6.1.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "concurrently": "^9.2.1",
     "oxlint": "^1.79.0",
+    "pocketbase-typegen": "^1.3.0",
     "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "vitest": "^4.1.0"
   }
 }

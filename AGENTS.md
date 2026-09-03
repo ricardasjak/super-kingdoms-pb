@@ -36,7 +36,7 @@ Read the **specific section** that applies to your task — do not load the enti
 
 ## Key Rules (Always Apply)
 
-1. **File naming**: kebab-case with dot notation — `home.page.tsx`, `use-auth.ts`, `attack.pb.js`. No PascalCase filenames.
+1. **File naming**: kebab-case with dot notation — `home.page.tsx`, `use-auth.hook.ts`, `attack.pb.js`. No PascalCase filenames.
 2. **Hook files** (`pb/pb_hooks/`): plain `.pb.js` only. No TypeScript. No imports. All globals (`$app`, `routerAdd`, etc.) are injected by PocketBase runtime.
 3. **Handler scope**: variables declared outside a handler are NOT visible inside it. Use `require(\`${__hooks}/utils/file.js\`)` inside the handler to share code.
 4. **Never touch** `pb/pb_data/`, `pb_prod_data/`, or `pb_test_data/` directly. Never commit them.

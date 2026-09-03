@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import { Layout } from './components/Layout';
-import { HomePage } from './pages/HomePage';
-import { LoginPage } from './pages/LoginPage';
-import { RegisterPage } from './pages/RegisterPage';
+import { AuthProvider } from './context/auth-context';
+import { Layout } from './components/layout';
+import { HomePage } from './pages/home.page';
+import { LoginPage } from './pages/login.page';
+import { RegisterPage } from './pages/register.page';
 
 export const App: React.FC = () => {
   return (

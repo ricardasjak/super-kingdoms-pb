@@ -1,9 +1,11 @@
 import PocketBase, { type RecordModel } from 'pocketbase';
+import type { TypedPocketBase } from '../types/pb.model';
 
 export const POCKETBASE_URL =
-  import.meta.env.VITE_POCKETBASE_URL || 'http://127.0.0.1:8090';
+  import.meta.env.VITE_POCKETBASE_URL ||
+  (import.meta.env.PROD ? window.location.origin : 'http://127.0.0.1:8090');
 
-export const pb = new PocketBase(POCKETBASE_URL);
+export const pb = new PocketBase(POCKETBASE_URL) as TypedPocketBase;
 
 export interface PocketBaseUser extends RecordModel {
   email: string;

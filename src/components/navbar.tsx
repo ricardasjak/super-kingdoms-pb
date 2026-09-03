@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShieldCheck, LogIn, UserPlus, LogOut, User } from 'lucide-react';
-import { useAuth } from '../context/useAuth';
+import { useAuth } from '../context/use-auth.hook';
 import { checkPbHealth, type PbHealthStatus, POCKETBASE_URL } from '../lib/pocketbase';
 
 export const Navbar: React.FC = () => {

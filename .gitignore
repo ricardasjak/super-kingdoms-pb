@@ -24,3 +24,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# PocketBase
+pb/pocketbase
+pb/pb_data/
+pb/pb_public/
+pb_prod_data/
+pb_test_data/

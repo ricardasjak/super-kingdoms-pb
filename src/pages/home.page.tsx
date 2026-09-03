@@ -10,7 +10,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 
-import { useAuth } from '../context/useAuth';
+import { useAuth } from '../context/use-auth.hook';
 import { checkPbHealth, type PbHealthStatus, POCKETBASE_URL } from '../lib/pocketbase';
 
 export const HomePage: React.FC = () => {
