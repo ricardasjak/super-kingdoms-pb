@@ -2,6 +2,21 @@ import { useState, useEffect, useCallback } from 'react';
 import { pb } from '../lib/pocketbase';
 import { useAuth } from '../context/use-auth.hook';
 import type { KingdomsResponse } from '../types/pb.model';
+import type {
+  KingdomBuildings,
+  KingdomMilitary,
+  KingdomResearch,
+  BotSettings,
+} from '../types/game.types';
+
+export type TypedKingdom = KingdomsResponse<
+  BotSettings,
+  KingdomBuildings,
+  number[],
+  KingdomMilitary,
+  KingdomResearch,
+  string[]
+>;
 
 export interface CreateKingdomPayload {
   kdName: string;
@@ -13,7 +28,7 @@ export interface CreateKingdomPayload {
 
 export function useKingdom() {
   const { user, isAuthenticated } = useAuth();
-  const [kingdom, setKingdom] = useState<KingdomsResponse | null>(null);
+  const [kingdom, setKingdom] = useState<TypedKingdom | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +45,7 @@ export function useKingdom() {
     }
     setError(null);
     try {
-      const result = await pb.collection('kingdoms').getList<KingdomsResponse>(1, 1, {
+      const result = await pb.collection('kingdoms').getList<TypedKingdom>(1, 1, {
         filter: `userId = "${user.id}"`,
       });
 
@@ -63,7 +78,7 @@ export function useKingdom() {
     }
 
     pb.collection('kingdoms')
-      .getList<KingdomsResponse>(1, 1, {
+      .getList<TypedKingdom>(1, 1, {
         filter: `userId = "${user.id}"`,
       })
       .then((result) => {
@@ -86,11 +101,11 @@ export function useKingdom() {
     };
   }, [isAuthenticated, user]);
 
-  const createKingdom = async (payload: CreateKingdomPayload): Promise<KingdomsResponse> => {
+  const createKingdom = async (payload: CreateKingdomPayload): Promise<TypedKingdom> => {
     setIsCreating(true);
     setError(null);
     try {
-      const response = await pb.send<KingdomsResponse>('/api/kingdoms/create', {
+      const response = await pb.send<TypedKingdom>('/api/kingdoms/create', {
         method: 'POST',
         body: payload,
       });
@@ -114,6 +129,108 @@ export function useKingdom() {
     }
   };
 
+  const updateRulerName = async (rulerName: string) => {
+    await pb.send('/api/kingdoms/update-ruler-name', {
+      method: 'POST',
+      body: { rulerName },
+    });
+    await fetchKingdom(false);
+  };
+
+  const updateBotProfile = async (botSettings: BotSettings | null) => {
+    await pb.send('/api/kingdoms/update-bot-profile', {
+      method: 'POST',
+      body: { botSettings },
+    });
+    await fetchKingdom(false);
+  };
+
+  const buildBuildings = async (buildings: Record<string, number | string>) => {
+    await pb.send('/api/kingdoms/build-buildings', {
+      method: 'POST',
+      body: { buildings },
+    });
+    await fetchKingdom(false);
+  };
+
+  const razeBuildings = async (buildings: Record<string, number | string>) => {
+    await pb.send('/api/kingdoms/raze-buildings', {
+      method: 'POST',
+      body: { buildings },
+    });
+    await fetchKingdom(false);
+  };
+
+  const saveAutoBuildSettings = async (payload: { target?: Record<string, number>; autoBuild?: boolean }) => {
+    await pb.send('/api/kingdoms/save-auto-build', {
+      method: 'POST',
+      body: payload,
+    });
+    await fetchKingdom(false);
+  };
+
+  const toggleAutoBuild = async (autoBuild: boolean) => {
+    await pb.send('/api/kingdoms/toggle-auto-build', {
+      method: 'POST',
+      body: { autoBuild },
+    });
+    await fetchKingdom(false);
+  };
+
+  const trainMilitary = async (units: Record<string, number | string>) => {
+    await pb.send('/api/kingdoms/train-military', {
+      method: 'POST',
+      body: { units },
+    });
+    await fetchKingdom(false);
+  };
+
+  const disbandMilitary = async (units: Record<string, number | string>) => {
+    await pb.send('/api/kingdoms/disband-military', {
+      method: 'POST',
+      body: { units },
+    });
+    await fetchKingdom(false);
+  };
+
+  const saveMilitaryTargets = async (target: Record<string, number>) => {
+    await pb.send('/api/kingdoms/save-military-targets', {
+      method: 'POST',
+      body: { target },
+    });
+    await fetchKingdom(false);
+  };
+
+  const buyScientists = async (count: number) => {
+    await pb.send('/api/kingdoms/buy-scientists', {
+      method: 'POST',
+      body: { count },
+    });
+    await fetchKingdom(false);
+  };
+
+  const saveResearchAutoAssign = async (priority: string[]) => {
+    await pb.send('/api/kingdoms/save-research-auto-assign', {
+      method: 'POST',
+      body: { priority },
+    });
+    await fetchKingdom(false);
+  };
+
+  const resetKingdom = async () => {
+    await pb.send('/api/kingdoms/reset', {
+      method: 'POST',
+    });
+    await fetchKingdom(false);
+  };
+
+  const deleteKingdom = async () => {
+    await pb.send('/api/kingdoms/delete', {
+      method: 'POST',
+    });
+    setKingdom(null);
+  };
+
   return {
     kingdom,
     hasKingdom: !!kingdom,
@@ -122,5 +239,18 @@ export function useKingdom() {
     error,
     refetch: fetchKingdom,
     createKingdom,
+    updateRulerName,
+    updateBotProfile,
+    buildBuildings,
+    razeBuildings,
+    saveAutoBuildSettings,
+    toggleAutoBuild,
+    trainMilitary,
+    disbandMilitary,
+    saveMilitaryTargets,
+    buyScientists,
+    saveResearchAutoAssign,
+    resetKingdom,
+    deleteKingdom,
   };
 }

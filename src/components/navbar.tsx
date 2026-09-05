@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShieldCheck, LogIn, UserPlus, LogOut, User } from 'lucide-react';
+import { ShieldCheck, LogIn, UserPlus, LogOut, User, Crown, Settings2 } from 'lucide-react';
 import { useAuth } from '../context/use-auth.hook';
+import { useKingdom } from '../hooks/use-kingdom.hook';
 import { checkPbHealth, type PbHealthStatus, POCKETBASE_URL } from '../lib/pocketbase';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
+  const { hasKingdom } = useKingdom();
   const navigate = useNavigate();
   const [health, setHealth] = useState<PbHealthStatus>({
     isOnline: false,
@@ -39,12 +41,47 @@ export const Navbar: React.FC = () => {
   return (
     <header className="navbar">
       <div className="navbar-inner">
-        <Link to="/" className="brand-logo">
-          <div className="brand-badge">
-            <ShieldCheck size={22} />
-          </div>
-          <span>Super Kingdoms</span>
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <Link to="/" className="brand-logo">
+            <div className="brand-badge">
+              <ShieldCheck size={22} />
+            </div>
+            <span>Super Kingdoms</span>
+          </Link>
+
+          {isAuthenticated && (
+            <nav style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {hasKingdom ? (
+                <Link
+                  to="/kingdom/status"
+                  className="btn btn-secondary btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                >
+                  <Crown size={15} color="var(--accent-amber)" />
+                  <span>Kingdom Deck</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/create"
+                  className="btn btn-secondary btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                >
+                  <Crown size={15} color="var(--accent-amber)" />
+                  <span>Found Kingdom</span>
+                </Link>
+              )}
+
+              <Link
+                to="/admin"
+                className="btn btn-secondary btn-sm"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+              >
+                <Settings2 size={15} />
+                <span>Admin</span>
+              </Link>
+            </nav>
+          )}
+        </div>
 
         <div className="nav-actions">
           {/* PocketBase status badge */}
