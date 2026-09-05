@@ -5,6 +5,7 @@ import { Layout } from './components/layout';
 import { HomePage } from './pages/home.page';
 import { LoginPage } from './pages/login.page';
 import { RegisterPage } from './pages/register.page';
+import { CreateKingdomPage } from './pages/create-kingdom.page';
 
 export const App: React.FC = () => {
   return (
@@ -13,6 +14,7 @@ export const App: React.FC = () => {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/create" element={<CreateKingdomPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />

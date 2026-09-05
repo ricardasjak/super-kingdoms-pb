@@ -11,6 +11,9 @@ export const Collections = {
 	Mfas: "_mfas",
 	Otps: "_otps",
 	Superusers: "_superusers",
+	GameStatus: "gameStatus",
+	Kingdoms: "kingdoms",
+	SpyReports: "spyReports",
 	Users: "users",
 } as const
 export type Collections = typeof Collections[keyof typeof Collections]
@@ -93,6 +96,67 @@ export type SuperusersRecord = {
 	verified?: boolean
 }
 
+export type GameStatusRecord = {
+	currentTick?: number
+	endTick: number
+	id: string
+	kingdomCount?: number
+	roundNumber: number
+}
+
+export type KingdomsRecord<TbotSettings = unknown, Tbuildings = unknown, TlandQueue = unknown, Tmilitary = unknown, Tresearch = unknown, TresearchAutoAssign = unknown> = {
+	autoBuild?: boolean
+	autoExplore?: number
+	botOwnerKd?: string
+	botSettings?: null | TbotSettings
+	buildings?: null | Tbuildings
+	id: string
+	kdName: string
+	land: number
+	landQueue?: null | TlandQueue
+	military?: null | Tmilitary
+	money: number
+	moneyIncome?: number
+	nw: number
+	planetType: string
+	popChange?: number
+	population: number
+	power: number
+	powerIncome?: number
+	probes?: number
+	raceType: string
+	research?: null | Tresearch
+	researchAutoAssign?: null | TresearchAutoAssign
+	researchPts?: number
+	rulerName: string
+	state?: string
+	userId?: RecordIdString
+}
+
+export type SpyReportsRecord<Tbuildings = unknown, Tmilitary = unknown> = {
+	buildings?: null | Tbuildings
+	honor?: number
+	id: string
+	land: number
+	maProtection?: number
+	maxDefPotential?: number
+	maxOffPotential?: number
+	military?: null | Tmilitary
+	money: number
+	networth: number
+	population: number
+	power: number
+	probes?: number
+	scientists?: number
+	spiedAt: number
+	targetKdName: string
+	targetLevel: number
+	targetPlanetType: string
+	targetRaceType: string
+	targetRulerName: string
+	userId: RecordIdString
+}
+
 export type UsersRecord = {
 	avatar?: FileNameString
 	created: IsoAutoDateString
@@ -112,6 +176,9 @@ export type ExternalauthsResponse<Texpand = unknown> = Required<ExternalauthsRec
 export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemFields<Texpand>
 export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemFields<Texpand>
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
+export type GameStatusResponse<Texpand = unknown> = Required<GameStatusRecord> & BaseSystemFields<Texpand>
+export type KingdomsResponse<TbotSettings = unknown, Tbuildings = unknown, TlandQueue = unknown, Tmilitary = unknown, Tresearch = unknown, TresearchAutoAssign = unknown, Texpand = unknown> = Required<KingdomsRecord<TbotSettings, Tbuildings, TlandQueue, Tmilitary, Tresearch, TresearchAutoAssign>> & BaseSystemFields<Texpand>
+export type SpyReportsResponse<Tbuildings = unknown, Tmilitary = unknown, Texpand = unknown> = Required<SpyReportsRecord<Tbuildings, Tmilitary>> & BaseSystemFields<Texpand>
 export type UsersResponse<Texpand = unknown> = Required<UsersRecord> & AuthSystemFields<Texpand>
 
 // Types containing all Records and Responses, useful for creating typing helper functions
@@ -122,6 +189,9 @@ export type CollectionRecords = {
 	_mfas: MfasRecord
 	_otps: OtpsRecord
 	_superusers: SuperusersRecord
+	gameStatus: GameStatusRecord
+	kingdoms: KingdomsRecord
+	spyReports: SpyReportsRecord
 	users: UsersRecord
 }
 
@@ -131,6 +201,9 @@ export type CollectionResponses = {
 	_mfas: MfasResponse
 	_otps: OtpsResponse
 	_superusers: SuperusersResponse
+	gameStatus: GameStatusResponse
+	kingdoms: KingdomsResponse
+	spyReports: SpyReportsResponse
 	users: UsersResponse
 }
 
