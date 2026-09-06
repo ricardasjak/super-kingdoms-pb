@@ -4,6 +4,7 @@ import { ShieldCheck, LogIn, UserPlus, LogOut, User, Crown, Settings2 } from 'lu
 import { useAuth } from '../context/use-auth.hook';
 import { useKingdom } from '../hooks/use-kingdom.hook';
 import { checkPbHealth, type PbHealthStatus, POCKETBASE_URL } from '../lib/pocketbase';
+import { PlayButton } from './play-button';
 
 export const Navbar: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
@@ -79,6 +80,12 @@ export const Navbar: React.FC = () => {
                 <Settings2 size={15} />
                 <span>Admin</span>
               </Link>
+
+              <PlayButton
+                showText={true}
+                className="btn-sm"
+                style={{ padding: '0.35rem 0.65rem' }}
+              />
             </nav>
           )}
         </div>

@@ -116,14 +116,88 @@ function calculateNetworth(kd) {
   return Math.floor(milNw + landNw + bldNw + popNw + moneyNw + probeNw);
 }
 
+function parseJsonField(val, fallback) {
+  if (val === null || val === undefined) return fallback;
+  if (typeof val === "object") {
+    if (!Array.isArray(val)) return val;
+    if (val.length === 0 || typeof val[0] !== "number") return val;
+    try {
+      let decoded = "";
+      const chunkSize = 8192;
+      for (let i = 0; i < val.length; i += chunkSize) {
+        decoded += String.fromCharCode.apply(null, val.slice(i, i + chunkSize));
+      }
+      let parsed = JSON.parse(decoded);
+      while (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "number") {
+        let d = "";
+        for (let i = 0; i < parsed.length; i += chunkSize) {
+          d += String.fromCharCode.apply(null, parsed.slice(i, i + chunkSize));
+        }
+        parsed = JSON.parse(d);
+      }
+      return parsed || fallback;
+    } catch {
+      return val;
+    }
+  }
+  if (typeof val === "string") {
+    try {
+      let parsed = JSON.parse(val);
+      while (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "number") {
+        let decoded = "";
+        const chunkSize = 8192;
+        for (let i = 0; i < parsed.length; i += chunkSize) {
+          decoded += String.fromCharCode.apply(null, parsed.slice(i, i + chunkSize));
+        }
+        parsed = JSON.parse(decoded);
+      }
+      return parsed || fallback;
+    } catch {
+      return fallback;
+    }
+  }
+  if (val && typeof val.string === "function") {
+    try {
+      let parsed = JSON.parse(val.string());
+      while (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === "number") {
+        let decoded = "";
+        const chunkSize = 8192;
+        for (let i = 0; i < parsed.length; i += chunkSize) {
+          decoded += String.fromCharCode.apply(null, parsed.slice(i, i + chunkSize));
+        }
+        parsed = JSON.parse(decoded);
+      }
+      return parsed || fallback;
+    } catch {
+      return fallback;
+    }
+  }
+  return val || fallback;
+}
+
 function processKingdomTick(kingdom, currentTick) {
   let land = kingdom.land || 250;
-  let landQueue = Array.isArray(kingdom.landQueue) ? [...kingdom.landQueue] : [];
-  let buildings = kingdom.buildings ? JSON.parse(JSON.stringify(kingdom.buildings)) : { res: 80, plants: 40, rax: 10, sm: 30, pf: 10, tc: 0, asb: 0, ach: 0, rubble: 0, queue: {} };
-  let military = kingdom.military ? JSON.parse(JSON.stringify(kingdom.military)) : { sol: 200, tr: 0, dr: 0, ft: 0, tf: 0, lt: 0, ld: 0, lf: 0, f74: 0, t: 0, ht: 0, sci: 300, queue: {} };
-  let research = kingdom.research ? JSON.parse(JSON.stringify(kingdom.research)) : {};
+  let rawLandQueue = parseJsonField(kingdom.landQueue, []);
+  let landQueue = Array.isArray(rawLandQueue) ? [...rawLandQueue] : [];
+
+  let rawBuildings = parseJsonField(kingdom.buildings, null);
+  let buildings = rawBuildings && typeof rawBuildings === "object" && !Array.isArray(rawBuildings)
+    ? { ...rawBuildings, queue: { ...(rawBuildings.queue || {}) } }
+    : { res: 80, plants: 40, rax: 10, sm: 30, pf: 10, tc: 0, asb: 0, ach: 0, rubble: 0, queue: {} };
+
+  let rawMilitary = parseJsonField(kingdom.military, null);
+  let military = rawMilitary && typeof rawMilitary === "object" && !Array.isArray(rawMilitary)
+    ? { ...rawMilitary, queue: { ...(rawMilitary.queue || {}) } }
+    : { sol: 200, tr: 0, dr: 0, ft: 0, tf: 0, lt: 0, ld: 0, lf: 0, f74: 0, t: 0, ht: 0, sci: 300, queue: {} };
+
+  let rawResearch = parseJsonField(kingdom.research, {});
+  let research = rawResearch && typeof rawResearch === "object" && !Array.isArray(rawResearch)
+    ? { ...rawResearch }
+    : {};
+
   let researchPts = kingdom.researchPts || 0;
-  let researchAutoAssign = Array.isArray(kingdom.researchAutoAssign) ? [...kingdom.researchAutoAssign] : [];
+  let rawAutoAssign = parseJsonField(kingdom.researchAutoAssign, []);
+  let researchAutoAssign = Array.isArray(rawAutoAssign) ? [...rawAutoAssign] : [];
   let population = kingdom.population || 2250;
   let popChange = kingdom.popChange || 0;
   let money = kingdom.money || 300000;
@@ -296,6 +370,32 @@ function processKingdomTick(kingdom, currentTick) {
     military.t = 0;
   }
 
+  // Phase 6: Auto Money Spend (Every 12 ticks or tick 1)
+  if ((currentTick % 12 === 0 || currentTick === 1) && kingdom.autoBuild) {
+    const autoResult = handleAutoGrowth(
+      {
+        land,
+        money,
+        landQueue,
+        population,
+        research,
+        autoBuild: kingdom.autoBuild,
+        autoExplore: kingdom.autoExplore,
+        botSettings: kingdom.botSettings,
+      },
+      buildings,
+      military
+    );
+    money = autoResult.money;
+    buildings.queue = autoResult.buildingQueue;
+    if (autoResult.buildingsTarget) {
+      buildings.target = autoResult.buildingsTarget;
+    }
+    landQueue = autoResult.landQueue;
+    military.queue = autoResult.militaryQueue;
+    military.sol = autoResult.militarySol;
+  }
+
   const updatedNw = calculateNetworth({
     land,
     buildings,
@@ -325,11 +425,332 @@ function processKingdomTick(kingdom, currentTick) {
   };
 }
 
+function calculateExplorationQueue(currentQueue, requestedLand, ticks) {
+  if (!ticks) ticks = 24;
+  const safeQueue = Array.isArray(currentQueue) ? [...currentQueue] : [];
+  while (safeQueue.length < ticks) {
+    safeQueue.push(0);
+  }
+  if (requestedLand <= 0) return safeQueue;
+  const perTick = Math.floor(requestedLand / ticks);
+  let remainder = requestedLand % ticks;
+  for (let i = 0; i < ticks; i++) {
+    safeQueue[i] += perTick;
+  }
+  let backIndex = ticks - 1;
+  while (remainder > 0 && backIndex >= 0) {
+    safeQueue[backIndex] += 1;
+    remainder--;
+    backIndex--;
+  }
+  return safeQueue;
+}
+
+function calculateFreeLand(land, buildings, queue) {
+  const buildingKeys = ["res", "plants", "rax", "sm", "pf", "tc", "asb", "ach", "rubble"];
+  let buildingSum = 0;
+  for (let i = 0; i < buildingKeys.length; i++) {
+    buildingSum += (buildings[buildingKeys[i]] || 0);
+  }
+  let queueSum = 0;
+  if (queue) {
+    for (let i = 0; i < buildingKeys.length; i++) {
+      const q = queue[buildingKeys[i]];
+      if (Array.isArray(q)) {
+        for (let j = 0; j < q.length; j++) {
+          queueSum += (q[j] || 0);
+        }
+      }
+    }
+  }
+  return Math.max(0, land - buildingSum - queueSum);
+}
+
+function calculateNewQueue(currentQueue, requestedBuildings, ticks) {
+  if (!ticks) ticks = 16;
+  const buildingKeys = ["res", "plants", "rax", "sm", "pf", "tc", "asb", "ach"];
+  const newQueue = {};
+  for (let i = 0; i < buildingKeys.length; i++) {
+    const k = buildingKeys[i];
+    newQueue[k] = (currentQueue && Array.isArray(currentQueue[k])) ? [...currentQueue[k]] : [];
+    while (newQueue[k].length < ticks) {
+      newQueue[k].push(0);
+    }
+    const amount = requestedBuildings[k] || 0;
+    if (amount <= 0) continue;
+    const perTick = Math.floor(amount / ticks);
+    let remainder = amount % ticks;
+    for (let t = 0; t < ticks; t++) {
+      newQueue[k][t] += perTick;
+    }
+    let backIndex = ticks - 1;
+    while (remainder > 0 && backIndex >= 0) {
+      newQueue[k][backIndex] += 1;
+      remainder--;
+      backIndex--;
+    }
+  }
+  return newQueue;
+}
+
+function calculateMilitaryQueue(currentQueue, requestedUnits, ticks) {
+  if (!ticks) ticks = 24;
+  const milKeys = ["sol", "tr", "dr", "ft", "tf", "lt", "ld", "lf", "f74", "t", "ht", "sci"];
+  const newQueue = {};
+  for (let i = 0; i < milKeys.length; i++) {
+    const k = milKeys[i];
+    newQueue[k] = (currentQueue && Array.isArray(currentQueue[k])) ? [...currentQueue[k]] : [];
+    while (newQueue[k].length < ticks) {
+      newQueue[k].push(0);
+    }
+    const amount = requestedUnits[k] || 0;
+    if (amount <= 0) continue;
+    const perTick = Math.floor(amount / ticks);
+    let remainder = amount % ticks;
+    for (let t = 0; t < ticks; t++) {
+      newQueue[k][t] += perTick;
+    }
+    let backIndex = ticks - 1;
+    while (remainder > 0 && backIndex >= 0) {
+      newQueue[k][backIndex] += 1;
+      remainder--;
+      backIndex--;
+    }
+  }
+  return newQueue;
+}
+
+function handleAutoGrowth(kingdom, buildings, military) {
+  let money = kingdom.money || 0;
+  let buildingQueue = {};
+  if (buildings.queue) {
+    const bqKeys = Object.keys(buildings.queue);
+    for (let i = 0; i < bqKeys.length; i++) {
+      const k = bqKeys[i];
+      buildingQueue[k] = Array.isArray(buildings.queue[k]) ? [...buildings.queue[k]] : [];
+    }
+  }
+  let landQueue = Array.isArray(kingdom.landQueue) ? [...kingdom.landQueue] : [];
+  let militaryQueue = {};
+  if (military && military.queue) {
+    const mqKeys = Object.keys(military.queue);
+    for (let i = 0; i < mqKeys.length; i++) {
+      const k = mqKeys[i];
+      militaryQueue[k] = Array.isArray(military.queue[k]) ? [...military.queue[k]] : [];
+    }
+  }
+  let militarySol = (military && military.sol) || 0;
+  let autoExplore = kingdom.autoExplore || 0;
+  let buildingsTarget = buildings.target || { res: 32, plants: 16, rax: 4, sm: 12, pf: 4, tc: 0, asb: 0, ach: 0 };
+
+  // 1. Auto Explore
+  if (autoExplore > 0) {
+    const limitPct = autoExplore * 0.01;
+    let currentQueueSum = 0;
+    for (let i = 0; i < landQueue.length; i++) currentQueueSum += landQueue[i];
+    const maxExplorePossible = Math.floor(kingdom.land * limitPct) - currentQueueSum;
+
+    if (maxExplorePossible > 0) {
+      const baseCost = Math.sqrt(kingdom.land) * 111;
+      const levelMultipliers = [0.165, 0.33, 0.5, 0.67, 0.835, 1, 1.25, 1.5, 1.75, 2];
+      const levelMultiplier = levelMultipliers[Math.min(levelMultipliers.length - 1, Math.max(0, autoExplore - 1))] || 1;
+      let landMultiplier = 1;
+      if (kingdom.land < 1000) landMultiplier = 0.25;
+      else if (kingdom.land < 2500) landMultiplier = 0.5;
+      else if (kingdom.land < 5000) landMultiplier = 0.75;
+
+      const costPerLand = Math.round(baseCost * levelMultiplier * landMultiplier);
+      if (costPerLand > 0) {
+        const exploreNum = Math.floor(Math.min(maxExplorePossible, money / costPerLand));
+        const roundedExplore = Math.floor(exploreNum / 24) * 24;
+        if (roundedExplore > 0) {
+          money -= roundedExplore * costPerLand;
+          landQueue = calculateExplorationQueue(landQueue, roundedExplore, 24);
+        }
+      }
+    }
+  }
+
+  // 2. Auto Build
+  if (buildingsTarget) {
+    const buildKeys = ["rax", "asb", "plants", "pf", "tc", "res", "sm"];
+    const freeLand = calculateFreeLand(kingdom.land, buildings, buildingQueue);
+    const buildingCost = Math.round(Math.sqrt(kingdom.land) * 63);
+
+    if (buildingCost > 0) {
+      const maxToBuild = Math.min(freeLand, Math.floor(money / buildingCost));
+      if (maxToBuild > 0) {
+        const deficiencies = {};
+        let totalDeficiency = 0;
+
+        for (let i = 0; i < buildKeys.length; i++) {
+          const key = buildKeys[i];
+          const target = buildingsTarget[key] || 0;
+          let inQ = 0;
+          if (buildingQueue[key]) {
+            for (let j = 0; j < buildingQueue[key].length; j++) inQ += buildingQueue[key][j];
+          }
+          const current = (buildings[key] || 0) + inQ;
+          const deficiency = Math.max(0, Math.floor((kingdom.land * target) / 100) - current);
+          deficiencies[key] = deficiency;
+          totalDeficiency += deficiency;
+        }
+
+        if (totalDeficiency > 0) {
+          let remainingChunks = Math.floor(maxToBuild / 16);
+          if (remainingChunks > 0) {
+            const constructionGroup = { res: 0, plants: 0, rax: 0, sm: 0, pf: 0, tc: 0, asb: 0, ach: 0 };
+            while (remainingChunks > 0) {
+              let bestKey = null;
+              let maxNeeded = -Infinity;
+              for (let i = 0; i < buildKeys.length; i++) {
+                const key = buildKeys[i];
+                const stillNeeded = (deficiencies[key] || 0) - (constructionGroup[key] || 0);
+                if (stillNeeded > maxNeeded) {
+                  maxNeeded = stillNeeded;
+                  bestKey = key;
+                }
+              }
+              if (!bestKey || maxNeeded <= 0) break;
+              constructionGroup[bestKey] += 16;
+              remainingChunks--;
+            }
+
+            let actualBuilt = 0;
+            for (let i = 0; i < buildKeys.length; i++) actualBuilt += constructionGroup[buildKeys[i]];
+            if (actualBuilt > 0) {
+              money -= actualBuilt * buildingCost;
+              buildingQueue = calculateNewQueue(buildingQueue, constructionGroup, 16);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 3. Military Growth
+  if (military && military.target) {
+    const trainingLimit = Math.floor(kingdom.population * 0.1);
+    let currentSolInQueue = 0;
+    if (militaryQueue.sol) {
+      for (let i = 0; i < militaryQueue.sol.length; i++) currentSolInQueue += militaryQueue.sol[i];
+    }
+    const availableTrainingCapacity = Math.max(0, trainingLimit - currentSolInQueue);
+    const botLimit = Math.max(4000, kingdom.land * 4);
+    const currentSolTotal = militarySol + currentSolInQueue;
+    const neededToBotLimit = Math.max(0, botLimit - currentSolTotal);
+    const solToBuy = Math.min(availableTrainingCapacity, neededToBotLimit);
+
+    if (solToBuy > 0) {
+      const solCost = 150;
+      const maxByMoney = Math.floor(money / solCost);
+      let actualSol = Math.min(solToBuy, maxByMoney);
+      actualSol = Math.floor(actualSol / 16) * 16;
+      if (actualSol > 0) {
+        money -= actualSol * solCost;
+        const solObj = { sol: actualSol, tr: 0, dr: 0, ft: 0, tf: 0, lt: 0, ld: 0, lf: 0, f74: 0, t: 0, ht: 0, sci: 0 };
+        militaryQueue = calculateMilitaryQueue(militaryQueue, solObj, 16);
+      }
+    }
+
+    const tcCount = buildings.tc || 0;
+    const tcDiscount = kingdom.land > 0 ? Math.min(30, Math.floor((tcCount / kingdom.land) * 300)) : 0;
+    const getUnitCost = function(unit) {
+      const def = MILITARY_UNITS[unit];
+      if (!def) return 1000;
+      if (unit === "sol" || unit === "sci") return def.cost;
+      return Math.floor((def.cost * (100 - tcDiscount)) / 100);
+    };
+
+    const targetKeys = Object.keys(military.target).filter(function(k) {
+      return k !== "sol" && (military.target[k] || 0) > 0;
+    });
+
+    const initialBudget = money;
+    const initialSol = militarySol;
+    const requestedProduction = { sol: 0, tr: 0, dr: 0, ft: 0, tf: 0, lt: 0, ld: 0, lf: 0, f74: 0, t: 0, ht: 0, sci: 0 };
+    let hasProd = false;
+
+    for (let i = 0; i < targetKeys.length; i++) {
+      const key = targetKeys[i];
+      const ratio = (military.target[key] || 0) / 100;
+      const targetBudget = initialBudget * ratio;
+      const availableBudget = Math.min(money, targetBudget);
+      const targetSolBudget = Math.floor(initialSol * ratio);
+      const availableSol = Math.max(0, Math.min(militarySol, targetSolBudget));
+
+      if (availableBudget <= 0) continue;
+
+      const cost = getUnitCost(key);
+      const def = MILITARY_UNITS[key];
+      const solReq = def ? (def.sol || 0) : 0;
+      let maxUnits = Math.floor(availableBudget / cost);
+
+      if (solReq > 0) {
+        maxUnits = Math.min(maxUnits, Math.floor(availableSol / solReq));
+      }
+
+      if (def && def.buildingRequired === "asb") {
+        const asbTotal = (buildings.asb || 0) * 60;
+        let asbUsed = 0;
+        const allKeys = Object.keys(MILITARY_UNITS);
+        for (let j = 0; j < allKeys.length; j++) {
+          const k2 = allKeys[j];
+          if (MILITARY_UNITS[k2].buildingRequired === "asb") {
+            const owned = military[k2] || 0;
+            const req = requestedProduction[k2] || 0;
+            let inQ = 0;
+            if (militaryQueue[k2]) {
+              for (let qIdx = 0; qIdx < militaryQueue[k2].length; qIdx++) inQ += militaryQueue[k2][qIdx];
+            }
+            asbUsed += (owned + inQ + req) * (MILITARY_UNITS[k2].housing || 1);
+          }
+        }
+        const asbLeft = Math.max(0, asbTotal - asbUsed);
+        maxUnits = Math.min(maxUnits, Math.floor(asbLeft / (def.housing || 1)));
+      }
+
+      if (def && def.researchRequired) {
+        const rData = kingdom.research ? kingdom.research[def.researchRequired] : null;
+        if (!rData || (rData.perc || 0) < 100) maxUnits = 0;
+      }
+
+      const count = Math.floor(maxUnits / 24) * 24;
+      if (count > 0) {
+        money -= count * cost;
+        militarySol -= count * solReq;
+        requestedProduction[key] = count;
+        hasProd = true;
+      }
+    }
+
+    if (hasProd) {
+      militaryQueue = calculateMilitaryQueue(militaryQueue, requestedProduction, 24);
+    }
+  }
+
+  return {
+    money,
+    buildingQueue,
+    landQueue,
+    militaryQueue,
+    militarySol,
+    autoExplore,
+    buildingsTarget,
+  };
+}
+
 module.exports = {
   GAME_PARAMS,
   MILITARY_UNITS,
   RESEARCH_PARAMS,
   RESEARCH_TECH_TREE,
   calculateNetworth,
+  calculateExplorationQueue,
+  calculateFreeLand,
+  calculateNewQueue,
+  calculateMilitaryQueue,
+  handleAutoGrowth,
   processKingdomTick,
+  parseJsonField,
 };

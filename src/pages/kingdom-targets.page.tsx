@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { pb } from "../lib/pocketbase";
+import { PlayButton } from "../components/play-button";
 
 interface TargetKingdom {
   id: string;
@@ -47,6 +48,9 @@ export const KingdomTargetsPage: React.FC = () => {
 
   useEffect(() => {
     fetchTargets(1);
+    const onTick = () => fetchTargets(1);
+    window.addEventListener("tick-advanced", onTick);
+    return () => window.removeEventListener("tick-advanced", onTick);
   }, [fetchTargets]);
 
   const handleLoadMore = () => {
@@ -73,7 +77,8 @@ export const KingdomTargetsPage: React.FC = () => {
           </p>
         </div>
 
-        <div>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <PlayButton showText={true} />
           <input
             type="text"
             placeholder="Search kingdom, ruler, planet..."

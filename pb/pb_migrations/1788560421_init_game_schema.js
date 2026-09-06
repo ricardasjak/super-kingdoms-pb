@@ -58,12 +58,12 @@ migrate(
         {
           name: "money",
           type: "number",
-          required: true,
+          required: false,
         },
         {
           name: "power",
           type: "number",
-          required: true,
+          required: false,
         },
         {
           name: "probes",

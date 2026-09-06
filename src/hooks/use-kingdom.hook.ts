@@ -96,10 +96,16 @@ export function useKingdom() {
         }
       });
 
+    const onTick = () => {
+      fetchKingdom(false);
+    };
+    window.addEventListener("tick-advanced", onTick);
+
     return () => {
       active = false;
+      window.removeEventListener("tick-advanced", onTick);
     };
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, fetchKingdom]);
 
   const createKingdom = async (payload: CreateKingdomPayload): Promise<TypedKingdom> => {
     setIsCreating(true);

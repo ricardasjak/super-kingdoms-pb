@@ -43,6 +43,7 @@ export const PlayButton: React.FC<PlayButtonProps> = ({
       if (response?.totalLogicTimeMs !== undefined && onLogicTime) {
         onLogicTime(response.totalLogicTimeMs);
       }
+      window.dispatchEvent(new CustomEvent("tick-advanced", { detail: response }));
       if (onSuccess) {
         onSuccess("Successfully advanced game tick");
       }

@@ -32,7 +32,12 @@ export function useGameStatus() {
     fetchStatus();
     // Poll every 10 seconds for game tick updates
     const timer = setInterval(fetchStatus, 10000);
-    return () => clearInterval(timer);
+    const onTick = () => fetchStatus();
+    window.addEventListener("tick-advanced", onTick);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("tick-advanced", onTick);
+    };
   }, [fetchStatus]);
 
   const restartGame = async () => {

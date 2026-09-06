@@ -73,73 +73,85 @@ routerAdd("POST", "/api/game/advance-tick", (e) => {
   const logicStart = Date.now()
 
   // Process ticks for all kingdoms
-  const kingdoms = $app.findRecordsByFilter("kingdoms", "state = 'active'", "-created", 500, 0)
-
-  for (let i = 0; i < kingdoms.length; i++) {
-    const kd = kingdoms[i]
-    let buildings = kd.get("buildings") || {}
-    if (typeof buildings === "string") {
-      try { buildings = JSON.parse(buildings) } catch { buildings = {} }
-    }
-    let military = kd.get("military") || {}
-    if (typeof military === "string") {
-      try { military = JSON.parse(military) } catch { military = {} }
-    }
-    let research = kd.get("research") || {}
-    if (typeof research === "string") {
-      try { research = JSON.parse(research) } catch { research = {} }
-    }
-    let landQueue = kd.get("landQueue") || []
-    if (typeof landQueue === "string") {
-      try { landQueue = JSON.parse(landQueue) } catch { landQueue = [] }
-    }
-    let researchAutoAssign = kd.get("researchAutoAssign") || []
-    if (typeof researchAutoAssign === "string") {
-      try { researchAutoAssign = JSON.parse(researchAutoAssign) } catch { researchAutoAssign = [] }
-    }
-
-    const kdData = {
-      land: kd.getInt("land"),
-      landQueue,
-      buildings,
-      military,
-      research,
-      researchPts: kd.getInt("researchPts"),
-      researchAutoAssign,
-      population: kd.getInt("population"),
-      popChange: kd.getInt("popChange"),
-      money: kd.getInt("money"),
-      moneyIncome: kd.getInt("moneyIncome"),
-      power: kd.getInt("power"),
-      powerIncome: kd.getInt("powerIncome"),
-      probes: kd.getInt("probes"),
-      state: kd.getString("state") || "active",
-    }
-
-    const updated = tickEngine.processKingdomTick(kdData, nextTick)
-
-    kd.set("land", updated.land)
-    kd.set("landQueue", updated.landQueue)
-    kd.set("buildings", updated.buildings)
-    kd.set("military", updated.military)
-    kd.set("research", updated.research)
-    kd.set("researchPts", updated.researchPts)
-    kd.set("researchAutoAssign", updated.researchAutoAssign)
-    kd.set("population", updated.population)
-    kd.set("popChange", updated.popChange)
-    kd.set("money", updated.money)
-    kd.set("moneyIncome", updated.moneyIncome)
-    kd.set("power", updated.power)
-    kd.set("powerIncome", updated.powerIncome)
-    kd.set("probes", updated.probes)
-    kd.set("nw", updated.nw)
-    kd.set("state", updated.state)
-
-    $app.save(kd)
+  let kingdoms = []
+  try {
+    kingdoms = $app.findAllRecords("kingdoms")
+  } catch (err) {
+    kingdoms = $app.findRecordsByFilter("kingdoms", "", "-created", 5000, 0)
   }
 
-  const logicEnd = Date.now()
-  const totalLogicTimeMs = logicEnd - logicStart
+  let pureSimTimeMs = 0
+  let dbSaveTimeMs = 0
+
+  $app.runInTransaction((txApp) => {
+    for (let i = 0; i < kingdoms.length; i++) {
+      const kd = kingdoms[i]
+      if (kd.getString("state") === "dead") continue
+
+      const buildings = tickEngine.parseJsonField(kd.getString("buildings") || kd.get("buildings"), {})
+      const military = tickEngine.parseJsonField(kd.getString("military") || kd.get("military"), {})
+      const research = tickEngine.parseJsonField(kd.getString("research") || kd.get("research"), {})
+      const landQueue = tickEngine.parseJsonField(kd.getString("landQueue") || kd.get("landQueue"), [])
+      const researchAutoAssign = tickEngine.parseJsonField(kd.getString("researchAutoAssign") || kd.get("researchAutoAssign"), [])
+      const botSettings = tickEngine.parseJsonField(kd.getString("botSettings") || kd.get("botSettings"), null)
+
+      const kdData = {
+        land: kd.getInt("land"),
+        landQueue,
+        buildings,
+        military,
+        research,
+        researchPts: kd.getInt("researchPts"),
+        researchAutoAssign,
+        population: kd.getInt("population"),
+        popChange: kd.getInt("popChange"),
+        money: kd.getInt("money"),
+        moneyIncome: kd.getInt("moneyIncome"),
+        power: kd.getInt("power"),
+        powerIncome: kd.getInt("powerIncome"),
+        probes: kd.getInt("probes"),
+        autoBuild: kd.getBool("autoBuild"),
+        autoExplore: kd.getInt("autoExplore"),
+        botSettings,
+        state: kd.getString("state") || "active",
+      }
+
+      const simT0 = Date.now()
+      const updated = tickEngine.processKingdomTick(kdData, nextTick)
+      pureSimTimeMs += Date.now() - simT0
+
+      kd.set("land", updated.land || kdData.land)
+      kd.set("landQueue", updated.landQueue)
+      kd.set("buildings", updated.buildings)
+      kd.set("military", updated.military)
+      kd.set("research", updated.research)
+      kd.set("researchPts", updated.researchPts)
+      kd.set("researchAutoAssign", updated.researchAutoAssign)
+      kd.set("population", updated.population)
+      kd.set("popChange", updated.popChange)
+      kd.set("money", updated.money)
+      kd.set("moneyIncome", updated.moneyIncome)
+      kd.set("power", typeof updated.power === "number" && !isNaN(updated.power) ? updated.power : 10000)
+      kd.set("powerIncome", typeof updated.powerIncome === "number" && !isNaN(updated.powerIncome) ? updated.powerIncome : 0)
+      kd.set("probes", updated.probes)
+      kd.set("nw", updated.nw)
+      kd.set("state", updated.state)
+
+      const saveT0 = Date.now()
+      try {
+        if (typeof txApp.saveNoValidate === "function") {
+          txApp.saveNoValidate(kd)
+        } else {
+          txApp.save(kd)
+        }
+      } catch (err) {
+        console.log("FAILED SAVING KINGDOM id=" + kd.id + " name=" + kd.get("kdName") + " power=" + kd.get("power") + " err=" + err)
+        throw err
+      }
+      dbSaveTimeMs += Date.now() - saveT0
+    }
+  })
+
   const executionTimeMs = Date.now() - t0
 
   return e.json(200, {
@@ -147,7 +159,8 @@ routerAdd("POST", "/api/game/advance-tick", (e) => {
     currentTick: nextTick,
     processedCount: kingdoms.length,
     executionTimeMs,
-    totalLogicTimeMs,
+    totalLogicTimeMs: pureSimTimeMs,
+    dbSaveTimeMs,
   })
 })
 

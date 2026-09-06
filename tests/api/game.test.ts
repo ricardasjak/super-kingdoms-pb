@@ -41,4 +41,37 @@ describe('Game Round Lifecycle API', () => {
     const kingdomsAfter = await adminPb.collection('kingdoms').getList(1, 20);
     expect(kingdomsAfter.totalItems).toBe(0);
   });
+
+  it('advances simulation tick and processes all active kingdoms', async () => {
+    const pb = createClient();
+    const adminPb = await createAdminClient();
+
+    // Populate test kingdoms
+    await pb.send<any>('/api/game/populate', { method: 'POST' });
+
+    // Fetch initial sample kingdom
+    const sampleBefore = (await adminPb.collection('kingdoms').getList(1, 1)).items[0];
+    const moneyBefore = sampleBefore.money;
+
+    // Advance 1 tick
+    const tickRes = await pb.send<any>('/api/game/advance-tick', {
+      method: 'POST',
+    });
+
+    expect(tickRes.success).toBe(true);
+    expect(tickRes.currentTick).toBe(1);
+    expect(tickRes.processedCount).toBeGreaterThanOrEqual(1000);
+    expect(tickRes.executionTimeMs).toBeGreaterThan(0);
+
+    // Verify game status reflects tick 1
+    const status = await pb.send<any>('/api/game/status', { method: 'GET' });
+    expect(status.currentTick).toBe(1);
+
+    // Verify sample kingdom processed tick logic (population economics and auto-growth exploration)
+    const sampleAfter = (await adminPb.collection('kingdoms').getList(1, 1)).items[0];
+    expect(sampleAfter.population).toBe(2363);
+    expect(sampleAfter.popChange).toBe(113);
+    expect(sampleAfter.money).toBeGreaterThan(0);
+    expect(sampleAfter.landQueue.length).toBeGreaterThan(0);
+  });
 });
