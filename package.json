@@ -17,7 +17,7 @@
     "serve:prod": "./pb/pocketbase serve --dir=pb_prod_data --publicDir=pb/pb_public --hooksDir=pb/pb_hooks --migrationsDir=pb/pb_migrations --http=127.0.0.1:8091",
     "deploy:prod": "npm run build && npm run serve:prod",
     "test:pb": "./pb/pocketbase serve --dir=pb_test_data --hooksDir=pb/pb_hooks --migrationsDir=pb/pb_migrations --http=127.0.0.1:8092",
-    "test": "vitest run --config vitest.config.ts",
+    "test": "bash scripts/test.sh",
     "test:watch": "vitest --config vitest.config.ts",
     "lint": "oxlint",
     "preview": "vite preview"

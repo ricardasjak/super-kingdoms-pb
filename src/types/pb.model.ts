@@ -115,21 +115,23 @@ export type KingdomsRecord<TbotSettings = unknown, Tbuildings = unknown, TlandQu
 	land: number
 	landQueue?: null | TlandQueue
 	military?: null | Tmilitary
-	money: number
+	money?: number
 	moneyIncome?: number
 	nw: number
 	planetType: string
 	popChange?: number
 	population: number
-	power: number
+	power?: number
 	powerIncome?: number
 	probes?: number
 	raceType: string
+	radius?: number
 	research?: null | Tresearch
 	researchAutoAssign?: null | TresearchAutoAssign
 	researchPts?: number
 	rulerName: string
 	state?: string
+	tier?: number
 	userId?: RecordIdString
 }
 

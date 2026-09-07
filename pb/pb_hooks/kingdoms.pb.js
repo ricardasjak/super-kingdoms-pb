@@ -117,6 +117,8 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
     moneyIncome: moneyIncome,
     powerIncome: powerIncome,
     nw: nw,
+    tier: 10,
+    radius: Math.floor(Math.random() * 360),
     autoExplore: 10,
     autoBuild: false,
     landQueue: [],
@@ -158,6 +160,8 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
       moneyIncome: moneyIncome,
       powerIncome: powerIncome,
       nw: nw,
+      tier: 10,
+      radius: Math.floor(Math.random() * 360),
       autoExplore: 10,
       autoBuild: true,
       landQueue: [],
@@ -232,10 +236,8 @@ routerAdd("POST", "/api/kingdoms/build-buildings", (e) => {
 
   const land = kingdom.getInt("land")
   let money = kingdom.getInt("money")
-  let buildings = kingdom.get("buildings") || {}
-  if (typeof buildings === "string") {
-    try { buildings = JSON.parse(buildings) } catch { buildings = {} }
-  }
+  const jsonUtils = require(`${__hooks}/utils/json.js`)
+  let buildings = jsonUtils.parseJsonObject(kingdom.get("buildings"), kingdom, "buildings")
   if (!buildings.queue) buildings.queue = {}
 
   const costPerBuilding = Math.round(Math.sqrt(land) * 63)
@@ -294,7 +296,7 @@ routerAdd("POST", "/api/kingdoms/build-buildings", (e) => {
 
   const tickEngine = require(`${__hooks}/utils/tick-engine.js`)
   const newNw = tickEngine.calculateNetworth({
-    military: kingdom.get("military") || {},
+    military: jsonUtils.parseJsonObject(kingdom.get("military"), kingdom, "military"),
     buildings: buildings,
     land: land,
     population: kingdom.getInt("population"),
@@ -320,10 +322,8 @@ routerAdd("POST", "/api/kingdoms/raze-buildings", (e) => {
 
   const land = kingdom.getInt("land")
   let money = kingdom.getInt("money")
-  let buildings = kingdom.get("buildings") || {}
-  if (typeof buildings === "string") {
-    try { buildings = JSON.parse(buildings) } catch { buildings = {} }
-  }
+  const jsonUtils = require(`${__hooks}/utils/json.js`)
+  let buildings = jsonUtils.parseJsonObject(kingdom.get("buildings"), kingdom, "buildings")
 
   const refundPerBuilding = Math.floor(Math.round(Math.sqrt(land) * 63) / 2)
   const keys = ["res", "plants", "rax", "sm", "pf", "tc", "asb"]
@@ -355,7 +355,7 @@ routerAdd("POST", "/api/kingdoms/raze-buildings", (e) => {
 
   const tickEngine = require(`${__hooks}/utils/tick-engine.js`)
   const newNw = tickEngine.calculateNetworth({
-    military: kingdom.get("military") || {},
+    military: jsonUtils.parseJsonObject(kingdom.get("military"), kingdom, "military"),
     buildings: buildings,
     land: land,
     population: kingdom.getInt("population"),
@@ -390,10 +390,8 @@ routerAdd("POST", "/api/kingdoms/save-auto-build", (e) => {
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
-  let buildings = kingdom.get("buildings") || {}
-  if (typeof buildings === "string") {
-    try { buildings = JSON.parse(buildings) } catch { buildings = {} }
-  }
+  const jsonUtils = require(`${__hooks}/utils/json.js`)
+  let buildings = jsonUtils.parseJsonObject(kingdom.get("buildings"), kingdom, "buildings")
 
   if (data.target) {
     buildings.target = data.target
@@ -427,37 +425,8 @@ routerAdd("POST", "/api/kingdoms/explore", (e) => {
 
   const land = kingdom.getInt("land")
 
-  function parseJsonArray(val, rec, key) {
-    if (rec && typeof rec.getString === "function") {
-      const s = rec.getString(key)
-      if (s) {
-        try {
-          const parsed = JSON.parse(s)
-          if (Array.isArray(parsed)) return parsed
-        } catch {}
-      }
-    }
-    if (typeof val === "string") {
-      try {
-        const parsed = JSON.parse(val)
-        if (Array.isArray(parsed)) return parsed
-      } catch {}
-    }
-    if (Array.isArray(val)) {
-      if (val.length > 0 && typeof val[0] === "number" && (val[0] === 91 || val[0] === 123)) {
-        try {
-          let str = ""
-          for (let i = 0; i < val.length; i++) str += String.fromCharCode(val[i])
-          const parsed = JSON.parse(str)
-          if (Array.isArray(parsed)) return parsed
-        } catch {}
-      }
-      return val
-    }
-    return []
-  }
-
-  let landQueue = parseJsonArray(kingdom.get("landQueue"), kingdom, "landQueue")
+  const jsonUtils = require(`${__hooks}/utils/json.js`)
+  let landQueue = jsonUtils.parseJsonArray(kingdom.get("landQueue"), kingdom, "landQueue")
   const currentQueueSum = landQueue.reduce((a, b) => a + (Number(b) || 0), 0)
   const maxPossibleExplore = Math.floor(land * 0.1)
   const maxExplore = Math.max(0, maxPossibleExplore - currentQueueSum)
@@ -484,8 +453,8 @@ routerAdd("POST", "/api/kingdoms/explore", (e) => {
   kingdom.set("landQueue", newQueue)
 
   const newNw = tickEngine.calculateNetworth({
-    military: kingdom.get("military") || {},
-    buildings: kingdom.get("buildings") || {},
+    military: jsonUtils.parseJsonObject(kingdom.get("military"), kingdom, "military"),
+    buildings: jsonUtils.parseJsonObject(kingdom.get("buildings"), kingdom, "buildings"),
     land: land,
     population: kingdom.getInt("population"),
     money: money,
@@ -529,10 +498,8 @@ routerAdd("POST", "/api/kingdoms/train-military", (e) => {
   const requested = data.units || {}
 
   let money = kingdom.getInt("money")
-  let military = kingdom.get("military") || {}
-  if (typeof military === "string") {
-    try { military = JSON.parse(military) } catch { military = {} }
-  }
+  const jsonUtils = require(`${__hooks}/utils/json.js`)
+  let military = jsonUtils.parseJsonObject(kingdom.get("military"), kingdom, "military")
   if (!military.queue) military.queue = {}
 
   const tickEngine = require(`${__hooks}/utils/tick-engine.js`)
@@ -587,7 +554,7 @@ routerAdd("POST", "/api/kingdoms/train-military", (e) => {
 
   const newNw = tickEngine.calculateNetworth({
     military,
-    buildings: kingdom.get("buildings") || {},
+    buildings: jsonUtils.parseJsonObject(kingdom.get("buildings"), kingdom, "buildings"),
     land: kingdom.getInt("land"),
     population: kingdom.getInt("population"),
     money,
@@ -611,10 +578,8 @@ routerAdd("POST", "/api/kingdoms/disband-military", (e) => {
   const requested = data.units || {}
 
   let money = kingdom.getInt("money")
-  let military = kingdom.get("military") || {}
-  if (typeof military === "string") {
-    try { military = JSON.parse(military) } catch { military = {} }
-  }
+  const jsonUtils = require(`${__hooks}/utils/json.js`)
+  let military = jsonUtils.parseJsonObject(kingdom.get("military"), kingdom, "military")
 
   const tickEngine = require(`${__hooks}/utils/tick-engine.js`)
   const unitDefs = tickEngine.MILITARY_UNITS
@@ -644,7 +609,7 @@ routerAdd("POST", "/api/kingdoms/disband-military", (e) => {
 
   const newNw = tickEngine.calculateNetworth({
     military,
-    buildings: kingdom.get("buildings") || {},
+    buildings: jsonUtils.parseJsonObject(kingdom.get("buildings"), kingdom, "buildings"),
     land: kingdom.getInt("land"),
     population: kingdom.getInt("population"),
     money,
@@ -665,10 +630,8 @@ routerAdd("POST", "/api/kingdoms/save-military-targets", (e) => {
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
-  let military = kingdom.get("military") || {}
-  if (typeof military === "string") {
-    try { military = JSON.parse(military) } catch { military = {} }
-  }
+  const jsonUtils = require(`${__hooks}/utils/json.js`)
+  let military = jsonUtils.parseJsonObject(kingdom.get("military"), kingdom, "military")
 
   if (data.target) {
     military.target = data.target
@@ -695,10 +658,8 @@ routerAdd("POST", "/api/kingdoms/buy-scientists", (e) => {
   let money = kingdom.getInt("money")
   if (money < cost) return e.json(400, { error: "Insufficient funds" })
 
-  let military = kingdom.get("military") || {}
-  if (typeof military === "string") {
-    try { military = JSON.parse(military) } catch { military = {} }
-  }
+  const jsonUtils = require(`${__hooks}/utils/json.js`)
+  let military = jsonUtils.parseJsonObject(kingdom.get("military"), kingdom, "military")
 
   military.sci = (military.sci || 0) + count
   money -= cost

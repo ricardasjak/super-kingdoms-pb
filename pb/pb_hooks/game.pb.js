@@ -119,6 +119,8 @@ routerAdd("POST", "/api/game/populate", (e) => {
         moneyIncome: 6500,
         powerIncome: 4000,
         nw: 25000,
+        tier: 10,
+        radius: Math.floor(Math.random() * 360),
         autoExplore: 10,
         autoBuild: true,
         landQueue: [],

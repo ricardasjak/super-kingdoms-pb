@@ -125,3 +125,95 @@ describe('POST /api/kingdoms/explore and /api/kingdoms/toggle-auto-explore', () 
     expect(autoRes.autoExplore).toBe(5);
   });
 });
+
+describe('POST /api/kingdoms/build-buildings and /api/kingdoms/raze-buildings', () => {
+  // Mirrors the Growth page payload: every building key as a string, blanks for untouched rows
+  const BLANK_BUILDINGS = { res: '', plants: '', rax: '', sm: '', pf: '', tc: '', asb: '', ach: '' };
+
+  async function createBuilderKingdom(pb: any, tag: string) {
+    return pb.send<any>('/api/kingdoms/create', {
+      method: 'POST',
+      body: {
+        kdName: `Build Realm ${tag}`,
+        rulerName: 'Master Builder',
+        planetType: 'Terra Form',
+        raceType: 'Terran',
+      },
+    });
+  }
+
+  it('queues buildings, deducts cost, and preserves existing buildings', async () => {
+    const { pb } = await createAuthClient('builder_user');
+    const created = await createBuilderKingdom(pb, 'one');
+
+    const costPerBuilding = Math.round(Math.sqrt(created.land) * 63);
+    const res = await pb.send<any>('/api/kingdoms/build-buildings', {
+      method: 'POST',
+      body: { buildings: { ...BLANK_BUILDINGS, res: '16' } },
+    });
+
+    expect(res.success).toBe(true);
+    const queuedRes = (res.kingdom.buildings.queue.res || []).reduce(
+      (a: number, b: number) => a + b,
+      0
+    );
+    expect(queuedRes).toBe(16);
+    // Existing buildings must survive the queue update (regression: JSON field
+    // reads must not reset counts to zero)
+    expect(res.kingdom.buildings.res).toBe(created.buildings.res);
+    expect(res.kingdom.buildings.sm).toBe(created.buildings.sm);
+    expect(res.kingdom.money).toBe(created.money - 16 * costPerBuilding);
+
+    // Queue persists on re-read from the collection API
+    const reread = await pb.collection('kingdoms').getOne(res.kingdom.id);
+    expect(reread.buildings.res).toBe(created.buildings.res);
+    const rereadQueued = (reread.buildings.queue.res || []).reduce(
+      (a: number, b: number) => a + b,
+      0
+    );
+    expect(rereadQueued).toBe(16);
+  });
+
+  it('rejects builds exceeding free land and empty requests', async () => {
+    const { pb } = await createAuthClient('builder_user2');
+    await createBuilderKingdom(pb, 'two');
+
+    await expect(
+      pb.send('/api/kingdoms/build-buildings', {
+        method: 'POST',
+        body: { buildings: { ...BLANK_BUILDINGS, res: '9999' } },
+      })
+    ).rejects.toThrow();
+
+    await expect(
+      pb.send('/api/kingdoms/build-buildings', {
+        method: 'POST',
+        body: { buildings: { ...BLANK_BUILDINGS } },
+      })
+    ).rejects.toThrow();
+  });
+
+  it('razes owned buildings and refunds half cost', async () => {
+    const { pb } = await createAuthClient('builder_user3');
+    const created = await createBuilderKingdom(pb, 'three');
+
+    const refundPerBuilding = Math.floor(Math.round(Math.sqrt(created.land) * 63) / 2);
+    const res = await pb.send<any>('/api/kingdoms/raze-buildings', {
+      method: 'POST',
+      body: { buildings: { ...BLANK_BUILDINGS, res: '10' } },
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.kingdom.buildings.res).toBe(created.buildings.res - 10);
+    expect(res.kingdom.buildings.rubble).toBe(10);
+    expect(res.kingdom.money).toBe(created.money + 10 * refundPerBuilding);
+
+    // Cannot raze more than owned
+    await expect(
+      pb.send('/api/kingdoms/raze-buildings', {
+        method: 'POST',
+        body: { buildings: { ...BLANK_BUILDINGS, res: '9999' } },
+      })
+    ).rejects.toThrow();
+  });
+});
