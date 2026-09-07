@@ -5,8 +5,8 @@ import { useKingdomMessage } from "../context/kingdom-message.context";
 import { MaxButton } from "../components/max-button";
 import { Tooltip } from "../components/tooltip";
 import { GAME_PARAMS } from "../constants/game-params.constants";
-import type { BuildingType } from "../types/game.types";
-import { calculateFreeLand } from "../utils/building.util";
+import type { BuildingType, MilitaryUnitType } from "../types/game.types";
+import { calculateFreeLand, calculateIncomeMultiplier } from "../utils/building.util";
 
 const BUILDINGS_DESC = GAME_PARAMS.buildingsTypes;
 const BUILDING_KEYS = Object.keys(BUILDINGS_DESC) as BuildingType[];
@@ -101,6 +101,76 @@ export const KingdomGrowthPage: React.FC = () => {
     ])
   ) as Record<BuildingType, number>;
 
+  // Per-building tooltip calculations (parity with Convex growth page)
+  const popBonus = (kingdom.research?.pop?.perc ?? 0) / 100;
+  const resCapacityBoosted = Math.floor(
+    GAME_PARAMS.buildings.resCapacity * (1 + popBonus)
+  );
+
+  const incomeMultiplier = calculateIncomeMultiplier(
+    kingdom.research?.money?.perc ?? 0
+  );
+  const resIncome = Math.round(
+    resCapacityBoosted * GAME_PARAMS.income.population * incomeMultiplier
+  );
+  const smIncome = Math.round(GAME_PARAMS.income.sm * incomeMultiplier);
+
+  const unitConfigs = GAME_PARAMS.military.units;
+  const UNIT_KEYS = Object.keys(unitConfigs) as MilitaryUnitType[];
+
+  const raxUsage = UNIT_KEYS.reduce((sum, key) => {
+    const config = unitConfigs[key];
+    // Air units are housed in bays, not barracks
+    if (config.buildingRequired === "asb") return sum;
+    return sum + (kingdom.military?.[key] ?? 0) * config.housing;
+  }, 0);
+
+  const raxCapacity = (buildings.rax || 0) * GAME_PARAMS.buildings.raxCapacity;
+  const raxUtilization =
+    raxCapacity > 0 ? Math.floor((raxUsage / raxCapacity) * 100) : 0;
+
+  const powerBonus = (kingdom.research?.power?.perc ?? 0) / 100;
+  const fusionBonus =
+    (kingdom.research?.r_fusion?.perc ?? 0) >= 100
+      ? (GAME_PARAMS.militaryTechTree.r_fusion?.bonus ?? 0) / 100
+      : 0;
+  const coreBonus =
+    (kingdom.research?.r_core?.perc ?? 0) >= 100
+      ? (GAME_PARAMS.militaryTechTree.r_core?.bonus ?? 0) / 100
+      : 0;
+  const powerProductionPerPlant = Math.floor(
+    GAME_PARAMS.buildings.plantProduction *
+      (1 + powerBonus + fusionBonus + coreBonus)
+  );
+
+  const tcDiscount = GAME_PARAMS.military.calculateTcDiscount(
+    buildings.tc || 0,
+    kingdom.land
+  );
+
+  const getBuildingTooltip = (key: BuildingType): string => {
+    switch (key) {
+      case "res":
+        return `Pop capacity: ${resCapacityBoosted} | Income: $${resIncome.toLocaleString()} | Population is used to train units`;
+      case "sm":
+        return `Income per mine: $${smIncome.toLocaleString()}`;
+      case "plants":
+        return `Production: ${powerProductionPerPlant.toLocaleString()} power | Total Net: ${(kingdom.powerIncome ?? 0).toLocaleString()} power/tick`;
+      case "rax": {
+        const surplus = raxCapacity - raxUsage;
+        return `Mil space: ${GAME_PARAMS.buildings.raxCapacity} | ${surplus >= 0 ? "Surplus" : "Deficit"}: ${Math.abs(surplus / GAME_PARAMS.buildings.raxCapacity).toFixed(1)} | Capacity: ${raxUtilization}%`;
+      }
+      case "pf":
+        return "Probes production: 1 probe";
+      case "tc":
+        return `Military discount: ${tcDiscount}%${tcDiscount >= 30 ? " (Maximum reached)" : ""}`;
+      case "asb":
+        return `Capacity per bay: ${GAME_PARAMS.buildings.asbCapacity} space | Total: ${(buildings.asb || 0) * GAME_PARAMS.buildings.asbCapacity} | Used: ${(kingdom.military?.tf || 0) * 2 + (kingdom.military?.f74 || 0)}`;
+      default:
+        return "";
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setBuildQueue((prev) => ({
@@ -120,7 +190,9 @@ export const KingdomGrowthPage: React.FC = () => {
   const buildingCost = GAME_PARAMS.buildings.cost(kingdom.land);
   const maxAffordable = Math.floor(kingdom.money / buildingCost);
   const maxBuildings = Math.max(0, Math.min(freeLand, maxAffordable));
-  const maxBuildingsRounded = Math.floor(maxBuildings / 16) * 16;
+  const maxBuildingsRounded =
+    Math.floor(maxBuildings / GAME_PARAMS.buildings.duration) *
+    GAME_PARAMS.buildings.duration;
 
   const handleMaxClick = (key: BuildingType) => {
     const count = buildings[key] || 0;
@@ -148,7 +220,15 @@ export const KingdomGrowthPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (requestSum <= 0) return;
+    if (requestSum <= 0) {
+      showMessage(
+        `Please enter a valid amount of buildings to ${
+          isRazeMode ? "raze" : "construct"
+        }.`,
+        "error"
+      );
+      return;
+    }
 
     setIsBuilding(true);
     try {
@@ -220,7 +300,10 @@ export const KingdomGrowthPage: React.FC = () => {
                       }}
                     >
                       <td style={{ padding: "0.5rem" }}>
-                        <strong>{label}</strong>
+                        <strong>{label}</strong>{" "}
+                        {getBuildingTooltip(key) && (
+                          <Tooltip showIcon content={getBuildingTooltip(key)} />
+                        )}
                       </td>
                       <td style={{ textAlign: "right", padding: "0.5rem", color: "var(--text-secondary)" }}>
                         {actualPercent(count)}
