@@ -79,3 +79,49 @@ describe('POST /api/kingdoms/create', () => {
     ).rejects.toThrow();
   });
 });
+
+describe('POST /api/kingdoms/explore and /api/kingdoms/toggle-auto-explore', () => {
+  it('dispatches an exploration expedition and updates queue and treasury', async () => {
+    const { pb } = await createAuthClient('explorer_user');
+
+    const created = await pb.send<any>('/api/kingdoms/create', {
+      method: 'POST',
+      body: {
+        kdName: 'Frontier Realm',
+        rulerName: 'Scout Master',
+        planetType: 'Terra Form',
+        raceType: 'Terran',
+      },
+    });
+
+    // 250 land * 0.1 = 25 acres max explore. Let's explore 24 acres.
+    const initialMoney = created.money;
+    const exploreRes = await pb.send<any>('/api/kingdoms/explore', {
+      method: 'POST',
+      body: { amount: 24 },
+    });
+
+    expect(exploreRes.success).toBe(true);
+    expect(exploreRes.explored).toBe(24);
+    expect(exploreRes.cost).toBeGreaterThan(0);
+    expect(exploreRes.landQueue).toBeDefined();
+    expect(exploreRes.landQueue.length).toBe(24);
+    expect(exploreRes.kingdom.money).toBe(initialMoney - exploreRes.cost);
+
+    // Reject exploration exceeding 10% limit (only 1 remaining acre possible)
+    await expect(
+      pb.send('/api/kingdoms/explore', {
+        method: 'POST',
+        body: { amount: 10 },
+      })
+    ).rejects.toThrow();
+
+    // Toggle auto-explore
+    const autoRes = await pb.send<any>('/api/kingdoms/toggle-auto-explore', {
+      method: 'POST',
+      body: { autoExplore: 5 },
+    });
+    expect(autoRes.success).toBe(true);
+    expect(autoRes.autoExplore).toBe(5);
+  });
+});

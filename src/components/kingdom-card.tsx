@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Crown,
   Globe2,
@@ -21,6 +22,7 @@ interface KingdomCardProps {
 }
 
 export const KingdomCard: React.FC<KingdomCardProps> = ({ kingdom }) => {
+  const navigate = useNavigate();
   const planet = kingdom.planetType as PlanetType;
   const race = kingdom.raceType as RaceType;
   const planetMeta = PLANET_INFO[planet] || { description: 'Uncharted World', badgeColor: '#6366f1' };
@@ -141,7 +143,7 @@ export const KingdomCard: React.FC<KingdomCardProps> = ({ kingdom }) => {
         <button
           type="button"
           className="btn btn-primary"
-          onClick={() => alert(`Kingdom ${kingdom.kdName} is primed and operational!`)}
+          onClick={() => navigate('/kingdom/status')}
         >
           <Crown size={16} />
           <span>Realm Command</span>
@@ -150,7 +152,7 @@ export const KingdomCard: React.FC<KingdomCardProps> = ({ kingdom }) => {
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => alert('Military headquarters will connect here.')}
+          onClick={() => navigate('/kingdom/military')}
         >
           <Shield size={16} />
           <span>Military</span>
@@ -159,7 +161,7 @@ export const KingdomCard: React.FC<KingdomCardProps> = ({ kingdom }) => {
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => alert('Planetary exploration will connect here.')}
+          onClick={() => navigate('/kingdom/explore')}
         >
           <Compass size={16} />
           <span>Explore</span>

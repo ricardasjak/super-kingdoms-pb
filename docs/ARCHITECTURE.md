@@ -807,3 +807,32 @@ npm run test:watch
 npm run test:pb
 # Then in another terminal: npx vitest run --config vitest.config.ts
 ```
+
+---
+
+## 14. Reference Predecessor: Convex DB Version
+
+The previous iteration of Super Kingdoms was built using **Convex DB** and is located locally at:
+**`/home/rija/Projects/super-kingdoms`** (entry reference: `/home/rija/Projects/super-kingdoms/vite.config.ts`).
+
+### 14.1 — Purpose of the Reference Project
+This codebase serves as the authoritative source of truth for:
+- **Game Mathematics & Balance**: Exact tick simulation calculations, population growth/decline, power production/consumption, combat algorithms, networth weighting, and building costs.
+- **Tech Tree & Prerequisites**: Research point thresholds, prerequisites, and automatic promotion rules.
+- **AI / Bot Automations**: Auto-exploration thresholds, building balance ratios, and military training heuristics.
+- **Feature & UI Flows**: Screen layouts, user action triggers, and dialog states originally implemented in TanStack Router and PicoCSS.
+
+### 14.2 — Architecture Translation Matrix
+
+| Concept | Convex DB Version (`/home/rija/Projects/super-kingdoms`) | PocketBase Version (`super-kingdoms-pb`) |
+|---|---|---|
+| **Database & Storage** | Cloud / Local Convex DB (`convex/schema.ts`) | SQLite via PocketBase (`pb/pb_migrations/`, `pb/pb_data/`) |
+| **Tick Simulation** | JS mutations (`convex/game.ts`, `src/tick/`) | High-performance Go native engine (`pkg/engine/engine.go`) & JS hooks (`pb/pb_hooks/game.pb.js`) |
+| **Kingdom Actions** | Convex mutations (`convex/kingdoms.ts`) | PocketBase API routes & JS hooks (`pb/pb_hooks/routes/*.pb.js`) |
+| **Authentication** | Convex Auth / Discord OAuth (`convex/auth.ts`) | PocketBase `users` collection + OAuth2 (`src/context/auth-context.tsx`) |
+| **Frontend Routing** | TanStack Router (`src/routes/`) | React Router v7 (`src/pages/*.page.tsx`, kebab-case convention) |
+| **Styling** | PicoCSS (`styles.css`) | Custom CSS Design System with dark mode & rich aesthetics |
+
+### 14.3 — Inspecting Files Across Projects
+Because IDE sandboxing may restrict file tools outside this repository workspace, use terminal shell commands (`cat`, `grep`, `find`) to inspect `/home/rija/Projects/super-kingdoms` when checking implementation details or logic parity.
+

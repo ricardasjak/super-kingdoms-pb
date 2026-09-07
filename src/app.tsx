@@ -16,6 +16,7 @@ import { AdminPage } from './pages/admin.page';
 import { KingdomLayout } from './pages/kingdom-layout';
 import { KingdomStatusPage } from './pages/kingdom-status.page';
 import { KingdomGrowthPage } from './pages/kingdom-growth.page';
+import { KingdomExplorePage } from './pages/kingdom-explore.page';
 import { KingdomMilitaryPage } from './pages/kingdom-military.page';
 import { KingdomResearchPage } from './pages/kingdom-research.page';
 import { KingdomTargetsPage } from './pages/kingdom-targets.page';
@@ -43,6 +44,7 @@ export const App: React.FC = () => {
                   <Route index element={<Navigate to="/kingdom/status" replace />} />
                   <Route path="status" element={<KingdomStatusPage />} />
                   <Route path="growth" element={<KingdomGrowthPage />} />
+                  <Route path="explore" element={<KingdomExplorePage />} />
                   <Route path="military" element={<KingdomMilitaryPage />} />
                   <Route path="research" element={<KingdomResearchPage />} />
                   <Route path="targets" element={<KingdomTargetsPage />} />

@@ -407,6 +407,116 @@ routerAdd("POST", "/api/kingdoms/save-auto-build", (e) => {
   return e.json(200, { success: true, kingdom })
 })
 
+// ─── 6b. EXPLORE LAND ────────────────────────────────────────────────────────
+routerAdd("POST", "/api/kingdoms/explore", (e) => {
+  const authRecord = e.requestInfo().auth
+  if (!authRecord) return e.json(401, { error: "Authentication required" })
+
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  if (!kingdom) return e.json(404, { error: "Kingdom not found" })
+
+  if (kingdom.getString("state") === "dead") {
+    return e.json(400, { error: "Cannot explore land: kingdom has fallen" })
+  }
+
+  const data = e.requestInfo().body || {}
+  const amount = parseInt(data.amount, 10)
+  if (isNaN(amount) || amount <= 0) {
+    return e.json(400, { error: "Invalid exploration amount: must be positive integer" })
+  }
+
+  const land = kingdom.getInt("land")
+
+  function parseJsonArray(val, rec, key) {
+    if (rec && typeof rec.getString === "function") {
+      const s = rec.getString(key)
+      if (s) {
+        try {
+          const parsed = JSON.parse(s)
+          if (Array.isArray(parsed)) return parsed
+        } catch {}
+      }
+    }
+    if (typeof val === "string") {
+      try {
+        const parsed = JSON.parse(val)
+        if (Array.isArray(parsed)) return parsed
+      } catch {}
+    }
+    if (Array.isArray(val)) {
+      if (val.length > 0 && typeof val[0] === "number" && (val[0] === 91 || val[0] === 123)) {
+        try {
+          let str = ""
+          for (let i = 0; i < val.length; i++) str += String.fromCharCode(val[i])
+          const parsed = JSON.parse(str)
+          if (Array.isArray(parsed)) return parsed
+        } catch {}
+      }
+      return val
+    }
+    return []
+  }
+
+  let landQueue = parseJsonArray(kingdom.get("landQueue"), kingdom, "landQueue")
+  const currentQueueSum = landQueue.reduce((a, b) => a + (Number(b) || 0), 0)
+  const maxPossibleExplore = Math.floor(land * 0.1)
+  const maxExplore = Math.max(0, maxPossibleExplore - currentQueueSum)
+
+  if (amount > maxExplore) {
+    return e.json(400, {
+      error: `Cannot explore more than 10% of current land combined with the current queue (${maxExplore} max available to request)`
+    })
+  }
+
+  const costPerLand = Math.round(Math.sqrt(land) * 111)
+  const totalCost = costPerLand * amount
+  let money = kingdom.getInt("money")
+
+  if (money < totalCost) {
+    return e.json(400, { error: `Not enough money for exploration (need $${totalCost.toLocaleString()}, have $${money.toLocaleString()})` })
+  }
+
+  const tickEngine = require(`${__hooks}/utils/tick-engine.js`)
+  const newQueue = tickEngine.calculateExplorationQueue(landQueue, amount, 24)
+
+  money -= totalCost
+  kingdom.set("money", money)
+  kingdom.set("landQueue", newQueue)
+
+  const newNw = tickEngine.calculateNetworth({
+    military: kingdom.get("military") || {},
+    buildings: kingdom.get("buildings") || {},
+    land: land,
+    population: kingdom.getInt("population"),
+    money: money,
+    probes: kingdom.getInt("probes")
+  })
+  kingdom.set("nw", newNw)
+
+  $app.save(kingdom)
+  return e.json(200, {
+    success: true,
+    kingdom,
+    explored: amount,
+    cost: totalCost,
+    landQueue: newQueue
+  })
+})
+
+routerAdd("POST", "/api/kingdoms/toggle-auto-explore", (e) => {
+  const authRecord = e.requestInfo().auth
+  if (!authRecord) return e.json(401, { error: "Authentication required" })
+
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  if (!kingdom) return e.json(404, { error: "Kingdom not found" })
+
+  const data = e.requestInfo().body || {}
+  const autoExplore = Math.min(10, Math.max(0, parseInt(data.autoExplore, 10) || 0))
+  kingdom.set("autoExplore", autoExplore)
+  $app.save(kingdom)
+  return e.json(200, { success: true, autoExplore })
+})
+
 // ─── 7. TRAIN MILITARY ──────────────────────────────────────────────────────
 routerAdd("POST", "/api/kingdoms/train-military", (e) => {
   const authRecord = e.requestInfo().auth

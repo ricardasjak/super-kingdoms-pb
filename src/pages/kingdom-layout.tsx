@@ -117,6 +117,7 @@ export const KingdomLayout: React.FC = () => {
   const navLinks = [
     { to: "/kingdom/status", label: "Status" },
     { to: "/kingdom/growth", label: "Growth" },
+    { to: "/kingdom/explore", label: "Explore" },
     { to: "/kingdom/military", label: "Military" },
     { to: "/kingdom/research", label: "Research" },
     { to: "/kingdom/targets", label: "Targets" },

@@ -183,6 +183,24 @@ export function useKingdom() {
     await fetchKingdom(false);
   };
 
+  const exploreLand = async (amount: number) => {
+    const res = await pb.send<{ success: boolean; explored: number; cost: number; kingdom: TypedKingdom }>('/api/kingdoms/explore', {
+      method: 'POST',
+      body: { amount },
+    });
+    await fetchKingdom(false);
+    return res;
+  };
+
+  const toggleAutoExplore = async (autoExplore: number) => {
+    const res = await pb.send<{ success: boolean; autoExplore: number }>('/api/kingdoms/toggle-auto-explore', {
+      method: 'POST',
+      body: { autoExplore },
+    });
+    await fetchKingdom(false);
+    return res;
+  };
+
   const trainMilitary = async (units: Record<string, number | string>) => {
     await pb.send('/api/kingdoms/train-military', {
       method: 'POST',
@@ -251,6 +269,8 @@ export function useKingdom() {
     razeBuildings,
     saveAutoBuildSettings,
     toggleAutoBuild,
+    exploreLand,
+    toggleAutoExplore,
     trainMilitary,
     disbandMilitary,
     saveMilitaryTargets,
