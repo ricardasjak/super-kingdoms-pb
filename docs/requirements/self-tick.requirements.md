@@ -54,3 +54,10 @@ remains exclusive to the admin page.
   kingdom to its creation-default stats and restore `newbiemode` to 96.
 - REQ-SELF-016: The restart action shall be rejected while newbie-mode budget
   remains (8 or more) or while the game phase is `stopped`.
+- REQ-SELF-017: The self-tick action shall return the updated kingdom object
+  so the interface can adopt it directly without re-fetching.
+- REQ-SELF-018: Kingdom actions shall be performed through react-query
+  mutations that write the returned kingdom into the shared query cache.
+- REQ-SELF-019: Each self-tick action shall run protected auto-growth
+  (exploration, construction, recruitment) regardless of the kingdom's
+  stored auto-build setting, which shall remain unchanged.

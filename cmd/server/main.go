@@ -275,6 +275,10 @@ func main() {
 
 				kd := kingdoms[0]
 				kd.UnmarshalJSONFields()
+				// Newbie self-ticks always run protected auto-growth (exploration,
+				// construction, recruitment): the player's stored autoBuild flag is
+				// left untouched — the UPDATE below doesn't persist this column.
+				kd.AutoBuild = true
 				for i := 0; i < selfTickSteps; i++ {
 					if kd.State == "dead" {
 						break
@@ -333,24 +337,18 @@ func main() {
 					})
 				}
 
+				updatedKingdom, err := re.App.FindRecordById("kingdoms", kd.ID)
+				if err != nil {
+					return re.JSON(500, map[string]any{
+						"error": "Failed to reload kingdom: " + err.Error(),
+					})
+				}
+
 				return re.JSON(200, map[string]any{
 					"success":       true,
 					"ticksAdvanced": selfTickSteps,
 					"newbiemode":    newbieMode,
-					"kingdom": map[string]any{
-						"id":          kd.ID,
-						"land":        kd.Land,
-						"population":  kd.Population,
-						"popChange":   kd.PopChange,
-						"money":       kd.Money,
-						"moneyIncome": kd.MoneyIncome,
-						"power":       kd.Power,
-						"powerIncome": kd.PowerIncome,
-						"probes":      kd.Probes,
-						"nw":          kd.NW,
-						"state":       kd.State,
-						"newbiemode":  newbieMode,
-					},
+					"kingdom":       updatedKingdom,
 				})
 			})
 

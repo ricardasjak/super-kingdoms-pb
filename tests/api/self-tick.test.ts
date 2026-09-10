@@ -60,6 +60,12 @@ describe('POST /api/kingdoms/self-tick', () => {
     expect(after.money).toBeGreaterThan(created.money);
     expect(after.population).toBeGreaterThan(created.population);
 
+    // Protected auto-growth runs during self-ticks: land is explored even
+    // though the player's stored autoBuild flag stays off
+    expect(after.land).toBeGreaterThan(created.land);
+    expect(after.landQueue.length).toBeGreaterThan(0);
+    expect(after.autoBuild).toBe(false);
+
     // Global round tick is untouched by a self-tick
     const statusAfter = await pb.send<any>('/api/game/status', { method: 'GET' });
     expect(statusAfter.currentTick).toBe(statusBefore.currentTick);
@@ -68,6 +74,28 @@ describe('POST /api/kingdoms/self-tick', () => {
     const res2 = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
     expect(res2.success).toBe(true);
     expect(res2.newbiemode).toBe(80);
+  });
+
+  it('returns the updated kingdom object in the response', async () => {
+    const { pb, created } = await createKingdomOwner('object');
+    const adminPb = await createAdminClient();
+    await setPhase(pb, 'registration');
+
+    const res = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
+    expect(res.kingdom).toBeDefined();
+    expect(res.kingdom.id).toBe(created.id);
+    expect(res.kingdom.newbiemode).toBe(88);
+    expect(res.kingdom.money).toBeGreaterThan(created.money);
+    // Full object, not a summary: nested state survives the round-trip
+    expect(res.kingdom.buildings.res).toBe(80);
+    expect(res.kingdom.military.sol).toBeDefined();
+    expect(res.kingdom.kdName).toBe(created.kdName);
+
+    // Matches what a fresh read returns — the UI can adopt it directly
+    const reread = await adminPb.collection('kingdoms').getOne(created.id);
+    expect(res.kingdom.money).toBe(reread.money);
+    expect(res.kingdom.population).toBe(reread.population);
+    expect(res.kingdom.nw).toBe(reread.nw);
   });
 
   it('leaves other kingdoms untouched', async () => {

@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './lib/query-client';
 import { AuthProvider } from './context/auth-context';
 import { ThemeProvider } from './context/theme.context';
 import { KingdomMessageProvider } from './context/kingdom-message.context';
@@ -28,6 +30,7 @@ import { KingdomDeletePage } from './pages/kingdom-delete.page';
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
+      <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <AuthProvider>
           <KingdomMessageProvider>
@@ -60,6 +63,7 @@ export const App: React.FC = () => {
           </KingdomMessageProvider>
         </AuthProvider>
       </ThemeProvider>
+      </QueryClientProvider>
     </BrowserRouter>
   );
 };

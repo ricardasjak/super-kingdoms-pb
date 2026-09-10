@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { pb } from '../lib/pocketbase';
 import { useAuth } from '../context/use-auth.hook';
 import type { KingdomsResponse } from '../types/pb.model';
@@ -26,109 +27,82 @@ export interface CreateKingdomPayload {
   botNames?: string[];
 }
 
+export interface SelfTickResponse {
+  success: boolean;
+  ticksAdvanced: number;
+  newbiemode: number;
+  kingdom: TypedKingdom;
+}
+
+export interface RestartNewbieModeResponse {
+  success: boolean;
+  kingdom: TypedKingdom;
+}
+
+function errorMessage(err: unknown, fallback: string): string {
+  if (err && typeof err === 'object' && 'data' in err) {
+    const errorData = (err as { data?: { error?: string } }).data;
+    if (errorData?.error) {
+      return errorData.error;
+    }
+  }
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return fallback;
+}
+
 export function useKingdom() {
   const { user, isAuthenticated } = useAuth();
-  const [kingdom, setKingdom] = useState<TypedKingdom | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const queryClient = useQueryClient();
   const [isCreating, setIsCreating] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
-  const fetchKingdom = useCallback(async (showLoading = true) => {
-    if (!isAuthenticated || !user) {
-      setKingdom(null);
-      setIsLoading(false);
-      return;
-    }
+  const kingdomKey = ['kingdom', user?.id] as const;
 
-    if (showLoading) {
-      setIsLoading(true);
-    }
-    setError(null);
-    try {
+  const kingdomQuery = useQuery({
+    queryKey: kingdomKey,
+    queryFn: async (): Promise<TypedKingdom | null> => {
       const result = await pb.collection('kingdoms').getList<TypedKingdom>(1, 1, {
-        filter: `userId = "${user.id}"`,
+        filter: `userId = "${user?.id}"`,
       });
+      return result.items[0] ?? null;
+    },
+    enabled: isAuthenticated && !!user,
+  });
 
-      if (result.items.length > 0) {
-        setKingdom(result.items[0]);
-      } else {
-        setKingdom(null);
-      }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to fetch kingdom';
-      console.error('Error fetching kingdom:', message);
-      setError(message);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isAuthenticated, user]);
+  const kingdom = isAuthenticated && user ? (kingdomQuery.data ?? null) : null;
+
+  const invalidateKingdom = () =>
+    queryClient.invalidateQueries({ queryKey: ['kingdom'] });
 
   useEffect(() => {
-    let active = true;
-    if (!isAuthenticated || !user) {
-      Promise.resolve().then(() => {
-        if (active) {
-          setKingdom(null);
-          setIsLoading(false);
-        }
-      });
-      return () => {
-        active = false;
-      };
-    }
-
-    pb.collection('kingdoms')
-      .getList<TypedKingdom>(1, 1, {
-        filter: `userId = "${user.id}"`,
-      })
-      .then((result) => {
-        if (active) {
-          setKingdom(result.items[0] || null);
-          setIsLoading(false);
-        }
-      })
-      .catch((err: unknown) => {
-        if (active) {
-          const message = err instanceof Error ? err.message : 'Failed to fetch kingdom';
-          console.error('Error fetching kingdom:', message);
-          setError(message);
-          setIsLoading(false);
-        }
-      });
-
     const onTick = () => {
-      fetchKingdom(false);
+      invalidateKingdom();
     };
     window.addEventListener("tick-advanced", onTick);
-
     return () => {
-      active = false;
       window.removeEventListener("tick-advanced", onTick);
     };
-  }, [isAuthenticated, user, fetchKingdom]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryClient]);
+
+  const refetch = () => invalidateKingdom();
 
   const createKingdom = async (payload: CreateKingdomPayload): Promise<TypedKingdom> => {
     setIsCreating(true);
-    setError(null);
+    setActionError(null);
     try {
       const response = await pb.send<TypedKingdom>('/api/kingdoms/create', {
         method: 'POST',
         body: payload,
       });
 
-      setKingdom(response);
+      queryClient.setQueryData(kingdomKey, response);
       return response;
     } catch (err: unknown) {
-      let message = 'Failed to create kingdom';
-      if (err && typeof err === 'object' && 'data' in err) {
-        const errorData = (err as { data?: { error?: string } }).data;
-        if (errorData?.error) {
-          message = errorData.error;
-        }
-      } else if (err instanceof Error) {
-        message = err.message;
-      }
-      setError(message);
+      const message = errorMessage(err, 'Failed to create kingdom');
+      setActionError(message);
       throw new Error(message);
     } finally {
       setIsCreating(false);
@@ -140,7 +114,7 @@ export function useKingdom() {
       method: 'POST',
       body: { rulerName },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const updateBotProfile = async (botSettings: BotSettings | null) => {
@@ -148,7 +122,7 @@ export function useKingdom() {
       method: 'POST',
       body: { botSettings },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const buildBuildings = async (buildings: Record<string, number | string>) => {
@@ -156,7 +130,7 @@ export function useKingdom() {
       method: 'POST',
       body: { buildings },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const razeBuildings = async (buildings: Record<string, number | string>) => {
@@ -164,7 +138,7 @@ export function useKingdom() {
       method: 'POST',
       body: { buildings },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const saveAutoBuildSettings = async (payload: { target?: Record<string, number>; autoBuild?: boolean }) => {
@@ -172,7 +146,7 @@ export function useKingdom() {
       method: 'POST',
       body: payload,
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const toggleAutoBuild = async (autoBuild: boolean) => {
@@ -180,7 +154,7 @@ export function useKingdom() {
       method: 'POST',
       body: { autoBuild },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const exploreLand = async (amount: number) => {
@@ -188,7 +162,7 @@ export function useKingdom() {
       method: 'POST',
       body: { amount },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
     return res;
   };
 
@@ -197,7 +171,7 @@ export function useKingdom() {
       method: 'POST',
       body: { autoExplore },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
     return res;
   };
 
@@ -206,7 +180,7 @@ export function useKingdom() {
       method: 'POST',
       body: { units },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const disbandMilitary = async (units: Record<string, number | string>) => {
@@ -214,7 +188,7 @@ export function useKingdom() {
       method: 'POST',
       body: { units },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const saveMilitaryTargets = async (target: Record<string, number>) => {
@@ -222,7 +196,7 @@ export function useKingdom() {
       method: 'POST',
       body: { target },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const buyScientists = async (count: number) => {
@@ -230,7 +204,7 @@ export function useKingdom() {
       method: 'POST',
       body: { count },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const saveResearchAutoAssign = async (priority: string[]) => {
@@ -238,46 +212,65 @@ export function useKingdom() {
       method: 'POST',
       body: { priority },
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
-  const selfTick = async () => {
-    const res = await pb.send<{ success: boolean; ticksAdvanced: number; newbiemode: number }>('/api/kingdoms/self-tick', {
-      method: 'POST',
-    });
-    await fetchKingdom(false);
-    return res;
-  };
+  const selfTickMutation = useMutation({
+    mutationFn: () =>
+      pb.send<SelfTickResponse>('/api/kingdoms/self-tick', {
+        method: 'POST',
+      }),
+    onSuccess: (res) => {
+      if (res.kingdom) {
+        queryClient.setQueryData(kingdomKey, res.kingdom);
+      }
+    },
+  });
 
-  const restartNewbieMode = async () => {
-    const res = await pb.send<{ success: boolean }>('/api/kingdoms/restart-newbie-mode', {
-      method: 'POST',
-    });
-    await fetchKingdom(false);
-    return res;
-  };
+  const selfTick = () => selfTickMutation.mutateAsync();
+
+  const restartNewbieModeMutation = useMutation({
+    mutationFn: () =>
+      pb.send<RestartNewbieModeResponse>('/api/kingdoms/restart-newbie-mode', {
+        method: 'POST',
+      }),
+    onSuccess: (res) => {
+      if (res.kingdom) {
+        queryClient.setQueryData(kingdomKey, res.kingdom);
+      }
+    },
+  });
+
+  const restartNewbieMode = () => restartNewbieModeMutation.mutateAsync();
 
   const resetKingdom = async () => {
     await pb.send('/api/kingdoms/reset', {
       method: 'POST',
     });
-    await fetchKingdom(false);
+    await invalidateKingdom();
   };
 
   const deleteKingdom = async () => {
     await pb.send('/api/kingdoms/delete', {
       method: 'POST',
     });
-    setKingdom(null);
+    queryClient.setQueryData(kingdomKey, null);
   };
+
+  const queryError =
+    kingdomQuery.error instanceof Error
+      ? kingdomQuery.error.message
+      : kingdomQuery.error
+        ? 'Failed to fetch kingdom'
+        : null;
 
   return {
     kingdom,
     hasKingdom: !!kingdom,
-    isLoading,
+    isLoading: kingdomQuery.isLoading,
     isCreating,
-    error,
-    refetch: fetchKingdom,
+    error: actionError ?? queryError,
+    refetch,
     createKingdom,
     updateRulerName,
     updateBotProfile,

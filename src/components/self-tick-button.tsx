@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { pb } from "../lib/pocketbase";
+import { useKingdom } from "../hooks/use-kingdom.hook";
 
 export interface SelfTickButtonProps {
   newbiemode?: number;
@@ -21,6 +21,7 @@ export const SelfTickButton: React.FC<SelfTickButtonProps> = ({
   style,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { selfTick, restartNewbieMode } = useKingdom();
 
   const remaining = newbiemode ?? 0;
   const phaseOk = gamePhase === "registration" || gamePhase === "in-progress";
@@ -56,13 +57,7 @@ export const SelfTickButton: React.FC<SelfTickButtonProps> = ({
     setIsLoading(true);
 
     try {
-      const response = await pb.send<{
-        success: boolean;
-        ticksAdvanced: number;
-        newbiemode: number;
-      }>("/api/kingdoms/self-tick", {
-        method: "POST",
-      });
+      const response = await selfTick();
 
       window.dispatchEvent(new CustomEvent("tick-advanced", { detail: response }));
       if (onSuccess) {
@@ -88,9 +83,7 @@ export const SelfTickButton: React.FC<SelfTickButtonProps> = ({
     setIsLoading(true);
 
     try {
-      const response = await pb.send<{ success: boolean }>("/api/kingdoms/restart-newbie-mode", {
-        method: "POST",
-      });
+      const response = await restartNewbieMode();
 
       window.dispatchEvent(new CustomEvent("tick-advanced", { detail: response }));
       if (onSuccess) {
