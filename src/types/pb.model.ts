@@ -124,6 +124,7 @@ export type KingdomsRecord<TbotSettings = unknown, Tbuildings = unknown, TlandQu
 	military?: null | Tmilitary
 	money?: number
 	moneyIncome?: number
+	newbiemode?: number
 	nw: number
 	planetType: string
 	popChange?: number

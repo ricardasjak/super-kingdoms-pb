@@ -16,6 +16,8 @@ import {
 
 import { useAuth } from '../context/use-auth.hook';
 import { useKingdom } from '../hooks/use-kingdom.hook';
+import { useGameStatus } from '../hooks/use-game-status.hook';
+import { SelfTickButton } from '../components/self-tick-button';
 import { KingdomCard } from '../components/kingdom-card';
 import { CreateKingdomForm } from '../components/create-kingdom-form';
 import { checkPbHealth, type PbHealthStatus, POCKETBASE_URL } from '../lib/pocketbase';
@@ -23,6 +25,7 @@ import { checkPbHealth, type PbHealthStatus, POCKETBASE_URL } from '../lib/pocke
 export const HomePage: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { kingdom, hasKingdom, isLoading: kdLoading, refetch } = useKingdom();
+  const { status: gameStatus } = useGameStatus();
   const [pbHealth, setPbHealth] = useState<PbHealthStatus | null>(null);
   const [isChecking, setIsChecking] = useState<boolean>(true);
   const [inlineCreateOpen, setInlineCreateOpen] = useState<boolean>(false);
@@ -180,6 +183,14 @@ export const HomePage: React.FC = () => {
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
+                  {kingdom && (
+                    <SelfTickButton
+                      newbiemode={kingdom.newbiemode}
+                      gamePhase={gameStatus?.status}
+                      className="btn-sm"
+                      onSuccess={() => refetch()}
+                    />
+                  )}
                   <button
                     type="button"
                     className="btn btn-secondary btn-sm"

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -196,6 +197,160 @@ func main() {
 					"executionTimeMs":  totalTimeMs,
 					"totalLogicTimeMs": simTimeMs,
 					"dbSaveTimeMs":     dbTimeMs,
+				})
+			})
+
+			// Register single-kingdom newbie-mode self-tick endpoint.
+			// Advances ONLY the caller's own kingdom by exactly 8 ticks and
+			// deducts 8 from its newbiemode budget. Available while the game
+			// phase is "registration" or "in-progress" and newbiemode >= 8.
+			e.Router.POST("/api/kingdoms/self-tick", func(re *core.RequestEvent) error {
+				const selfTickSteps = 8
+
+				if re.Auth == nil {
+					return re.JSON(401, map[string]any{
+						"error": "Authentication required",
+					})
+				}
+
+				kingdom, err := re.App.FindFirstRecordByFilter(
+					"kingdoms",
+					"userId = {:userId}",
+					dbx.Params{"userId": re.Auth.Id},
+				)
+				if err != nil {
+					return re.JSON(404, map[string]any{
+						"error": "Kingdom not found",
+					})
+				}
+				if kingdom.GetString("state") == "dead" {
+					return re.JSON(400, map[string]any{
+						"error": "Cannot self-tick: kingdom has fallen",
+					})
+				}
+
+				var statusRecord *core.Record
+				statusRecords, err := re.App.FindRecordsByFilter("gameStatus", "", "", 1, 0)
+				if err == nil && len(statusRecords) > 0 {
+					statusRecord = statusRecords[0]
+				}
+
+				phase := "registration"
+				currentTick := 0
+				if statusRecord != nil {
+					if s := statusRecord.GetString("status"); s != "" {
+						phase = s
+					}
+					currentTick = statusRecord.GetInt("currentTick")
+				}
+				if phase != "registration" && phase != "in-progress" {
+					return re.JSON(400, map[string]any{
+						"error": "Self-ticking is available only while the game phase is registration or in-progress (current: \"" + phase + "\").",
+					})
+				}
+
+				newbieMode := kingdom.GetInt("newbiemode")
+				if newbieMode < selfTickSteps {
+					return re.JSON(400, map[string]any{
+						"error": "Newbie mode exhausted: self-ticking requires at least 8 newbie-mode ticks.",
+					})
+				}
+
+				var kingdoms []*engine.Kingdom
+				err = re.App.DB().Select(
+					"id", "kdName", "state", "land", "landQueue", "buildings", "military", "research",
+					"researchPts", "researchAutoAssign", "population", "popChange", "money",
+					"moneyIncome", "power", "powerIncome", "probes", "nw", "autoBuild", "autoExplore", "botSettings",
+				).From("kingdoms").Where(dbx.HashExp{"id": kingdom.Id}).All(&kingdoms)
+				if err != nil {
+					return re.JSON(500, map[string]any{
+						"error": "Failed to query kingdom: " + err.Error(),
+					})
+				}
+				if len(kingdoms) == 0 {
+					return re.JSON(404, map[string]any{
+						"error": "Kingdom not found",
+					})
+				}
+
+				kd := kingdoms[0]
+				kd.UnmarshalJSONFields()
+				for i := 0; i < selfTickSteps; i++ {
+					if kd.State == "dead" {
+						break
+					}
+					engine.ProcessKingdomTick(kd, currentTick+i+1)
+				}
+				kd.MarshalJSONFields()
+				newbieMode -= selfTickSteps
+
+				err = re.App.RunInTransaction(func(txApp core.App) error {
+					_, err := txApp.DB().NewQuery(`
+					UPDATE kingdoms SET
+						land = {:land},
+						landQueue = {:landQueue},
+						buildings = {:buildings},
+						military = {:military},
+						research = {:research},
+						researchPts = {:researchPts},
+						researchAutoAssign = {:researchAutoAssign},
+						population = {:population},
+						popChange = {:popChange},
+						money = {:money},
+						moneyIncome = {:moneyIncome},
+						power = {:power},
+						powerIncome = {:powerIncome},
+						probes = {:probes},
+						nw = {:nw},
+						state = {:state},
+						newbiemode = {:newbiemode}
+					WHERE id = {:id}
+				`).Bind(dbx.Params{
+						"id":                 kd.ID,
+						"land":               kd.Land,
+						"landQueue":          kd.RawLandQueue,
+						"buildings":          kd.RawBuildings,
+						"military":           kd.RawMilitary,
+						"research":           kd.RawResearch,
+						"researchPts":        kd.ResearchPts,
+						"researchAutoAssign": kd.RawResearchAutoAssign,
+						"population":         kd.Population,
+						"popChange":          kd.PopChange,
+						"money":              kd.Money,
+						"moneyIncome":        kd.MoneyIncome,
+						"power":              kd.Power,
+						"powerIncome":        kd.PowerIncome,
+						"probes":             kd.Probes,
+						"nw":                 kd.NW,
+						"state":              kd.State,
+						"newbiemode":         newbieMode,
+					}).Execute()
+					return err
+				})
+				if err != nil {
+					return re.JSON(500, map[string]any{
+						"error": "Failed to save kingdom: " + err.Error(),
+					})
+				}
+
+				return re.JSON(200, map[string]any{
+					"success":       true,
+					"ticksAdvanced": selfTickSteps,
+					"newbiemode":    newbieMode,
+					"kingdom": map[string]any{
+						"id":          kd.ID,
+						"land":        kd.Land,
+						"population":  kd.Population,
+						"popChange":   kd.PopChange,
+						"money":       kd.Money,
+						"moneyIncome": kd.MoneyIncome,
+						"power":       kd.Power,
+						"powerIncome": kd.PowerIncome,
+						"probes":      kd.Probes,
+						"nw":          kd.NW,
+						"state":       kd.State,
+						"newbiemode":  newbieMode,
+					},
 				})
 			})
 

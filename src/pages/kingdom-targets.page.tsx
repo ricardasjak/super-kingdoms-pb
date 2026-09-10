@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { pb } from "../lib/pocketbase";
-import { PlayButton } from "../components/play-button";
 
 interface TargetKingdom {
   id: string;
@@ -78,7 +77,6 @@ export const KingdomTargetsPage: React.FC = () => {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-          <PlayButton showText={true} />
           <input
             type="text"
             placeholder="Search kingdom, ruler, planet..."

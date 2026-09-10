@@ -3,7 +3,7 @@ import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useKingdom } from "../hooks/use-kingdom.hook";
 import { useGameStatus } from "../hooks/use-game-status.hook";
 import { useKingdomMessage } from "../context/kingdom-message.context";
-import { PlayButton } from "../components/play-button";
+import { SelfTickButton } from "../components/self-tick-button";
 import {
   calculateLevel,
   calculateMaxDefPotential,
@@ -209,7 +209,9 @@ export const KingdomLayout: React.FC = () => {
 
             <ul className="nav-actions">
               <li>
-                <PlayButton
+                <SelfTickButton
+                  newbiemode={kingdom.newbiemode}
+                  gamePhase={gameStatus?.status}
                   showText={false}
                   onSuccess={() => {
                     refetch();

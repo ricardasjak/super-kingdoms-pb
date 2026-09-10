@@ -129,6 +129,7 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
     research: {},
     researchAutoAssign: [],
     state: "active",
+    newbiemode: 96,
     botSettings: botSettings
   })
 
@@ -173,6 +174,7 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
       research: {},
       researchAutoAssign: [],
       state: "active",
+      newbiemode: 96,
       botOwnerKd: playerKd.id,
       botSettings: botSettings
     })
@@ -704,6 +706,7 @@ routerAdd("POST", "/api/kingdoms/reset", (e) => {
   kingdom.set("probes", 0)
   kingdom.set("researchPts", 0)
   kingdom.set("state", "active")
+  kingdom.set("newbiemode", 96)
   kingdom.set("landQueue", [])
   kingdom.set("research", {})
   kingdom.set("researchAutoAssign", [])

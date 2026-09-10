@@ -241,6 +241,14 @@ export function useKingdom() {
     await fetchKingdom(false);
   };
 
+  const selfTick = async () => {
+    const res = await pb.send<{ success: boolean; ticksAdvanced: number; newbiemode: number }>('/api/kingdoms/self-tick', {
+      method: 'POST',
+    });
+    await fetchKingdom(false);
+    return res;
+  };
+
   const resetKingdom = async () => {
     await pb.send('/api/kingdoms/reset', {
       method: 'POST',
@@ -276,6 +284,7 @@ export function useKingdom() {
     saveMilitaryTargets,
     buyScientists,
     saveResearchAutoAssign,
+    selfTick,
     resetKingdom,
     deleteKingdom,
   };

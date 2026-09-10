@@ -176,6 +176,7 @@ routerAdd("POST", "/api/game/populate", (e) => {
         research: {},
         researchAutoAssign: [],
         state: "active",
+        newbiemode: 96,
         botSettings: { defenseRatio: 0.5, growthFocus: "balanced" }
       })
       txApp.save(rec)
