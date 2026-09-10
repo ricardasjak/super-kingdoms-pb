@@ -49,6 +49,12 @@ describe('Game Round Lifecycle API', () => {
     // Populate test kingdoms
     await pb.send<any>('/api/game/populate', { method: 'POST' });
 
+    // Open the round — ticks run only while the phase is in-progress
+    await pb.send<any>('/api/game/status', {
+      method: 'POST',
+      body: { status: 'in-progress' },
+    });
+
     // Fetch initial sample kingdom
     const sampleBefore = (await adminPb.collection('kingdoms').getList(1, 1)).items[0];
     const moneyBefore = sampleBefore.money;
@@ -66,6 +72,7 @@ describe('Game Round Lifecycle API', () => {
     // Verify game status reflects tick 1
     const status = await pb.send<any>('/api/game/status', { method: 'GET' });
     expect(status.currentTick).toBe(1);
+    expect(status.status).toBe('in-progress');
 
     // Verify sample kingdom processed tick logic (population economics and auto-growth exploration)
     const sampleAfter = (await adminPb.collection('kingdoms').getList(1, 1)).items[0];
@@ -73,5 +80,60 @@ describe('Game Round Lifecycle API', () => {
     expect(sampleAfter.popChange).toBe(113);
     expect(sampleAfter.money).toBeGreaterThan(0);
     expect(sampleAfter.landQueue.length).toBeGreaterThan(0);
+  });
+
+  it('exposes and controls the gameStatus.status enum via the admin API', async () => {
+    const pb = createClient();
+
+    // Ensure the status record exists (lazy-created on first GET)
+    const initial = await pb.send<any>('/api/game/status', { method: 'GET' });
+    expect(['registration', 'in-progress', 'stopped']).toContain(initial.status);
+
+    // Set a valid phase — reflected by subsequent GETs
+    const setRes = await pb.send<any>('/api/game/status', {
+      method: 'POST',
+      body: { status: 'stopped' },
+    });
+    expect(setRes.success).toBe(true);
+    expect(setRes.status).toBe('stopped');
+
+    const afterSet = await pb.send<any>('/api/game/status', { method: 'GET' });
+    expect(afterSet.status).toBe('stopped');
+
+    // Reject values outside the enum
+    await expect(
+      pb.send('/api/game/status', { method: 'POST', body: { status: 'paused' } })
+    ).rejects.toThrow();
+
+    // Restart re-opens the round as registration
+    await pb.send<any>('/api/game/restart', { method: 'POST' });
+    const afterRestart = await pb.send<any>('/api/game/status', { method: 'GET' });
+    expect(afterRestart.status).toBe('registration');
+  });
+
+  it('refuses to advance ticks unless the phase is in-progress', async () => {
+    const pb = createClient();
+
+    for (const phase of ['registration', 'stopped']) {
+      await pb.send<any>('/api/game/status', {
+        method: 'POST',
+        body: { status: phase },
+      });
+      const before = await pb.send<any>('/api/game/status', { method: 'GET' });
+
+      await expect(pb.send('/api/game/advance-tick', { method: 'POST' })).rejects.toThrow();
+
+      const after = await pb.send<any>('/api/game/status', { method: 'GET' });
+      expect(after.currentTick).toBe(before.currentTick);
+      expect(after.status).toBe(phase);
+    }
+
+    // Re-opening the round lets ticks run again
+    await pb.send<any>('/api/game/status', {
+      method: 'POST',
+      body: { status: 'in-progress' },
+    });
+    const tickRes = await pb.send<any>('/api/game/advance-tick', { method: 'POST' });
+    expect(tickRes.success).toBe(true);
   });
 });

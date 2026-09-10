@@ -140,7 +140,17 @@ func main() {
 					}
 				}
 
+				if statusRecord != nil && statusRecord.GetString("status") != "in-progress" {
+					return re.JSON(400, map[string]any{
+						"error": "Ticks run only while the game phase is in-progress (current: \"" + statusRecord.GetString("status") + "\").",
+					})
+				}
+
 				if currentTick >= endTick {
+					if statusRecord != nil {
+						statusRecord.Set("status", "stopped")
+						_ = re.App.Save(statusRecord)
+					}
 					return re.JSON(400, map[string]any{
 						"error": "Round has finished. Restart the game to continue.",
 					})
@@ -149,6 +159,7 @@ func main() {
 				nextTick := currentTick + 1
 				if statusRecord != nil {
 					statusRecord.Set("currentTick", nextTick)
+					statusRecord.Set("status", "in-progress")
 					_ = re.App.Save(statusRecord)
 				}
 

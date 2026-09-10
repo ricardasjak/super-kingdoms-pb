@@ -96,12 +96,19 @@ export type SuperusersRecord = {
 	verified?: boolean
 }
 
+export const GameStatusStatusOptions = {
+	"registration": "registration",
+	"in-progress": "in-progress",
+	"stopped": "stopped",
+} as const
+export type GameStatusStatusOptions = typeof GameStatusStatusOptions[keyof typeof GameStatusStatusOptions]
 export type GameStatusRecord = {
 	currentTick?: number
 	endTick: number
 	id: string
 	kingdomCount?: number
 	roundNumber: number
+	status?: GameStatusStatusOptions
 }
 
 export type KingdomsRecord<TbotSettings = unknown, Tbuildings = unknown, TlandQueue = unknown, Tmilitary = unknown, Tresearch = unknown, TresearchAutoAssign = unknown> = {
@@ -130,6 +137,7 @@ export type KingdomsRecord<TbotSettings = unknown, Tbuildings = unknown, TlandQu
 	researchAutoAssign?: null | TresearchAutoAssign
 	researchPts?: number
 	rulerName: string
+	sector?: number
 	state?: string
 	tier?: number
 	userId?: RecordIdString

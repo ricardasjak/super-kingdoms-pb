@@ -37,7 +37,7 @@ export const PlayButton: React.FC<PlayButtonProps> = ({
         method: "POST",
       });
 
-      if (response?.executionTimeMs && onExecutionTime) {
+      if (response?.executionTimeMs !== undefined && onExecutionTime) {
         onExecutionTime(response.executionTimeMs);
       }
       if (response?.totalLogicTimeMs !== undefined && onLogicTime) {

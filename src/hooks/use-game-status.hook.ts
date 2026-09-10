@@ -1,11 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { pb } from "../lib/pocketbase";
+import type { GameStatusStatusOptions } from "../types/pb.model";
+
+export type GamePhase = GameStatusStatusOptions;
 
 export interface GameStatusData {
   currentTick: number;
   endTick: number;
   roundNumber: number;
   kingdomCount: number;
+  status: GamePhase | null;
 }
 
 export function useGameStatus() {
@@ -50,6 +54,15 @@ export function useGameStatus() {
     await fetchStatus();
   };
 
+  const setGamePhase = async (phase: GamePhase) => {
+    const res = await pb.send<{ success: boolean; status: GamePhase }>("/api/game/status", {
+      method: "POST",
+      body: { status: phase },
+    });
+    await fetchStatus();
+    return res.status;
+  };
+
   return {
     status,
     isLoading,
@@ -57,5 +70,6 @@ export function useGameStatus() {
     refetch: fetchStatus,
     restartGame,
     populateKingdoms,
+    setGamePhase,
   };
 }

@@ -1,15 +1,25 @@
 import React, { useState } from "react";
-import { useGameStatus } from "../hooks/use-game-status.hook";
+import { useGameStatus, type GamePhase } from "../hooks/use-game-status.hook";
 import { PlayButton } from "../components/play-button";
-import { RotateCcw, Users, Activity, Clock } from "lucide-react";
+import { RotateCcw, Users, Activity, Clock, Flag } from "lucide-react";
+
+const GAME_PHASES: GamePhase[] = ["registration", "in-progress", "stopped"];
+
+const PHASE_HINTS: Record<GamePhase, string> = {
+  registration: "Kingdoms may register. Ticks do not advance the round.",
+  "in-progress": "The round is live. Ticks advance the simulation.",
+  stopped: "The galaxy is paused (also set automatically on server restart).",
+};
 
 export const AdminPage: React.FC = () => {
-  const { status, isLoading, refetch, restartGame, populateKingdoms } = useGameStatus();
+  const { status, isLoading, refetch, restartGame, populateKingdoms, setGamePhase } = useGameStatus();
 
   const [executionTime, setExecutionTime] = useState<number | null>(null);
   const [logicTime, setLogicTime] = useState<number | null>(null);
   const [isPopulating, setIsPopulating] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
+  const [isSavingPhase, setIsSavingPhase] = useState(false);
+  const [pendingPhase, setPendingPhase] = useState<GamePhase | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
@@ -37,6 +47,26 @@ export const AdminPage: React.FC = () => {
       } finally {
         setIsRestarting(false);
       }
+    }
+  };
+
+  const handleSavePhase = async () => {
+    clearMessages();
+    const target = pendingPhase ?? status?.status ?? null;
+    if (!target) {
+      setErrorMsg("No game phase selected");
+      return;
+    }
+    setIsSavingPhase(true);
+    try {
+      const saved = await setGamePhase(target);
+      setPendingPhase(null);
+      setSuccessMsg(`Game phase set to "${saved}".`);
+    } catch (err: unknown) {
+      console.error("Failed to set game phase:", err);
+      setErrorMsg(err instanceof Error ? err.message : "Failed to set game phase");
+    } finally {
+      setIsSavingPhase(false);
     }
   };
 
@@ -105,6 +135,23 @@ export const AdminPage: React.FC = () => {
                   {status.kingdomCount.toLocaleString()} Realms
                 </span>
               </div>
+              <div className="detail-row">
+                <span className="detail-label">Game Phase:</span>
+                <span
+                  className="detail-value"
+                  style={{
+                    fontWeight: 600,
+                    color:
+                      status.status === "in-progress"
+                        ? "var(--accent-emerald)"
+                        : status.status === "stopped"
+                          ? "var(--accent-rose)"
+                          : "var(--accent-primary)",
+                  }}
+                >
+                  {status.status ?? "unknown"}
+                </span>
+              </div>
 
               {executionTime !== null && (
                 <div
@@ -162,6 +209,43 @@ export const AdminPage: React.FC = () => {
             <Users size={18} />
             <span>{isPopulating ? "Populating..." : "Populate Test Realms (x1,000)"}</span>
           </button>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <label
+              htmlFor="game-phase-select"
+              style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 600 }}
+            >
+              <Flag size={18} />
+              <span>Game Phase (gameStatus.status)</span>
+            </label>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <select
+                id="game-phase-select"
+                className="form-input"
+                value={pendingPhase ?? status?.status ?? "registration"}
+                onChange={(e) => setPendingPhase(e.target.value as GamePhase)}
+                disabled={isLoading || !status || isSavingPhase}
+                style={{ flex: 1, padding: "0.6rem" }}
+              >
+                {GAME_PHASES.map((phase) => (
+                  <option key={phase} value={phase}>
+                    {phase}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSavePhase}
+                disabled={isLoading || !status || isSavingPhase}
+              >
+                {isSavingPhase ? "Saving..." : "Apply"}
+              </button>
+            </div>
+            <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+              {PHASE_HINTS[pendingPhase ?? status?.status ?? "registration"]}
+            </p>
+          </div>
 
           <button
             type="button"

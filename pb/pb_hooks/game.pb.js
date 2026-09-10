@@ -16,6 +16,7 @@ routerAdd("GET", "/api/game/status", (e) => {
       endTick: 960,
       roundNumber: 1,
       kingdomCount: 0,
+      status: "registration",
     })
     $app.save(statusRecord)
   }
@@ -28,12 +29,55 @@ routerAdd("GET", "/api/game/status", (e) => {
     // ignore
   }
 
+  let gameStatus = null
+  try {
+    gameStatus = statusRecord.getString("status") || null
+  } catch {
+    // ignore
+  }
+
   return e.json(200, {
     currentTick: statusRecord.getInt("currentTick"),
     endTick: statusRecord.getInt("endTick") || 960,
     roundNumber: statusRecord.getInt("roundNumber") || 1,
     kingdomCount: totalKingdoms,
+    status: gameStatus,
   })
+})
+
+// ─── 2. SET GAME STATUS ──────────────────────────────────────────────────────
+// Admin control for the gameStatus select enum:
+// "registration" | "in-progress" | "stopped".
+routerAdd("POST", "/api/game/status", (e) => {
+  const data = e.requestInfo().body || {}
+  const next = data.status
+
+  if (next !== "registration" && next !== "in-progress" && next !== "stopped") {
+    return e.json(400, { error: 'Invalid status: must be "registration", "in-progress", or "stopped"' })
+  }
+
+  let statusRecord = null
+  try {
+    statusRecord = $app.findFirstRecordByFilter("gameStatus", "")
+  } catch {
+    // ignore — lazy-create below
+  }
+
+  if (!statusRecord) {
+    const col = $app.findCollectionByNameOrId("gameStatus")
+    statusRecord = new Record(col, {
+      currentTick: 0,
+      endTick: 960,
+      roundNumber: 1,
+      kingdomCount: 0,
+      status: next,
+    })
+  } else {
+    statusRecord.set("status", next)
+  }
+  $app.save(statusRecord)
+
+  return e.json(200, { success: true, status: statusRecord.getString("status") })
 })
 
 // Note: POST /api/game/advance-tick is handled by native Go engine in cmd/server/main.go
@@ -51,6 +95,7 @@ routerAdd("POST", "/api/game/restart", (e) => {
     statusRecord.set("currentTick", 0)
     statusRecord.set("roundNumber", (statusRecord.getInt("roundNumber") || 1) + 1)
     statusRecord.set("kingdomCount", 0)
+    statusRecord.set("status", "registration")
     $app.save(statusRecord)
   }
 
@@ -121,6 +166,7 @@ routerAdd("POST", "/api/game/populate", (e) => {
         nw: 25000,
         tier: 10,
         radius: Math.floor(Math.random() * 360),
+        sector: 0,
         autoExplore: 10,
         autoBuild: true,
         landQueue: [],

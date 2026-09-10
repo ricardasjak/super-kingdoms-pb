@@ -9,7 +9,7 @@ This document details the mechanics, math, concurrency model, and database persi
 A **Tick** represents 1 hour of in-game time in Super Kingdoms. A standard game round consists of **960 ticks** (~40 real-world days at 1 tick/hour).
 
 When a tick triggers (either via cron timer or manual trigger):
-1. The **game round status** is checked: if `currentTick >= endTick`, the tick aborts.
+1. The **game phase** is checked: the tick aborts unless `gameStatus.status` is `in-progress` (so `registration` and `stopped` both refuse ticks); then if `currentTick >= endTick`, the tick aborts and the phase is set to `stopped`.
 2. `currentTick` is incremented by 1 in `gameStatus`.
 3. All active (non-`dead`) kingdoms are queried from SQLite.
 4. Kingdoms are partitioned across **all available CPU cores** using a parallel worker pool.
