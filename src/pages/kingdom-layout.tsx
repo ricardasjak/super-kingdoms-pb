@@ -18,7 +18,7 @@ export const KingdomLayout: React.FC = () => {
   const location = useLocation();
   const { kingdom, isLoading, deleteKingdom, refetch } = useKingdom();
   const { status: gameStatus, refetch: refetchStatus } = useGameStatus();
-  const { message, messageType, clearMessage } = useKingdomMessage();
+  const { message, messageType, showMessage, clearMessage } = useKingdomMessage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleQuickRelease = async () => {
@@ -212,7 +212,8 @@ export const KingdomLayout: React.FC = () => {
                 <SelfTickButton
                   newbiemode={kingdom.newbiemode}
                   gamePhase={gameStatus?.status}
-                  showText={false}
+                  showText={true}
+                  onError={(msg) => showMessage(msg, "error")}
                   onSuccess={() => {
                     refetch();
                     refetchStatus();

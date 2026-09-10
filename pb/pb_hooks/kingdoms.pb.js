@@ -749,6 +749,102 @@ routerAdd("POST", "/api/kingdoms/delete", (e) => {
   return e.json(200, { success: true })
 })
 
+// ─── 14b. RESTART NEWBIE MODE ───────────────────────────────────────────────
+// Available only once the kingdom's newbie-mode budget is exhausted
+// (newbiemode < 8). Resets the kingdom to its creation-default stats and
+// restores the budget to 96, so the realm can self-tick through a fresh
+// newbie cycle.
+routerAdd("POST", "/api/kingdoms/restart-newbie-mode", (e) => {
+  const authRecord = e.requestInfo().auth
+  if (!authRecord) return e.json(401, { error: "Authentication required" })
+
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  if (!kingdom) return e.json(404, { error: "Kingdom not found" })
+
+  let phase = "registration"
+  try {
+    const statusRecord = $app.findFirstRecordByFilter("gameStatus", "")
+    if (statusRecord) {
+      const s = statusRecord.getString("status")
+      if (s) phase = s
+    }
+  } catch {
+    // ignore — default phase stays registration
+  }
+  if (phase !== "registration" && phase !== "in-progress") {
+    return e.json(400, { error: 'Newbie mode can only be restarted while the game phase is registration or in-progress (current: "' + phase + '")' })
+  }
+
+  if (kingdom.getInt("newbiemode") >= 8) {
+    return e.json(400, { error: "Newbie mode is not yet exhausted: restart is available only below 8 newbie ticks" })
+  }
+
+  // Creation-default stats (mirrors POST /api/kingdoms/create)
+  const land = 250
+  const population = 2250
+  const money = 300000
+  const power = 10000
+
+  const buildings = {
+    res: 80,
+    plants: 40,
+    rax: 10,
+    sm: 30,
+    pf: 10,
+    tc: 0,
+    asb: 0,
+    ach: 0,
+    rubble: 0,
+    queue: { res: [], plants: [], rax: [], sm: [], pf: [], tc: [], asb: [], ach: [] },
+    target: { res: 32, plants: 16, rax: 4, sm: 12, pf: 4, tc: 0, asb: 0, ach: 0 }
+  }
+
+  const military = {
+    sol: 200,
+    tr: 0,
+    dr: 0,
+    ft: 0,
+    tf: 0,
+    lt: 0,
+    ld: 0,
+    lf: 0,
+    f74: 0,
+    t: 0,
+    ht: 0,
+    sci: 300,
+    queue: { sol: [], tr: [], dr: [], ft: [], tf: [], lt: [], ld: [], lf: [], f74: [], t: [], ht: [], sci: [] },
+    target: { sol: 0, tr: 0, dr: 0, ft: 0, tf: 0, lt: 0, ld: 0, lf: 0, f74: 0, t: 0, ht: 0, sci: 0 }
+  }
+
+  const moneyIncome = Math.round(buildings.sm * 140 + population * 2)
+  const powerConsumption = population * 0.25 + military.sol * 0.7 + military.sci * 0.7
+  const powerIncome = Math.round(buildings.plants * 100 - powerConsumption)
+
+  const tickEngine = require(`${__hooks}/utils/tick-engine.js`)
+  const nw = tickEngine.calculateNetworth({ military: military, buildings: buildings, land: land, population: population, money: money, probes: 0 })
+
+  kingdom.set("land", land)
+  kingdom.set("population", population)
+  kingdom.set("popChange", 0)
+  kingdom.set("money", money)
+  kingdom.set("moneyIncome", moneyIncome)
+  kingdom.set("power", power)
+  kingdom.set("powerIncome", powerIncome)
+  kingdom.set("probes", 0)
+  kingdom.set("nw", nw)
+  kingdom.set("landQueue", [])
+  kingdom.set("buildings", buildings)
+  kingdom.set("military", military)
+  kingdom.set("researchPts", 0)
+  kingdom.set("research", {})
+  kingdom.set("researchAutoAssign", [])
+  kingdom.set("state", "active")
+  kingdom.set("newbiemode", 96)
+
+  $app.save(kingdom)
+  return e.json(200, { success: true, kingdom })
+})
+
 // ─── 14. TARGETS LIST (Public info) ─────────────────────────────────────────
 routerAdd("GET", "/api/kingdoms/targets", (e) => {
   const page = parseInt(e.requestInfo().query.page, 10) || 1

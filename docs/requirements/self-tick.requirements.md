@@ -40,8 +40,17 @@ remains exclusive to the admin page.
 ### User interface
 
 - REQ-SELF-010: The interface shall provide a self-tick button for kingdom
-  owners showing the remaining newbie-mode budget.
+  owners stating that one action advances 8 ticks and showing the remaining
+  newbie-mode budget.
 - REQ-SELF-011: The self-tick button shall be disabled with an explanation
   whenever self-ticking is unavailable.
 - REQ-SELF-012: The tick-whole-server button shall appear only on the admin
   page.
+- REQ-SELF-013: Every rejected self-tick action shall return a readable error
+  message, and the interface shall display it instead of failing silently.
+- REQ-SELF-014: Once the newbie-mode budget is exhausted, the interface shall
+  hide the self-tick button and show a restart-newbie-mode button instead.
+- REQ-SELF-015: The restart action shall require confirmation, then reset the
+  kingdom to its creation-default stats and restore `newbiemode` to 96.
+- REQ-SELF-016: The restart action shall be rejected while newbie-mode budget
+  remains (8 or more) or while the game phase is `stopped`.

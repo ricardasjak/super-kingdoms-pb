@@ -22,6 +22,20 @@ async function setPhase(pb: any, status: string) {
   });
 }
 
+// Every self-tick rejection must carry a readable `error` string — the
+// self-tick button surfaces `data.error` directly, so a missing message
+// would fail silently in the UI.
+async function expectDisplayableError(promise: Promise<unknown>) {
+  try {
+    await promise;
+  } catch (err) {
+    const data = (err as { data?: { error?: unknown } })?.data;
+    expect(typeof data?.error === 'string' && (data.error as string).length > 0).toBe(true);
+    return;
+  }
+  throw new Error('Expected request to fail');
+}
+
 describe('POST /api/kingdoms/self-tick', () => {
   it('starts new kingdoms with a 96-tick newbie-mode budget', async () => {
     const { created } = await createKingdomOwner('budget');
@@ -83,7 +97,7 @@ describe('POST /api/kingdoms/self-tick', () => {
     expect(progRes.success).toBe(true);
 
     await setPhase(pb, 'stopped');
-    await expect(pb.send('/api/kingdoms/self-tick', { method: 'POST' })).rejects.toThrow();
+    await expectDisplayableError(pb.send('/api/kingdoms/self-tick', { method: 'POST' }));
 
     // Re-open for other suites
     await setPhase(pb, 'in-progress');
@@ -95,10 +109,10 @@ describe('POST /api/kingdoms/self-tick', () => {
     await setPhase(pb, 'registration');
 
     await adminPb.collection('kingdoms').update(created.id, { newbiemode: 7 });
-    await expect(pb.send('/api/kingdoms/self-tick', { method: 'POST' })).rejects.toThrow();
+    await expectDisplayableError(pb.send('/api/kingdoms/self-tick', { method: 'POST' }));
 
     await adminPb.collection('kingdoms').update(created.id, { newbiemode: 0 });
-    await expect(pb.send('/api/kingdoms/self-tick', { method: 'POST' })).rejects.toThrow();
+    await expectDisplayableError(pb.send('/api/kingdoms/self-tick', { method: 'POST' }));
 
     // Budget untouched by the refused attempts
     const after = await adminPb.collection('kingdoms').getOne(created.id);
@@ -107,6 +121,61 @@ describe('POST /api/kingdoms/self-tick', () => {
 
   it('rejects unauthenticated callers', async () => {
     const pb = createClient();
-    await expect(pb.send('/api/kingdoms/self-tick', { method: 'POST' })).rejects.toThrow();
+    await expectDisplayableError(pb.send('/api/kingdoms/self-tick', { method: 'POST' }));
+  });
+});
+
+describe('POST /api/kingdoms/restart-newbie-mode', () => {
+  it('resets an exhausted kingdom to creation defaults with a fresh budget', async () => {
+    const { pb, created } = await createKingdomOwner('restart');
+    const adminPb = await createAdminClient();
+    await setPhase(pb, 'registration');
+
+    // Advance once so stats visibly differ from creation defaults
+    await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
+    const ticked = await adminPb.collection('kingdoms').getOne(created.id);
+    expect(ticked.money).toBeGreaterThan(300000);
+    expect(ticked.newbiemode).toBe(88);
+
+    // Exhaust the budget, then restart
+    await adminPb.collection('kingdoms').update(created.id, { newbiemode: 0 });
+    const res = await pb.send<any>('/api/kingdoms/restart-newbie-mode', { method: 'POST' });
+    expect(res.success).toBe(true);
+
+    const after = await adminPb.collection('kingdoms').getOne(created.id);
+    expect(after.newbiemode).toBe(96);
+    expect(after.land).toBe(250);
+    expect(after.population).toBe(2250);
+    expect(after.money).toBe(300000);
+    expect(after.power).toBe(10000);
+    expect(after.probes).toBe(0);
+    expect(after.state).toBe('active');
+    expect(after.buildings.res).toBe(80);
+    expect(after.military.sol).toBe(200);
+    expect(after.military.sci).toBe(300);
+
+    // The fresh budget self-ticks again
+    const tickRes = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
+    expect(tickRes.success).toBe(true);
+    expect(tickRes.newbiemode).toBe(88);
+  });
+
+  it('rejects restart while newbie budget remains', async () => {
+    const { pb } = await createKingdomOwner('restart_early');
+    await setPhase(pb, 'registration');
+    await expectDisplayableError(pb.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
+  });
+
+  it('rejects restart while stopped and when unauthenticated', async () => {
+    const { pb, created } = await createKingdomOwner('restart_gated');
+    const adminPb = await createAdminClient();
+    await adminPb.collection('kingdoms').update(created.id, { newbiemode: 0 });
+
+    await setPhase(pb, 'stopped');
+    await expectDisplayableError(pb.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
+
+    await setPhase(pb, 'in-progress');
+    const anon = createClient();
+    await expectDisplayableError(anon.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
   });
 });

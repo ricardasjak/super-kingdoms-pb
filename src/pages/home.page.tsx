@@ -26,6 +26,7 @@ export const HomePage: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const { kingdom, hasKingdom, isLoading: kdLoading, refetch } = useKingdom();
   const { status: gameStatus } = useGameStatus();
+  const [tickError, setTickError] = useState<string | null>(null);
   const [pbHealth, setPbHealth] = useState<PbHealthStatus | null>(null);
   const [isChecking, setIsChecking] = useState<boolean>(true);
   const [inlineCreateOpen, setInlineCreateOpen] = useState<boolean>(false);
@@ -188,7 +189,11 @@ export const HomePage: React.FC = () => {
                       newbiemode={kingdom.newbiemode}
                       gamePhase={gameStatus?.status}
                       className="btn-sm"
-                      onSuccess={() => refetch()}
+                      onError={(msg) => setTickError(msg)}
+                      onSuccess={() => {
+                        setTickError(null);
+                        refetch();
+                      }}
                     />
                   )}
                   <button
@@ -202,6 +207,12 @@ export const HomePage: React.FC = () => {
                   </button>
                 </div>
               </div>
+
+              {tickError && (
+                <div className="card" style={{ padding: "0.75rem 1rem", marginBottom: "1rem", borderColor: "var(--accent-rose)", color: "var(--accent-rose)" }}>
+                  <strong>Self-tick failed:</strong> {tickError}
+                </div>
+              )}
 
               {kingdom && <KingdomCard kingdom={kingdom} onRefresh={refetch} />}
             </div>

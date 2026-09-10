@@ -249,6 +249,14 @@ export function useKingdom() {
     return res;
   };
 
+  const restartNewbieMode = async () => {
+    const res = await pb.send<{ success: boolean }>('/api/kingdoms/restart-newbie-mode', {
+      method: 'POST',
+    });
+    await fetchKingdom(false);
+    return res;
+  };
+
   const resetKingdom = async () => {
     await pb.send('/api/kingdoms/reset', {
       method: 'POST',
@@ -285,6 +293,7 @@ export function useKingdom() {
     buyScientists,
     saveResearchAutoAssign,
     selfTick,
+    restartNewbieMode,
     resetKingdom,
     deleteKingdom,
   };
