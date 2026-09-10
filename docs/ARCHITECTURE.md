@@ -451,7 +451,8 @@ npm install -D concurrently
   "setup":       "bash scripts/setup.sh",
   "gen:types":   "bash scripts/gen-types.sh",
 
-  "dev:pb":      "./pb/pocketbase serve --dev --dir=pb/pb_data --publicDir=pb/pb_public --hooksDir=pb/pb_hooks --migrationsDir=pb/pb_migrations --http=127.0.0.1:8090",
+  "dev:pb":      "nodemon",
+  "dev:pb:direct": "./pb/pocketbase serve --dev --dir=pb/pb_data --publicDir=pb/pb_public --hooksDir=pb/pb_hooks --migrationsDir=pb/pb_migrations --http=127.0.0.1:8090",
   "dev:vite":    "vite",
   "dev":         "concurrently -n PB,VITE -c cyan,magenta \"npm run dev:pb\" \"npm run dev:vite\"",
 

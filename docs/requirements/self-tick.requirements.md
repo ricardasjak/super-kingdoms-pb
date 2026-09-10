@@ -58,6 +58,6 @@ remains exclusive to the admin page.
   so the interface can adopt it directly without re-fetching.
 - REQ-SELF-018: Kingdom actions shall be performed through react-query
   mutations that write the returned kingdom into the shared query cache.
-- REQ-SELF-019: Each self-tick action shall run protected auto-growth
-  (exploration, construction, recruitment) regardless of the kingdom's
-  stored auto-build setting, which shall remain unchanged.
+- REQ-SELF-019: The self-tick action shall respect the kingdom's stored
+  auto-build setting, running autonomous growth (exploration, construction,
+  recruitment) only when auto-build is enabled.

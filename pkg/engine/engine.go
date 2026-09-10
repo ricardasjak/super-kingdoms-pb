@@ -417,10 +417,13 @@ func ProcessKingdomTick(kd *Kingdom, currentTick int) {
 
 	// ─── Phase 6: Autonomous Bot Growth ──────────────────────────────────────
 	if (currentTick%12 == 0 || currentTick == 1) && kd.AutoBuild {
+		HandleBotParams(kd)
+
 		autoExplore := kd.AutoExplore
 		target := kd.BuildingTarget
 		if len(target) == 0 {
 			target = map[string]int{"res": 32, "plants": 16, "rax": 4, "sm": 12, "pf": 4, "tc": 0, "asb": 0, "ach": 0}
+			kd.BuildingTarget = target
 		}
 
 		// 1. Auto Explore

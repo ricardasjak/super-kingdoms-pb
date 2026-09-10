@@ -34,10 +34,30 @@ type ResearchParam struct {
 	Requires string
 }
 
-// BotSettings holds AI configuration.
+// BotProfileBuildings defines building targets specified in a bot profile.
+type BotProfileBuildings struct {
+	PF int `json:"pf"`
+	TC int `json:"tc"`
+}
+
+// BotSettings holds AI configuration and strategy directives.
 type BotSettings struct {
-	DefenseRatio float64 `json:"defenseRatio"`
-	GrowthFocus  string  `json:"growthFocus"`
+	Label            string              `json:"label"`
+	Exploration      int                 `json:"exploration"`
+	Offense          int                 `json:"offense"`
+	Defense          int                 `json:"defense"`
+	Flex             int                 `json:"flex"`
+	Science          int                 `json:"science"`
+	Buildings        BotProfileBuildings `json:"buildings"`
+	ResearchPriority []string            `json:"researchPriority"`
+}
+
+// HasProfile returns true if a named governor profile is configured.
+func (bs *BotSettings) HasProfile() bool {
+	if bs == nil {
+		return false
+	}
+	return bs.Label != "" || bs.Exploration > 0 || bs.Buildings.PF > 0 || bs.Buildings.TC > 0 || bs.Offense > 0 || bs.Defense > 0
 }
 
 // Kingdom represents the full simulation state of a realm.

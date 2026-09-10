@@ -60,10 +60,10 @@ describe('POST /api/kingdoms/self-tick', () => {
     expect(after.money).toBeGreaterThan(created.money);
     expect(after.population).toBeGreaterThan(created.population);
 
-    // Protected auto-growth runs during self-ticks: land is explored even
-    // though the player's stored autoBuild flag stays off
-    expect(after.land).toBeGreaterThan(created.land);
-    expect(after.landQueue.length).toBeGreaterThan(0);
+    // Stored auto-build setting is respected: with autoBuild off (default),
+    // autonomous bot growth (auto-explore, auto-build) does not run
+    expect(after.land).toBe(created.land);
+    expect(after.landQueue.length).toBe(0);
     expect(after.autoBuild).toBe(false);
 
     // Global round tick is untouched by a self-tick
@@ -74,6 +74,20 @@ describe('POST /api/kingdoms/self-tick', () => {
     const res2 = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
     expect(res2.success).toBe(true);
     expect(res2.newbiemode).toBe(80);
+  });
+
+  it('runs autonomous growth during self-tick when autoBuild is enabled', async () => {
+    const { pb, created } = await createKingdomOwner('growth_on');
+    const adminPb = await createAdminClient();
+    await adminPb.collection('kingdoms').update(created.id, { autoBuild: true });
+    await setPhase(pb, 'registration');
+
+    const res = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
+    expect(res.success).toBe(true);
+
+    const after = await adminPb.collection('kingdoms').getOne(created.id);
+    expect(after.autoBuild).toBe(true);
+    expect(after.landQueue.length).toBeGreaterThan(0);
   });
 
   it('returns the updated kingdom object in the response', async () => {

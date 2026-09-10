@@ -81,7 +81,8 @@ func SaveKingdomsBatch(app core.App, kingdoms []*Kingdom) (int64, error) {
 			powerIncome = {:powerIncome},
 			probes = {:probes},
 			nw = {:nw},
-			state = {:state}
+			state = {:state},
+			autoExplore = {:autoExplore}
 		WHERE id = {:id}
 	`)
 
@@ -107,6 +108,7 @@ func SaveKingdomsBatch(app core.App, kingdoms []*Kingdom) (int64, error) {
 			"probes":             kd.Probes,
 			"nw":                 kd.NW,
 			"state":              kd.State,
+			"autoExplore":        kd.AutoExplore,
 		}).Execute()
 		if err != nil {
 			return err

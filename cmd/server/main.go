@@ -275,10 +275,6 @@ func main() {
 
 				kd := kingdoms[0]
 				kd.UnmarshalJSONFields()
-				// Newbie self-ticks always run protected auto-growth (exploration,
-				// construction, recruitment): the player's stored autoBuild flag is
-				// left untouched — the UPDATE below doesn't persist this column.
-				kd.AutoBuild = true
 				for i := 0; i < selfTickSteps; i++ {
 					if kd.State == "dead" {
 						break
@@ -307,7 +303,8 @@ func main() {
 						probes = {:probes},
 						nw = {:nw},
 						state = {:state},
-						newbiemode = {:newbiemode}
+						newbiemode = {:newbiemode},
+						autoExplore = {:autoExplore}
 					WHERE id = {:id}
 				`).Bind(dbx.Params{
 						"id":                 kd.ID,
@@ -328,6 +325,7 @@ func main() {
 						"nw":                 kd.NW,
 						"state":              kd.State,
 						"newbiemode":         newbieMode,
+						"autoExplore":        kd.AutoExplore,
 					}).Execute()
 					return err
 				})

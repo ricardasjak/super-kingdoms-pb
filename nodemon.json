@@ -1,0 +1,6 @@
+{
+  "watch": ["cmd", "pkg"],
+  "ext": "go",
+  "delay": 500,
+  "exec": "bash scripts/build-pb.sh && ./pb/pocketbase serve --dev --dir=pb/pb_data --publicDir=pb/pb_public --hooksDir=pb/pb_hooks --migrationsDir=pb/pb_migrations --http=127.0.0.1:8090"
+}
