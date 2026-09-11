@@ -32,7 +32,9 @@ export const SelfTickButton: React.FC<SelfTickButtonProps> = ({
   const title = !phaseOk
     ? `Self-tick runs only during registration or in-progress (now: ${gamePhase ?? "unknown"})`
     : !budgetOk
-      ? "Newbie mode exhausted — restart it for a fresh cycle"
+      ? gamePhase === "registration"
+        ? "Newbie mode exhausted — restart it for a fresh cycle"
+        : "Newbie mode exhausted"
       : `Advance your kingdom 8 ticks (${remaining} newbie ticks left)`;
 
   const reportError = (fallback: string, error: unknown) => {
@@ -97,6 +99,10 @@ export const SelfTickButton: React.FC<SelfTickButtonProps> = ({
   };
 
   if (exhausted) {
+    if (gamePhase !== "registration") {
+      return null;
+    }
+
     return (
       <button
         type="button"

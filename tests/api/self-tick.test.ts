@@ -208,15 +208,20 @@ describe('POST /api/kingdoms/restart-newbie-mode', () => {
     await expectDisplayableError(pb.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
   });
 
-  it('rejects restart while stopped and when unauthenticated', async () => {
+  it('rejects restart while in-progress, stopped, or unauthenticated', async () => {
     const { pb, created } = await createKingdomOwner('restart_gated');
     const adminPb = await createAdminClient();
     await adminPb.collection('kingdoms').update(created.id, { newbiemode: 0 });
 
+    // Rejected when in-progress
+    await setPhase(pb, 'in-progress');
+    await expectDisplayableError(pb.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
+
+    // Rejected when stopped
     await setPhase(pb, 'stopped');
     await expectDisplayableError(pb.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
 
-    await setPhase(pb, 'in-progress');
+    // Rejected when unauthenticated
     const anon = createClient();
     await expectDisplayableError(anon.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
   });

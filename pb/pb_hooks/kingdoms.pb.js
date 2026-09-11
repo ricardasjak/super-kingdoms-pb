@@ -757,8 +757,8 @@ routerAdd("POST", "/api/kingdoms/restart-newbie-mode", (e) => {
   } catch {
     // ignore — default phase stays registration
   }
-  if (phase !== "registration" && phase !== "in-progress") {
-    return e.json(400, { error: 'Newbie mode can only be restarted while the game phase is registration or in-progress (current: "' + phase + '")' })
+  if (phase !== "registration") {
+    return e.json(400, { error: 'Newbie mode can only be restarted while the game phase is registration (current: "' + phase + '")' })
   }
 
   if (kingdom.getInt("newbiemode") >= 8) {

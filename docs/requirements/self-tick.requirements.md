@@ -48,12 +48,16 @@ remains exclusive to the admin page.
   page.
 - REQ-SELF-013: Every rejected self-tick action shall return a readable error
   message, and the interface shall display it instead of failing silently.
-- REQ-SELF-014: Once the newbie-mode budget is exhausted, the interface shall
-  hide the self-tick button and show a restart-newbie-mode button instead.
+- REQ-SELF-014: Once the newbie-mode budget is exhausted during the
+  `registration` phase, the interface shall hide the self-tick button and show
+  a restart-newbie-mode button instead. When the game phase is `in-progress` (or
+  any phase other than `registration`), the restart-newbie-mode button shall not
+  be available.
 - REQ-SELF-015: The restart action shall require confirmation, then reset the
   kingdom to its creation-default stats and restore `newbiemode` to 96.
 - REQ-SELF-016: The restart action shall be rejected while newbie-mode budget
-  remains (8 or more) or while the game phase is `stopped`.
+  remains (8 or more) or whenever the game phase is not `registration` (including
+  when `in-progress` or `stopped`).
 - REQ-SELF-017: The self-tick action shall return the updated kingdom object
   so the interface can adopt it directly without re-fetching.
 - REQ-SELF-018: Kingdom actions shall be performed through react-query
