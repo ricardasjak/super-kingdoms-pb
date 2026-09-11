@@ -153,6 +153,10 @@ export function useKingdom() {
   };
 
   const toggleAutoBuild = async (autoBuild: boolean) => {
+    queryClient.setQueryData(kingdomKey, (old: TypedKingdom | undefined) => {
+      if (!old) return old;
+      return { ...old, autoBuild };
+    });
     await pb.send('/api/kingdoms/toggle-auto-build', {
       method: 'POST',
       body: { autoBuild },

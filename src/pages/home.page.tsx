@@ -18,6 +18,8 @@ import { useAuth } from '../context/use-auth.hook';
 import { useKingdom } from '../hooks/use-kingdom.hook';
 import { useGameStatus } from '../hooks/use-game-status.hook';
 import { SelfTickButton } from '../components/self-tick-button';
+import { BotProfileChip } from '../components/bot-profile-chip';
+import { AutoBuildToggle } from '../components/auto-build-toggle';
 import { KingdomCard } from '../components/kingdom-card';
 import { CreateKingdomForm } from '../components/create-kingdom-form';
 import { checkPbHealth, type PbHealthStatus, POCKETBASE_URL } from '../lib/pocketbase';
@@ -183,18 +185,24 @@ export const HomePage: React.FC = () => {
                     Live telemetry for the sovereign realm of <strong>{kingdom?.kdName}</strong>
                   </p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                   {kingdom && (
-                    <SelfTickButton
-                      newbiemode={kingdom.newbiemode}
-                      gamePhase={gameStatus?.status}
-                      className="btn-sm"
-                      onError={(msg) => setTickError(msg)}
-                      onSuccess={() => {
-                        setTickError(null);
-                        refetch();
-                      }}
-                    />
+                    <>
+                      <AutoBuildToggle />
+                      {kingdom.autoBuild && (
+                        <BotProfileChip label={kingdom.botSettings?.label} />
+                      )}
+                      <SelfTickButton
+                        newbiemode={kingdom.newbiemode}
+                        gamePhase={gameStatus?.status}
+                        className="btn-sm"
+                        onError={(msg) => setTickError(msg)}
+                        onSuccess={() => {
+                          setTickError(null);
+                          refetch();
+                        }}
+                      />
+                    </>
                   )}
                   <button
                     type="button"

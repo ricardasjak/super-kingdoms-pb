@@ -4,6 +4,8 @@ import { useKingdom } from "../hooks/use-kingdom.hook";
 import { useGameStatus } from "../hooks/use-game-status.hook";
 import { useKingdomMessage } from "../context/kingdom-message.context";
 import { SelfTickButton } from "../components/self-tick-button";
+import { BotProfileChip } from "../components/bot-profile-chip";
+import { AutoBuildToggle } from "../components/auto-build-toggle";
 import {
   calculateLevel,
   calculateMaxDefPotential,
@@ -207,7 +209,15 @@ export const KingdomLayout: React.FC = () => {
               })}
             </ul>
 
-            <ul className="nav-actions">
+            <ul className="nav-actions" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <li>
+                <AutoBuildToggle />
+              </li>
+              {kingdom.autoBuild && (
+                <li>
+                  <BotProfileChip label={kingdom.botSettings?.label} />
+                </li>
+              )}
               <li>
                 <SelfTickButton
                   newbiemode={kingdom.newbiemode}

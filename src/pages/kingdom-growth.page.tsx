@@ -58,6 +58,7 @@ export const KingdomGrowthPage: React.FC = () => {
 	const [isRazeMode, setIsRazeMode] = useState(false);
 
 	const targetStr = JSON.stringify(buildings?.target);
+	const isAutomatedProfile = Boolean(kingdom?.botSettings?.label);
 
 	useEffect(() => {
 		if (buildings && kingdom?.land) {
@@ -303,7 +304,7 @@ export const KingdomGrowthPage: React.FC = () => {
 									</th>
 									{kingdom.autoBuild && !isRazeMode && (
 										<th style={{ textAlign: "center", padding: "0.5rem" }}>
-											Target %
+											Target %{isAutomatedProfile && " (Auto)"}
 										</th>
 									)}
 									<th style={{ textAlign: "center", padding: "0.5rem" }}>
@@ -365,14 +366,31 @@ export const KingdomGrowthPage: React.FC = () => {
 														min="0"
 														max="100"
 														step="0.1"
+														readOnly={isAutomatedProfile}
+														disabled={isAutomatedProfile}
+														title={
+															isAutomatedProfile
+																? `Target managed automatically by Governor Profile: ${kingdom.botSettings?.label}`
+																: undefined
+														}
 														style={{
 															width: "70px",
 															padding: "0.2rem 0.4rem",
-															background: "var(--bg-input)",
-															border: "1px solid var(--border-subtle)",
+															background: isAutomatedProfile
+																? "rgba(255, 255, 255, 0.03)"
+																: "var(--bg-input)",
+															border: isAutomatedProfile
+																? "1px dashed var(--border-subtle)"
+																: "1px solid var(--border-subtle)",
 															borderRadius: "4px",
-															color: "var(--text-primary)",
+															color: isAutomatedProfile
+																? "var(--text-secondary)"
+																: "var(--text-primary)",
 															textAlign: "center",
+															cursor: isAutomatedProfile
+																? "not-allowed"
+																: "text",
+															opacity: isAutomatedProfile ? 0.85 : 1,
 														}}
 													/>
 												</td>
@@ -619,13 +637,23 @@ export const KingdomGrowthPage: React.FC = () => {
 										);
 									}
 								}}
-								disabled={targetSum > 100}
+								disabled={isAutomatedProfile || targetSum > 100}
+								title={
+									isAutomatedProfile
+										? `Target percentages are governed by profile: ${kingdom.botSettings?.label}`
+										: undefined
+								}
 							>
 								Save Target Percents
 							</button>
 							<Link to="/kingdom/settings" className="btn btn-secondary">
 								⚙️ Automation Settings
 							</Link>
+							{isAutomatedProfile && (
+								<span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+									Targets governed by profile <strong>{kingdom.botSettings?.label}</strong>.
+								</span>
+							)}
 						</div>
 					</div>
 				)}

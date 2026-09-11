@@ -47,19 +47,19 @@ export const KingdomMilitaryPage: React.FC = () => {
   const [isDisbandMode, setIsDisbandMode] = useState(false);
   const [isSavingTargets, setIsSavingTargets] = useState(false);
 
+  const targetStr = JSON.stringify(military?.target);
+  const isAutomatedProfile = Boolean(kingdom?.botSettings?.label);
+
   useEffect(() => {
-    if (military && !targetInitialized) {
-      const target = military.target;
-      if (target) {
-        setTargetQueue(
-          Object.fromEntries(
-            UNIT_KEYS.map((k) => [k, (target[k] || 0).toString()])
-          ) as Record<MilitaryUnitType, string>
-        );
-      }
+    if (military?.target) {
+      setTargetQueue(
+        Object.fromEntries(
+          UNIT_KEYS.map((k) => [k, (military.target[k] || 0).toString()])
+        ) as Record<MilitaryUnitType, string>
+      );
       setTargetInitialized(true);
     }
-  }, [military, targetInitialized]);
+  }, [targetStr]);
 
   if (!kingdom || !military || !buildings) return null;
 
@@ -269,7 +269,9 @@ export const KingdomMilitaryPage: React.FC = () => {
                     {isDisbandMode ? "Refund" : "Cost"}
                   </th>
                   {!isDisbandMode && kingdom.autoBuild && (
-                    <th style={{ textAlign: "center", padding: "0.5rem" }}>Target %</th>
+                    <th style={{ textAlign: "center", padding: "0.5rem" }}>
+                      Target %{isAutomatedProfile && " (Auto)"}
+                    </th>
                   )}
                   <th style={{ textAlign: "center", padding: "0.5rem" }}>Max</th>
                   <th style={{ textAlign: "center", padding: "0.5rem" }}>
@@ -336,14 +338,29 @@ export const KingdomMilitaryPage: React.FC = () => {
                             onChange={handleTargetChange}
                             min="0"
                             step="0.1"
+                            readOnly={isAutomatedProfile}
+                            disabled={isAutomatedProfile}
+                            title={
+                              isAutomatedProfile
+                                ? `Target managed automatically by Governor Profile: ${kingdom.botSettings?.label}`
+                                : undefined
+                            }
                             style={{
                               width: "70px",
                               padding: "0.2rem 0.4rem",
-                              background: "var(--bg-input)",
-                              border: "1px solid var(--border-subtle)",
+                              background: isAutomatedProfile
+                                ? "rgba(255, 255, 255, 0.03)"
+                                : "var(--bg-input)",
+                              border: isAutomatedProfile
+                                ? "1px dashed var(--border-subtle)"
+                                : "1px solid var(--border-subtle)",
                               borderRadius: "4px",
-                              color: "var(--text-primary)",
+                              color: isAutomatedProfile
+                                ? "var(--text-secondary)"
+                                : "var(--text-primary)",
                               textAlign: "center",
+                              cursor: isAutomatedProfile ? "not-allowed" : "text",
+                              opacity: isAutomatedProfile ? 0.85 : 1,
                             }}
                           />
                         </td>
@@ -432,18 +449,28 @@ export const KingdomMilitaryPage: React.FC = () => {
               {targetSum.toFixed(1)}%
             </strong>
           </p>
-          <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginTop: "0.75rem" }}>
+          <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginTop: "0.75rem", flexWrap: "wrap" }}>
             <button
               type="button"
               className="btn btn-primary"
               onClick={handleSaveTargets}
-              disabled={isSavingTargets || targetSum > 100}
+              disabled={isSavingTargets || isAutomatedProfile || targetSum > 100}
+              title={
+                isAutomatedProfile
+                  ? `Military targets are governed by profile: ${kingdom.botSettings?.label}`
+                  : undefined
+              }
             >
               {isSavingTargets ? "Saving..." : "Save Military Targets"}
             </button>
             <Link to="/kingdom/settings" className="btn btn-secondary">
               ⚙️ Automation Settings
             </Link>
+            {isAutomatedProfile && (
+              <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                Targets governed by profile <strong>{kingdom.botSettings?.label}</strong>.
+              </span>
+            )}
           </div>
         </div>
       )}
