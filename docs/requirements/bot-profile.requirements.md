@@ -8,7 +8,7 @@ Derived from user request to port autonomous governor strategy directives (`hand
 
 ### Profile Configuration & Strategy Directives
 
-- REQ-BOT-001: When autonomous growth runs (Phase 6, ticks where `tick % 12 == 0` or `tick == 1`) with `autoBuild` enabled, the system shall evaluate the kingdom's governor strategy profile (`botSettings`).
+- REQ-BOT-001: When autonomous growth runs (Phase 6, ticks where `tick % 8 == 0` or `tick == 1`) with `autoBuild` enabled, the system shall evaluate the kingdom's governor strategy profile (`botSettings`).
 - REQ-BOT-002: If an automated bot profile is active and the kingdom's land is less than 1,000 acres, the system shall set `autoExplore` to 10; otherwise, the system shall set `autoExplore` to the profile's specified exploration level.
 - REQ-BOT-003: If an automated bot profile is active, the system shall set building target percentages for Protection Facilities (`pf`) and Training Camps (`tc`) directly from the profile's building configuration.
 - REQ-BOT-004: When autonomous growth runs with `autoBuild` enabled, the system shall calculate the Barracks (`rax`) and Air Support Bases (`asb`) required to house current military units and active recruitment queues with a 5% safety margin:
@@ -18,3 +18,6 @@ Derived from user request to port autonomous governor strategy directives (`hand
 - REQ-BOT-006: If an automated bot profile is active, the system shall split the remaining unallocated building target percentage ($100 - \sum \text{allocated}$) equally between Residences (`res`) and Silicon Mines (`sm`).
 - REQ-BOT-007: If an automated bot profile is active, the system shall set military targets to train the highest-tier unlocked units matching the profile's offense, defense, flex, and science distribution.
 - REQ-BOT-008: Changes made to `autoExplore`, building targets, and military targets during simulation shall be persisted to the database.
+- REQ-BOT-009: When a kingdom's governor strategy profile is updated via `/api/kingdoms/update-bot-profile`, the system shall immediately evaluate strategy directives to update building targets, military targets, and exploration settings, and shall return the updated kingdom object.
+- REQ-BOT-010: During autonomous military recruitment, while newbie mode lasts (`newbiemode > 0`), the system shall only purchase soldiers (`sol`) and scientists (`sci`) until 24 or fewer newbie-mode ticks remain (`newbiemode <= 24`). When more than 24 newbie-mode ticks remain (`newbiemode > 24`), all other military unit recruitment shall be skipped.
+

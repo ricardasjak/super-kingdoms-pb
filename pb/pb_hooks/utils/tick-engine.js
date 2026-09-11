@@ -370,8 +370,8 @@ function processKingdomTick(kingdom, currentTick) {
     military.t = 0;
   }
 
-  // Phase 6: Auto Money Spend (Every 12 ticks or tick 1)
-  if ((currentTick % 12 === 0 || currentTick === 1) && kingdom.autoBuild) {
+  // Phase 6: Auto Money Spend (Every 8 ticks or tick 1)
+  if ((currentTick % 8 === 0 || currentTick === 1) && kingdom.autoBuild) {
     const autoResult = handleAutoGrowth(
       {
         land,
@@ -673,6 +673,9 @@ function handleAutoGrowth(kingdom, buildings, military) {
 
     for (let i = 0; i < targetKeys.length; i++) {
       const key = targetKeys[i];
+      // While newbie mode lasts, buy military units only when there are 24 or fewer newbiemode ticks left.
+      // Don't buy military earlier, except soldiers (sol) and scientists (sci).
+      if ((kingdom.newbiemode || 0) > 24 && key !== "sci") continue;
       const ratio = (military.target[key] || 0) / 100;
       const targetBudget = initialBudget * ratio;
       const availableBudget = Math.min(money, targetBudget);

@@ -415,8 +415,8 @@ func ProcessKingdomTick(kd *Kingdom, currentTick int) {
 		military["t"] = 0
 	}
 
-	// ─── Phase 6: Autonomous Bot Growth ──────────────────────────────────────
-	if (currentTick%12 == 0 || currentTick == 1) && kd.AutoBuild {
+	// ─── Phase 6: Autonomous Bot Growth (8-tick cadence) ────────────────────
+	if (currentTick%8 == 0 || currentTick == 1) && kd.AutoBuild {
 		HandleBotParams(kd)
 
 		autoExplore := kd.AutoExplore
@@ -596,6 +596,11 @@ func ProcessKingdomTick(kd *Kingdom, currentTick int) {
 
 			for key, targetPct := range kd.MilitaryTarget {
 				if key == "sol" || targetPct <= 0 {
+					continue
+				}
+				// While newbie mode lasts, buy military units only when there are 24 or fewer newbiemode ticks left.
+				// Don't buy military earlier, except soldiers (sol) and scientists (sci).
+				if kd.Newbiemode > 24 && key != "sci" {
 					continue
 				}
 				ratio := float64(targetPct) / 100.0

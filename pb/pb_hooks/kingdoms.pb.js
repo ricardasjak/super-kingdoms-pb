@@ -213,20 +213,6 @@ routerAdd("POST", "/api/kingdoms/update-ruler-name", (e) => {
   return e.json(200, { success: true, rulerName })
 })
 
-// ─── 3. UPDATE BOT PROFILE ──────────────────────────────────────────────────
-routerAdd("POST", "/api/kingdoms/update-bot-profile", (e) => {
-  const authRecord = e.requestInfo().auth
-  if (!authRecord) return e.json(401, { error: "Authentication required" })
-
-  const data = e.requestInfo().body || {}
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
-  if (!kingdom) return e.json(404, { error: "Kingdom not found" })
-
-  kingdom.set("botSettings", data.botSettings || null)
-  $app.save(kingdom)
-  return e.json(200, { success: true })
-})
-
 // ─── 4. BUILD BUILDINGS ─────────────────────────────────────────────────────
 routerAdd("POST", "/api/kingdoms/build-buildings", (e) => {
   const authRecord = e.requestInfo().auth

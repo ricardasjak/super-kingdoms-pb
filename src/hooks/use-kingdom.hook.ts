@@ -118,10 +118,13 @@ export function useKingdom() {
   };
 
   const updateBotProfile = async (botSettings: BotSettings | null) => {
-    await pb.send('/api/kingdoms/update-bot-profile', {
+    const res = await pb.send<{ success: boolean; kingdom?: TypedKingdom }>('/api/kingdoms/update-bot-profile', {
       method: 'POST',
       body: { botSettings },
     });
+    if (res?.kingdom) {
+      queryClient.setQueryData(kingdomKey, res.kingdom);
+    }
     await invalidateKingdom();
   };
 

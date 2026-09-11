@@ -8,7 +8,7 @@ const GAME_PHASES: GamePhase[] = ["registration", "in-progress", "stopped"];
 const PHASE_HINTS: Record<GamePhase, string> = {
   registration: "Kingdoms may register. Ticks do not advance the round.",
   "in-progress": "The round is live. Ticks advance the simulation.",
-  stopped: "The galaxy is paused (also set automatically on server restart).",
+  stopped: "The galaxy is paused.",
 };
 
 export const AdminPage: React.FC = () => {

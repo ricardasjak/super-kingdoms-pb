@@ -61,3 +61,8 @@ remains exclusive to the admin page.
 - REQ-SELF-019: The self-tick action shall respect the kingdom's stored
   auto-build setting, running autonomous growth (exploration, construction,
   recruitment) only when auto-build is enabled.
+- REQ-SELF-020: During self-ticking, autonomous military recruitment shall
+  restrict purchases to soldiers and scientists while more than 24 newbie-mode
+  ticks remain, and shall permit all military unit purchases once 24 or fewer
+  newbie-mode ticks remain.
+

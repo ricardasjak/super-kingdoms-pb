@@ -86,6 +86,7 @@ type Kingdom struct {
 	NW                 int                      `json:"nw" db:"nw"`
 	AutoBuild          bool                     `json:"autoBuild" db:"autoBuild"`
 	AutoExplore        int                      `json:"autoExplore" db:"autoExplore"`
+	Newbiemode         int                      `json:"newbiemode" db:"newbiemode"`
 	BotSettings        *BotSettings             `json:"botSettings"`
 
 	// Raw JSON strings for fast database reading / writing

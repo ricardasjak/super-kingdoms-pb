@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -169,7 +170,7 @@ func main() {
 				err = re.App.DB().Select(
 					"id", "kdName", "state", "land", "landQueue", "buildings", "military", "research",
 					"researchPts", "researchAutoAssign", "population", "popChange", "money",
-					"moneyIncome", "power", "powerIncome", "probes", "nw", "autoBuild", "autoExplore", "botSettings",
+					"moneyIncome", "power", "powerIncome", "probes", "nw", "autoBuild", "autoExplore", "botSettings", "newbiemode",
 				).From("kingdoms").All(&kingdoms)
 				if err != nil {
 					return re.JSON(500, map[string]any{
@@ -260,7 +261,7 @@ func main() {
 				err = re.App.DB().Select(
 					"id", "kdName", "state", "land", "landQueue", "buildings", "military", "research",
 					"researchPts", "researchAutoAssign", "population", "popChange", "money",
-					"moneyIncome", "power", "powerIncome", "probes", "nw", "autoBuild", "autoExplore", "botSettings",
+					"moneyIncome", "power", "powerIncome", "probes", "nw", "autoBuild", "autoExplore", "botSettings", "newbiemode",
 				).From("kingdoms").Where(dbx.HashExp{"id": kingdom.Id}).All(&kingdoms)
 				if err != nil {
 					return re.JSON(500, map[string]any{
@@ -275,11 +276,13 @@ func main() {
 
 				kd := kingdoms[0]
 				kd.UnmarshalJSONFields()
+				kd.Newbiemode = newbieMode
 				for i := 0; i < selfTickSteps; i++ {
 					if kd.State == "dead" {
 						break
 					}
 					engine.ProcessKingdomTick(kd, currentTick+i+1)
+					kd.Newbiemode--
 				}
 				kd.MarshalJSONFields()
 				newbieMode -= selfTickSteps
@@ -348,6 +351,86 @@ func main() {
 					"newbiemode":    newbieMode,
 					"kingdom":       updatedKingdom,
 				})
+			})
+
+			// Register update-bot-profile endpoint.
+			// Saves botSettings and immediately recalculates building targets,
+			// military targets, and exploration settings via HandleBotParams.
+			e.Router.POST("/api/kingdoms/update-bot-profile", func(re *core.RequestEvent) error {
+				if re.Auth == nil {
+					return re.JSON(401, map[string]any{"error": "Authentication required"})
+				}
+
+				var body struct {
+					BotSettings *engine.BotSettings `json:"botSettings"`
+				}
+				if err := re.BindBody(&body); err != nil {
+					return re.JSON(400, map[string]any{"error": "Invalid request body"})
+				}
+
+				kingdom, err := re.App.FindFirstRecordByFilter(
+					"kingdoms",
+					"userId = {:userId}",
+					dbx.Params{"userId": re.Auth.Id},
+				)
+				if err != nil {
+					return re.JSON(404, map[string]any{"error": "Kingdom not found"})
+				}
+
+				var kingdoms []*engine.Kingdom
+				err = re.App.DB().Select(
+					"id", "kdName", "state", "land", "landQueue", "buildings", "military", "research",
+					"researchPts", "researchAutoAssign", "population", "popChange", "money",
+					"moneyIncome", "power", "powerIncome", "probes", "nw", "autoBuild", "autoExplore", "botSettings", "newbiemode",
+				).From("kingdoms").Where(dbx.HashExp{"id": kingdom.Id}).All(&kingdoms)
+				if err != nil || len(kingdoms) == 0 {
+					return re.JSON(404, map[string]any{"error": "Kingdom not found"})
+				}
+
+				kd := kingdoms[0]
+				kd.UnmarshalJSONFields()
+				kd.BotSettings = body.BotSettings
+
+				if kd.BotSettings != nil && kd.BotSettings.HasProfile() {
+					engine.HandleBotParams(kd)
+				}
+				kd.MarshalJSONFields()
+
+				rawBotSettings := ""
+				if body.BotSettings != nil {
+					bsBytes, _ := json.Marshal(body.BotSettings)
+					rawBotSettings = string(bsBytes)
+				}
+
+				err = re.App.RunInTransaction(func(txApp core.App) error {
+					_, err := txApp.DB().NewQuery(`
+					UPDATE kingdoms SET
+						buildings = {:buildings},
+						military = {:military},
+						autoExplore = {:autoExplore},
+						botSettings = {:botSettings}
+					WHERE id = {:id}
+					`).Bind(dbx.Params{
+						"id":          kd.ID,
+						"buildings":   kd.RawBuildings,
+						"military":    kd.RawMilitary,
+						"autoExplore": kd.AutoExplore,
+						"botSettings": rawBotSettings,
+					}).Execute()
+					return err
+				})
+				if err != nil {
+					return re.JSON(500, map[string]any{"error": "Failed to update bot profile: " + err.Error()})
+				}
+
+				updatedRecord, err := re.App.FindRecordById("kingdoms", kingdom.Id)
+				if err == nil {
+					return re.JSON(200, map[string]any{
+						"success": true,
+						"kingdom": updatedRecord,
+					})
+				}
+				return re.JSON(200, map[string]any{"success": true})
 			})
 
 			return e.Next()
