@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useGameStatus, type GamePhase } from "../hooks/use-game-status.hook";
 import { PlayButton } from "../components/play-button";
-import { RotateCcw, Users, Activity, Clock, Flag } from "lucide-react";
+import { RotateCcw, Users, Activity, Clock, Flag, Bot } from "lucide-react";
 
 const GAME_PHASES: GamePhase[] = ["registration", "in-progress", "stopped"];
 
@@ -12,11 +12,12 @@ const PHASE_HINTS: Record<GamePhase, string> = {
 };
 
 export const AdminPage: React.FC = () => {
-  const { status, isLoading, refetch, restartGame, populateKingdoms, setGamePhase } = useGameStatus();
+  const { status, isLoading, refetch, restartGame, populateKingdoms, createBots, setGamePhase } = useGameStatus();
 
   const [executionTime, setExecutionTime] = useState<number | null>(null);
   const [logicTime, setLogicTime] = useState<number | null>(null);
   const [isPopulating, setIsPopulating] = useState(false);
+  const [isCreatingBots, setIsCreatingBots] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
   const [isSavingPhase, setIsSavingPhase] = useState(false);
   const [pendingPhase, setPendingPhase] = useState<GamePhase | null>(null);
@@ -81,6 +82,20 @@ export const AdminPage: React.FC = () => {
       setErrorMsg(err instanceof Error ? err.message : "Failed to populate kingdoms");
     } finally {
       setIsPopulating(false);
+    }
+  };
+
+  const handleCreateBots = async () => {
+    clearMessages();
+    setIsCreatingBots(true);
+    try {
+      await createBots(10);
+      setSuccessMsg("Successfully spawned 10 autonomous bot kingdoms with randomized profiles and planet types!");
+    } catch (err: unknown) {
+      console.error("Failed to create bot kingdoms:", err);
+      setErrorMsg(err instanceof Error ? err.message : "Failed to create bot kingdoms");
+    } finally {
+      setIsCreatingBots(false);
     }
   };
 
@@ -208,6 +223,17 @@ export const AdminPage: React.FC = () => {
           >
             <Users size={18} />
             <span>{isPopulating ? "Populating..." : "Populate Test Realms (x1,000)"}</span>
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleCreateBots}
+            disabled={isCreatingBots}
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}
+          >
+            <Bot size={18} />
+            <span>{isCreatingBots ? "Spawning 10 Bots..." : "Spawn 10 Bot Kingdoms"}</span>
           </button>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>

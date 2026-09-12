@@ -26,6 +26,9 @@ interface CreateKingdomFormProps {
   onCancel?: () => void;
 }
 
+// Subordinate bots toggle (disabled per request to create a single kd; code preserved)
+const ENABLE_CONNECTED_BOTS = false;
+
 export const CreateKingdomForm: React.FC<CreateKingdomFormProps> = ({ onSuccess, onCancel }) => {
   const { user } = useAuth();
   const { createKingdom, isCreating } = useKingdom();
@@ -35,7 +38,7 @@ export const CreateKingdomForm: React.FC<CreateKingdomFormProps> = ({ onSuccess,
   const [planetType, setPlanetType] = useState<PlanetType>('Terra Form');
   const [raceType, setRaceType] = useState<RaceType>('Terran');
 
-  // Subordinate bots list
+  // Subordinate bots list (preserved for when feature is re-enabled)
   const [botNames, setBotNames] = useState<string[]>(() => {
     return Array.from({ length: 5 }, () => generateRandomBotName());
   });
@@ -75,7 +78,7 @@ export const CreateKingdomForm: React.FC<CreateKingdomFormProps> = ({ onSuccess,
         rulerName: rulerName.trim(),
         planetType,
         raceType,
-        botNames: botNames.map((n) => n.trim()).filter(Boolean),
+        botNames: ENABLE_CONNECTED_BOTS ? botNames.map((n) => n.trim()).filter(Boolean) : [],
       });
 
       setSuccess(true);
@@ -249,45 +252,47 @@ export const CreateKingdomForm: React.FC<CreateKingdomFormProps> = ({ onSuccess,
         </div>
       </div>
 
-      {/* Subordinate Bot Kingdoms */}
-      <div className="subordinate-bots-section">
-        <div className="subordinate-bots-header">
-          <div>
-            <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Bot size={18} color="var(--accent-secondary)" />
-              Subordinate Protectorate Kingdoms (5 Bots)
-            </h4>
-            <p className="text-secondary" style={{ fontSize: '0.85rem' }}>
-              5 vassal realms will be generated under your political sphere of influence.
-            </p>
-          </div>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={randomizeBots}
-            disabled={isCreating || success}
-          >
-            <Shuffle size={14} />
-            <span>Randomize Names</span>
-          </button>
-        </div>
-
-        <div className="bots-input-grid">
-          {botNames.map((botName, i) => (
-            <div key={i} className="bot-input-group">
-              <span className="bot-index-badge">#{i + 1}</span>
-              <input
-                type="text"
-                className="form-input bot-input"
-                value={botName}
-                onChange={(e) => updateBotName(i, e.target.value)}
-                placeholder={`Subordinate #${i + 1}`}
-                disabled={isCreating || success}
-              />
+      {/* Subordinate Bot Kingdoms (hidden per user request, code preserved) */}
+      {ENABLE_CONNECTED_BOTS && (
+        <div className="subordinate-bots-section">
+          <div className="subordinate-bots-header">
+            <div>
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Bot size={18} color="var(--accent-secondary)" />
+                Subordinate Protectorate Kingdoms (5 Bots)
+              </h4>
+              <p className="text-secondary" style={{ fontSize: '0.85rem' }}>
+                5 vassal realms will be generated under your political sphere of influence.
+              </p>
             </div>
-          ))}
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={randomizeBots}
+              disabled={isCreating || success}
+            >
+              <Shuffle size={14} />
+              <span>Randomize Names</span>
+            </button>
+          </div>
+
+          <div className="bots-input-grid">
+            {botNames.map((botName, i) => (
+              <div key={i} className="bot-input-group">
+                <span className="bot-index-badge">#{i + 1}</span>
+                <input
+                  type="text"
+                  className="form-input bot-input"
+                  value={botName}
+                  onChange={(e) => updateBotName(i, e.target.value)}
+                  placeholder={`Subordinate #${i + 1}`}
+                  disabled={isCreating || success}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Submission Actions */}
       <div className="create-kd-actions">

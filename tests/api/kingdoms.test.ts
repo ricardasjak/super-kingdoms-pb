@@ -57,13 +57,12 @@ describe('POST /api/kingdoms/create', () => {
     expect(userKds.totalItems).toBe(1);
     expect(userKds.items[0].id).toBe(created.id);
 
-    // Verify subordinate bots were created using admin client
+    // Verify subordinate bots were not created (connected bots disabled per user request)
     const adminPb = await createAdminClient();
     const bots = await adminPb.collection('kingdoms').getList(1, 10, {
       filter: `botOwnerKd = "${created.id}"`,
     });
-    expect(bots.totalItems).toBe(5);
-    expect(bots.items[0].kdName).toContain('Vanguard');
+    expect(bots.totalItems).toBe(0);
 
     // Prevent duplicate kingdom for the same user
     await expect(

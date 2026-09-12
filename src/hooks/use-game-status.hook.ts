@@ -54,6 +54,14 @@ export function useGameStatus() {
     await fetchStatus();
   };
 
+  const createBots = async (count: number = 10) => {
+    await pb.send<{ success: boolean; created: number }>("/api/game/create-bots", {
+      method: "POST",
+      body: { count },
+    });
+    await fetchStatus();
+  };
+
   const setGamePhase = async (phase: GamePhase) => {
     const res = await pb.send<{ success: boolean; status: GamePhase }>("/api/game/status", {
       method: "POST",
@@ -70,6 +78,7 @@ export function useGameStatus() {
     refetch: fetchStatus,
     restartGame,
     populateKingdoms,
+    createBots,
     setGamePhase,
   };
 }

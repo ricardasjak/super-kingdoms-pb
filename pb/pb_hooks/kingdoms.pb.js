@@ -135,10 +135,11 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
 
   $app.save(playerKd)
 
-  // Subordinate bots
+  // Subordinate bots (disabled per request to create single kd without connected bots; code preserved)
+  const ENABLE_SUBORDINATE_BOTS = false
   const BOT_NAME_PREFIXES = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "Sector", "Void", "Star", "Nova", "Cosmic", "Orion", "Astra", "Centauri"]
   const BOT_NAME_SUFFIXES = ["Prime", "Major", "Minor", "Outpost", "Colony", "Nexus", "Station", "Bastion", "Redoubt", "Keep"]
-  const botLimit = 5
+  const botLimit = ENABLE_SUBORDINATE_BOTS ? 5 : 0
   const userBotNames = Array.isArray(data.botNames) ? data.botNames : []
 
   for (let i = 0; i < botLimit; i++) {

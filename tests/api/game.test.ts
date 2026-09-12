@@ -136,4 +136,58 @@ describe('Game Round Lifecycle API', () => {
     const tickRes = await pb.send<any>('/api/game/advance-tick', { method: 'POST' });
     expect(tickRes.success).toBe(true);
   });
+
+  it('spawns 10 bot kingdoms with randomized profiles, autoBuild enabled, and randomized planet types', async () => {
+    const pb = createClient();
+    const adminPb = await createAdminClient();
+
+    // Restart game to clean state
+    await pb.send<any>('/api/game/restart', { method: 'POST' });
+    const statusInitial = await pb.send<any>('/api/game/status', { method: 'GET' });
+    expect(statusInitial.kingdomCount).toBe(0);
+
+    // Call create-bots
+    const res = await pb.send<{ success: boolean; created: number; ids: string[] }>('/api/game/create-bots', {
+      method: 'POST',
+      body: { count: 10 },
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.created).toBe(10);
+    expect(res.ids).toHaveLength(10);
+
+    const validLabels = [
+      'Aggressive', 'Extreme Offense', 'Probe Specialist', 'Defensive',
+      'Standard Balanced', 'Balanced Attacker', 'Balanced Scientist', 'NW Booster',
+      'Economic Growth', 'Growth & Probes', 'Growth & Science', 'Pure Growth'
+    ];
+
+    const validPlanets = [
+      'Mountainous', 'Forest and Wilderness', 'Herbal Jungle', 'Terra Form',
+      'Mystical Lands', 'Volcanic Inferno', 'Jagged Tundra', 'Oceanic',
+      'Desert Wasteland', 'Ice Giant', 'Shadow Lands', 'Multiple Terrain',
+      'Helium', 'Eternal Plains'
+    ];
+
+    for (const id of res.ids) {
+      const kd = await adminPb.collection('kingdoms').getOne(id);
+      expect(kd.autoBuild).toBe(true);
+      expect(validPlanets).toContain(kd.planetType);
+      expect(kd.botOwnerKd).toBe('freelancer');
+
+      const botSettings = kd.botSettings as any;
+      expect(botSettings).toBeDefined();
+      expect(typeof botSettings.label).toBe('string');
+      expect(validLabels).toContain(botSettings.label);
+      expect(typeof botSettings.exploration).toBe('number');
+      expect(botSettings.buildings).toBeDefined();
+      expect(typeof botSettings.buildings.pf).toBe('number');
+      expect(typeof botSettings.buildings.tc).toBe('number');
+      expect(Array.isArray(botSettings.researchPriority)).toBe(true);
+    }
+
+    // Verify game telemetry updated
+    const statusAfter = await pb.send<any>('/api/game/status', { method: 'GET' });
+    expect(statusAfter.kingdomCount).toBe(10);
+  });
 });
