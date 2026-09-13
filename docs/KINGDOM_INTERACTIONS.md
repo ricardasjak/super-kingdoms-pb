@@ -169,6 +169,41 @@ $$\text{Defensive Power (DP)} = \left[ \sum_{u \in \text{Defending Army}} (\text
     - Both sides lose 8% of sent points ($\text{OP} \times 0.08$).
     - Defender's surge bonus is unaffected.
 
+### 4.4 War Leaders (WLs), Attack Cost, & Staggered Return Times
+Attacks cost **Time** and **War Leaders**:
+
+1. **War Leaders (WLs) Pool**:
+   - Each kingdom commands a total pool of **4 War Leaders (WLs)**.
+   - When launching an attack, the player must assign between **1 and the available count of WLs** ($N \in \{1, 2, 3, 4\}$).
+   - If 0 WLs are available, no new military attacks can be launched until a deployed WL returns.
+   - While deployed on an expedition, participating troops and assigned WLs cannot participate in home defense.
+
+2. **12-Tick Mission Duration & Staggered Return Waves**:
+   - The total round-trip military deployment duration is **12 ticks**.
+   - Assigning $N$ War Leaders partitions the surviving expeditionary army into $N$ equal return waves arriving at intervals of $\frac{12}{N}$ ticks:
+     $$\text{Wave Interval} = \frac{12}{N} \text{ ticks}$$
+   - **4 WLs Committed**: 4 waves arriving at **+3, +6, +9, and +12 ticks**:
+     - **Tick +3**: $\frac{1}{4}$ of surviving troops return home; 1st WL returns to available pool.
+     - **Tick +6**: $\frac{1}{4}$ of surviving troops return home; 2nd WL returns to available pool.
+     - **Tick +9**: $\frac{1}{4}$ of surviving troops return home; 3rd WL returns to available pool.
+     - **Tick +12**: Final $\frac{1}{4}$ of surviving troops return home; 4th WL returns to available pool.
+   - **3 WLs Committed**: 3 waves arriving at **+4, +8, and +12 ticks**:
+     - Each wave returns $\frac{1}{3}$ of surviving troops and recovers 1 WL.
+   - **2 WLs Committed**: 2 waves arriving at **+6 and +12 ticks**:
+     - Each wave returns $\frac{1}{2}$ of surviving troops and recovers 1 WL.
+   - **1 WL Committed**: 1 single wave arriving at **+12 ticks**:
+     - All 100% of surviving troops and the 1 WL return together at tick +12.
+
+3. **Surviving Troops Calculation**:
+   - Surviving army consists of sent units minus casualties incurred during combat (e.g., minus 8% casualties on unsuccessful attack).
+   - For each unit type $u$, wave $w \in [1..N]$ returns:
+     $$\text{Units Returned}_{u, w} = \lfloor \frac{\text{Surviving Units}_u}{N} \rfloor$$
+     *(with any rounding remainders allocated to the final $N$-th wave).*
+
+4. **Tactical Trade-Offs**:
+   - **Full Commitment (4 WLs)**: Troops and leadership recover at the fastest possible rate (25% back every 3 ticks), rapidly restoring home defense, but blocks launching any subsequent attacks until the first wave returns at +3 ticks.
+   - **Split Expeditions (1 or 2 WLs)**: Allows launching up to 4 simultaneous attacks against different targets, but troops remain away from home defense for extended durations (6 to 12 ticks).
+
 ---
 
 ## 5. Sector-Level Interactions (PvP Phase)
@@ -214,9 +249,8 @@ Please review and specify your preferences on the following key mechanics:
    - Fixed at **8% of sent amount on both sides** (e.g. 100 offense sent against 200 defense yields ~8 points lost for both attacker and defender).
 2. **Land Grab Percentage** *(RESOLVED)*:
    - Fixed at **10% of target's land** ($\lfloor \text{Defender Land} \times 0.10 \rfloor$) on successful invasion.
-3. **Attack Cooldown & Daily Limit**:
-   - Should attacks cost a resource (e.g. Attack Credits, Energy, or Ticks)?
-   - Can a player attack the same target multiple times in a row, or is there a cooldown (e.g., max 3 attacks on the same target per 24h)?
+3. **Attack Cooldown & Limit (War Leaders)** *(RESOLVED)*:
+   - Attacks cost **Time** and **War Leaders** (pool of 4 WLs). Troops return in staggered waves over 12 ticks ($12/N$ ticks per wave: 4 WLs return at 3, 6, 9, 12 ticks; 2 WLs at 6, 12 ticks; 1 WL at 12 ticks).
 4. **Cross-Sector Attacks & Probing in PvP** *(RESOLVED)*:
    - Inter-sector attacks and probe missions are **not possible**, unless the target kingdom has become **inactive (48 hours of inactivity)**.
 5. **Bot Behavior in PvE**:

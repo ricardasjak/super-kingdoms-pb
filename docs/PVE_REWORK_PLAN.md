@@ -129,7 +129,8 @@ At the exact moment Phase 1 ends (16:00:00 UTC), the server runs an automated bo
 - **Attack Mechanics**:
   - **Attack Type**: **Standard Invasion** (Plunder and Bombardment are removed/deferred).
   - **Land Grab**: Successful attacks seize **10% of target's land** ($\lfloor \text{Defender Land} \times 0.10 \rfloor$).
-  - **Casualties**: Unit kill ratio is fixed at **8% on both sides** (attacker and defender both lose 8% of committed/defending units).
+  - **Casualties**: Unit kill ratio is fixed at **8% on both sides** (unsuccessful attacks anchor to 8% of sent amount, scaled by bonuses).
+  - **War Leaders (WLs) & Return Waves**: Each kingdom has 4 available WLs. Attacks require assigning 1 to 4 WLs. Military returns in 12 ticks in $N$ staggered waves ($12/N$ ticks per wave: 4 WLs return at 3, 6, 9, 12 ticks; 2 WLs return at 6, 12 ticks; 1 WL returns at 12 ticks), returning $\frac{1}{N}$ of surviving units and 1 WL per wave.
   - **Defensive Alert Surge**: When a kingdom is attacked and broken, its defensive bonus increases by **+8%**, decaying by **1% every tick** until reaching 0%.
 - **Target Restriction & Range**:
   - **3x Networth Window**: Both kingdoms must be `active`, and their Networth difference must be strictly less than 3x ($NW_{\text{attacker}} / 3 < NW_{\text{target}} < 3 \times NW_{\text{attacker}}$).
@@ -221,6 +222,8 @@ $$\text{Total Sectors } S = \max\left(1, \left\lceil \frac{\text{Active Player C
    - `newbieStepsRemaining`: Integer (starts at 8, decrements by 1 per self-tick step).
    - `sector`: Integer (0 during Newbie and PvE, 1..N during PvP).
    - `autoBuild`: Boolean (enforced `false` during Newbie phase).
+   - `warLeaders`: Integer (available War Leaders, 0..4, default 4).
+   - `returningMilitary`: JSON array of returning waves (`[{ returnTick, warLeaders, units }]`).
 
 ### 6.2 Backend Endpoints & Engine
 1. **Self-Tick Step Handler (`POST /api/kingdoms/self-tick`)**:
