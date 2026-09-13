@@ -193,10 +193,13 @@ $$\text{Total Sectors } S = \max\left(1, \left\lceil \frac{\text{Active Player C
 - Environment bots are either distributed proportionally across all sectors or assigned to a designated frontier zone.
 
 ### 5.2 PvP Combat & Mechanics
-- **Full Player vs Player Combat**: Players can now launch attacks against other players in their sector.
+- **Intra-Sector Combat & Probing**: Full warfare and espionage are unlocked between all kingdoms residing in the same sector within the 3x Networth window.
+- **Inter-Sector Restrictions & 48h Inactivity Rule**:
+  - Inter-sector attacks and inter-sector probe missions are **blocked** between active kingdoms.
+  - If a kingdom in another sector becomes **inactive (48 hours idle)**, inter-sector attacks and probe missions are unlocked against it from any sector (within 3x NW).
 - **Sector Dynamics**:
   - Sector rankings & leaderboards (networth, military strength).
-  - Sector defense bonuses or sector coordination.
+  - Sector coordination and shared radar.
 - **Duration**: Phase 3 runs for **20 days**, concluding at 16:00:00 UTC.
 - **End of Round**:
   - The round officially ends (`status: "ended"`).

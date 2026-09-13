@@ -20,7 +20,7 @@ flowchart TD
     end
 
     subgraph Phase3["Phase 3: PvP Mode (Sectors 1..N)"]
-        P3["Full PvP Warfare\n• Attack any eligible player / bot\n• Intra-sector and Cross-sector combat\n• Sector standings & leaderboards"]
+        P3["Full PvP Warfare\n• Attack & probe inside your sector\n• Inter-sector attacks/probes BLOCKED\n  (Allowed ONLY if target is inactive 48h)\n• Sector standings & leaderboards"]
     end
 
     Phase1 --> Phase2 --> Phase3
@@ -28,10 +28,10 @@ flowchart TD
 
 | Interaction Type | Phase 1 (Newbie) | Phase 2 (PvE) | Phase 3 (PvP) |
 |---|---|---|---|
-| **Probe Reconnaissance (SoK / SoB / SoE)** | ❌ Blocked | ✅ Allowed vs Bots | ✅ Full (Players & Bots) |
+| **Probe Reconnaissance (SoK / SoB / SoE)** | ❌ Blocked | ✅ Allowed vs Bots | ✅ Intra-sector (Inter-sector if target inactive 48h) |
 | **Covert Sabotage / Ops** | ❌ Blocked | ⚠️ (Design choice) | ✅ Full |
-| **Attacks: Standard Land Invasion** | ❌ Blocked | ✅ Allowed vs Bots | ✅ Full PvP |
-| **Human vs Human Combat** | ❌ Blocked | ❌ **Strictly Blocked** | ✅ **Active** |
+| **Attacks: Standard Land Invasion** | ❌ Blocked | ✅ Allowed vs Bots | ✅ Intra-sector (Inter-sector if target inactive 48h) |
+| **Human vs Human Combat** | ❌ Blocked | ❌ **Strictly Blocked** | ✅ Intra-sector (Inter-sector if target inactive 48h) |
 | **Aid / Resource Transfers** | ❌ Blocked | ❌ Blocked | ✅ Allowed (Sector members) |
 
 ---
@@ -42,15 +42,25 @@ To ensure competitive fairness and prevent griefing or exploitation, attacks and
 
 ### 2.1 Networth (NW) Attack Range (3x Window)
 Attacks are permitted only between kingdoms that are reasonably matched in economic and military scale:
-- **State Requirement**: Both the attacker and the target must be in the **`active`** state (`attacker.state === "active"` and `target.state === "active"`).
+- **State Requirement**: Both the attacker and the target must be in the **`active`** state or the target may be in the **`inactive`** state (`attacker.state === "active"` and `target.state in ["active", "inactive"]`).
 - **3x Networth Rule**: An attack is allowed only if the difference in Networth between the attacker and the target is **less than 3x**:
   $$\frac{1}{3} < \frac{NW_{\text{target}}}{NW_{\text{attacker}}} < 3$$
   - **Minimum Target NW**: $NW_{\text{target}} > \frac{NW_{\text{attacker}}}{3}$ (attacker cannot punch down on kingdoms 3x or more smaller).
   - **Maximum Target NW**: $NW_{\text{target}} < 3 \times NW_{\text{attacker}}$ (attacker cannot hit kingdoms 3x or more larger).
 - **System Enforcement**: Targets outside this range are filtered out or blocked with the error: `"Target is outside your attack range (must be within 3x Networth difference)"`.
 
-### 2.2 Protection & Defensive Surge Mechanics
-- **Non-Active Kingdoms**: Fallen/dead kingdoms (`state === "dead"`) or inactive accounts cannot be attacked or probed.
+### 2.2 Sector Boundary & 48-Hour Inactivity Rule
+In Phase 3 (PvP Mode), the universe is split into sectors:
+- **Intra-Sector Interactions (Same Sector)**:
+  - Players can attack and probe any eligible kingdom residing within their own sector (subject to the 3x NW rule and active/inactive status).
+- **Inter-Sector Interactions (Different Sectors)**:
+  - **Active Kingdoms (Blocked)**: Inter-sector attacks and inter-sector probe missions against active kingdoms are **strictly blocked**.
+  - **48-Hour Inactivity Exception**: If a kingdom in another sector has had no player activity/logins for **48 hours**, its status transitions to **`inactive`**.
+  - **Scavenging Unlocked**: Once a kingdom becomes `inactive` (48 hours idle), players from **any sector** are permitted to launch probe missions and Standard Invasions against it (provided the 3x Networth condition is met).
+  - *Purpose*: Focuses primary warfare within competitive 5-player sectors while allowing the galaxy to clear out and scavenge dormant kingdoms without sector lockouts.
+
+### 2.3 Protection & Defensive Surge Mechanics
+- **Non-Active / Dead Kingdoms**: Fallen/dead kingdoms (`state === "dead"`) cannot be attacked or probed.
 - **Newbie Protection**: Kingdoms currently in Newbie Mode cannot be attacked or targeted by espionage.
 - **Defensive Alert Surge (Anti-Dogpiling)**:
   - Whenever a kingdom is **attacked and broken** (i.e. attacker achieves $\text{OP} > \text{DP}$ and captures land), the defender's military gains an immediate **+8% Defensive Bonus**:
@@ -90,6 +100,13 @@ $$P_{\text{success}} = \min\left(1.0, \; \max\left(0.20, \; \frac{\text{sent\_pr
     - The mission fails and no intelligence report is gathered.
     - **Probe Loss**: Causes **1.0 (100%) probe losses** ($\text{sent\_probes} \times 1.0$) of the sent probes (entire recon force intercepted and destroyed).
     - The target kingdom receives an alert notifying them of the failed espionage attempt.
+
+### 3.3 Probe Sector Eligibility & Inactivity Rule
+- **Phase 2 (PvE)**: Probes may only target environment bots (human kingdoms are protected).
+- **Phase 3 (PvP Intra-Sector)**: Probes can be launched against any active or inactive kingdom within the player's own sector.
+- **Phase 3 (PvP Inter-Sector)**:
+  - Inter-sector probing of active kingdoms is **strictly blocked**.
+  - Inter-sector probing is **permitted only if the target kingdom has become inactive (48 hours idle)**.
 
 ---
 
@@ -158,15 +175,17 @@ $$\text{Defensive Power (DP)} = \left[ \sum_{u \in \text{Defending Army}} (\text
 
 In Phase 3, players are split into sectors of 5 players (balanced across NW Tiers 1..5).
 
-### 5.1 Intra-Sector vs Cross-Sector Interactions
-- **Intra-Sector Combat (Same Sector)**:
-  - Instant attack travel time (or 0-tick delay).
-  - No warp travel penalties.
-  - Local sector rivalries.
-- **Cross-Sector Combat (Target in another Sector)**:
-  - Requires **Warp Distance** calculation:
-    $$\text{Travel Ticks} = \text{Base Travel} + f(\text{Distance})$$
-  - Warp research (`warp`, `r_core`) reduces travel time and offensive penalties over long distances.
+### 5.1 Intra-Sector vs Inter-Sector Interactions
+- **Intra-Sector Combat & Espionage (Same Sector)**:
+  - Instant attack travel time (0-tick delay).
+  - Full warfare and espionage unlocked between all kingdoms residing within the sector (subject to the 3x Networth range).
+  - Primary battleground for sector dominance and ranking.
+- **Inter-Sector Combat & Espionage (Target in Another Sector)**:
+  - **Active Kingdoms (Strictly Blocked)**: Attacks and probe missions targeting active kingdoms in different sectors are **not permitted**.
+  - **48-Hour Inactive Target Exception**:
+    - When a kingdom reaches **48 hours of inactivity** (no player logins/actions), its status becomes `inactive`.
+    - **Open for Raiding & Probing**: Inter-sector attacks (Standard Invasions) and probe missions are unlocked against this inactive kingdom for players from **any sector** across the universe (provided the 3x Networth condition is satisfied).
+    - This cleanses dead weight, creates strategic scavenger targets, and prevents dormant accounts from trapping land within a sector.
 
 ### 5.2 Sector Dynamics & Standings
 - **Sector Leaderboards**: Aggregated Networth of all 5 kingdoms in a sector.
@@ -198,7 +217,7 @@ Please review and specify your preferences on the following key mechanics:
 3. **Attack Cooldown & Daily Limit**:
    - Should attacks cost a resource (e.g. Attack Credits, Energy, or Ticks)?
    - Can a player attack the same target multiple times in a row, or is there a cooldown (e.g., max 3 attacks on the same target per 24h)?
-4. **Cross-Sector Attacks in PvP**:
-   - Should players in Phase 3 be able to attack players in *other* sectors, or is Phase 3 combat strictly restricted to players within their own assigned sector?
+4. **Cross-Sector Attacks & Probing in PvP** *(RESOLVED)*:
+   - Inter-sector attacks and probe missions are **not possible**, unless the target kingdom has become **inactive (48 hours of inactivity)**.
 5. **Bot Behavior in PvE**:
    - Should bots in Phase 2 remain passive targets for training, or should aggressive bot profiles occasionally launch counter-raids against player kingdoms?
