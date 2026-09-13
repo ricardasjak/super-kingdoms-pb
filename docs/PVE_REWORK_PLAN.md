@@ -125,11 +125,17 @@ At the exact moment Phase 1 ends (16:00:00 UTC), the server runs an automated bo
    - **Result**: When human players enter Phase 2 PvE, they face mature, organically structured, diverse AI kingdoms ready for combat.
 
 ### 4.3 First Attacks & Target Rules
-- Combat is officially unlocked!
-- **Target Restriction**:
+- Combat is officially unlocked! *(See [KINGDOM_INTERACTIONS.md](file:///home/rija/Projects/pocketbase/super-kingdoms-pb/docs/KINGDOM_INTERACTIONS.md) for detailed combat formulas and rules)*
+- **Attack Mechanics**:
+  - **Attack Type**: **Standard Invasion** (Plunder and Bombardment are removed/deferred).
+  - **Land Grab**: Successful attacks seize **10% of target's land** ($\lfloor \text{Defender Land} \times 0.10 \rfloor$).
+  - **Casualties**: Unit kill ratio is fixed at **8% on both sides** (attacker and defender both lose 8% of committed/defending units).
+  - **Defensive Alert Surge**: When a kingdom is attacked and broken, its defensive bonus increases by **+8%**, decaying by **1% every tick** until reaching 0%.
+- **Target Restriction & Range**:
+  - **3x Networth Window**: Both kingdoms must be `active`, and their Networth difference must be strictly less than 3x ($NW_{\text{attacker}} / 3 < NW_{\text{target}} < 3 \times NW_{\text{attacker}}$).
   - Real players may attack **Environment targets** (the spawned bot kingdoms).
   - Real players **cannot** attack or be attacked by other real human players during PvE.
-  - This allows players to test their military compositions, practice combat formulas, plunder resources, and expand their land base in a safe environment.
+  - This allows players to test their military compositions, practice combat formulas, and expand their land base in a safe environment.
 - **Auto-Build**: Unlocked for real players to automate ongoing growth if desired.
 - **Server Tick**: The game round advances via automated periodic server ticks (e.g., once per hour or at a configured game tick rate).
 
@@ -258,9 +264,9 @@ Please review and share your thoughts on the following design choices:
 
 1. **Bot Generation & Progression** *(RESOLVED)*:
    - At the end of Phase 1 (16:00:00 UTC), server spawns $5\times \text{active kingdoms}$ (minimum 21 bots), each with +300K extra cash ($600K total), and runs the 8 steps (128 ticks) automatically with assigned bot profiles before Phase 2 starts.
-2. **PvE Attack Types & Stakes**:
-   - In PvE mode, what types of attacks should players have available? (e.g. Standard Land Attack, Resource Raid, Drone/Spy Sabotage).
-   - Can bots retaliate against players during PvE, or are bots passive training targets?
+2. **PvE Attack Types & Stakes** *(RESOLVED)*:
+   - Attack type is Standard Invasion only (Plunder and Bombardment removed/deferred). Land grab is 10% of target's land. Unit casualties are 8% on both sides.
+   - *Sub-question*: Can bots retaliate against players during PvE, or are bots passive training targets?
 3. **Sector Splitting & Bot Placement**:
    - In PvP (when players are partitioned into sectors of 5), how should bots be placed?
      - Option A: Bots are also split across all sectors (e.g. 5 players + 5 bots per sector).

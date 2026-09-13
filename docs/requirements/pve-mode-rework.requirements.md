@@ -48,17 +48,22 @@ Detailed feature architecture, formulas, and diagrams are specified in:
 - REQ-PVE-022: PvE Mode shall last for exactly 3 days, concluding at 16:00:00 UTC.
 - REQ-PVE-023: During PvE Mode, all player kingdoms and environment bot kingdoms shall reside in a single shared sector (Sector 0).
 - REQ-PVE-024: Combat actions shall unlock in PvE Mode, permitting players to launch attacks against environment targets (bots / AI kingdoms).
-- REQ-PVE-025: Direct player-versus-player attacks shall remain locked during PvE Mode to protect developing players.
-- REQ-PVE-026: Global server ticking shall run at regular intervals during PvE Mode to advance the round and simulate bot / economic ticks.
-- REQ-PVE-027: Auto-build shall become unlocked for real players upon entry into PvE Mode.
+- REQ-PVE-025: In military combat, the system shall support Standard Invasion attacks (with Plunder and Bombardment attack types disabled); on a successful invasion ($\text{OP} > \text{DP}$), the attacker shall capture exactly 10% of the defender's total land ($\lfloor \text{Defender Land} \times 0.10 \rfloor$).
+- REQ-PVE-026: On an unsuccessful attack ($\text{OP} \le \text{DP}$), combat casualties for both the attacker and defender shall be scaled to 8% of the sent attacking power amount ($\text{Loss Points} = \text{OP} \times 0.08$); if military bonuses are identical, both parties shall lose approximately equal unit points equivalent to 8% of the sent force.
+- REQ-PVE-027: In combat actions, attacks shall only be permitted between active kingdoms whose Networth differs by less than a factor of 3 ($NW_{\text{attacker}} / 3 < NW_{\text{target}} < 3 \times NW_{\text{attacker}}$); targets outside this range shall be ineligible for attack.
+- REQ-PVE-028: When a kingdom is attacked and broken in combat, its defensive bonus shall immediately increase by 8%, and this bonus shall decrease by 1% on each subsequent simulation tick until it reaches 0%.
+- REQ-PVE-029: Direct player-versus-player attacks shall remain locked during PvE Mode to protect developing players.
+- REQ-PVE-030: Probe espionage mission success probability shall be calculated as $\min(1.0, \max(0.20, \text{sent\_probes} / \text{defender\_probes}))$, with a minimum baseline chance of 20% and 100% success if the target has 0 probes; successful missions shall consume/lose 0.25 (25%) of the sent probes, while failed missions shall result in the loss of 1.0 (100%) of the sent probes.
+- REQ-PVE-031: Global server ticking shall run at regular intervals during PvE Mode to advance the round and simulate bot / economic ticks.
+- REQ-PVE-032: Auto-build shall become unlocked for real players upon entry into PvE Mode.
 
 ### Phase 3: PvP Mode (Player vs Player) & Sector Splitting
 
-- REQ-PVE-028: PvP Mode shall begin immediately when PvE Mode ends at 16:00:00 UTC.
-- REQ-PVE-029: PvP Mode shall last for exactly 20 days, concluding at 16:00:00 UTC when the round ends.
-- REQ-PVE-030: At the transition into PvP Mode (16:00:00 UTC), the system shall automatically split all player kingdoms from the single initial sector into multiple sectors.
-- REQ-PVE-031: The total number of sectors shall be calculated by dividing the total count of active player kingdoms by 5 (rounded up: `ceil(playerCount / 5)`).
-- REQ-PVE-032: Prior to sector allocation, all active player kingdoms shall be ranked by Networth (NW) in descending order and partitioned into 5 distinct tier groups: Tier 1 (top 20%), Tier 2 (next 20%), Tier 3 (middle 20%), Tier 4 (lower 20%), and Tier 5 (bottom 20%).
-- REQ-PVE-033: The system shall allocate players to sectors by randomly drawing from each tier group, such that each sector is assigned balanced representation across Tier 1 through Tier 5 (ideally 1 player from each tier per 5-player sector).
-- REQ-PVE-034: Full PvP combat actions shall unlock, allowing players to attack other player kingdoms.
-- REQ-PVE-035: When the 20-day PvP Mode concludes at 16:00:00 UTC, the round shall transition to `ended`, freezing actions and calculating final kingdom and sector leaderboards.
+- REQ-PVE-033: PvP Mode shall begin immediately when PvE Mode ends at 16:00:00 UTC.
+- REQ-PVE-034: PvP Mode shall last for exactly 20 days, concluding at 16:00:00 UTC when the round ends.
+- REQ-PVE-035: At the transition into PvP Mode (16:00:00 UTC), the system shall automatically split all player kingdoms from the single initial sector into multiple sectors.
+- REQ-PVE-036: The total number of sectors shall be calculated by dividing the total count of active player kingdoms by 5 (rounded up: `ceil(playerCount / 5)`).
+- REQ-PVE-037: Prior to sector allocation, all active player kingdoms shall be ranked by Networth (NW) in descending order and partitioned into 5 distinct tier groups: Tier 1 (top 20%), Tier 2 (next 20%), Tier 3 (middle 20%), Tier 4 (lower 20%), and Tier 5 (bottom 20%).
+- REQ-PVE-038: The system shall allocate players to sectors by randomly drawing from each tier group, such that each sector is assigned balanced representation across Tier 1 through Tier 5 (ideally 1 player from each tier per 5-player sector).
+- REQ-PVE-039: Full PvP combat actions shall unlock, allowing players to attack other player kingdoms within the 3x Networth range.
+- REQ-PVE-040: When the 20-day PvP Mode concludes at 16:00:00 UTC, the round shall transition to `ended`, freezing actions and calculating final kingdom and sector leaderboards.
