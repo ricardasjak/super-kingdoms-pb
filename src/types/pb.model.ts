@@ -102,11 +102,20 @@ export const GameStatusStatusOptions = {
 	"stopped": "stopped",
 } as const
 export type GameStatusStatusOptions = typeof GameStatusStatusOptions[keyof typeof GameStatusStatusOptions]
+
+export const GameStatusPhaseOptions = {
+	"newbie": "newbie",
+	"pve": "pve",
+	"pvp": "pvp",
+	"ended": "ended",
+} as const
+export type GameStatusPhaseOptions = typeof GameStatusPhaseOptions[keyof typeof GameStatusPhaseOptions]
 export type GameStatusRecord = {
 	currentTick?: number
 	endTick: number
 	id: string
 	kingdomCount?: number
+	phase?: GameStatusPhaseOptions
 	roundNumber: number
 	status?: GameStatusStatusOptions
 }
