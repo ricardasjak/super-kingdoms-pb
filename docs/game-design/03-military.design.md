@@ -17,8 +17,9 @@ The military system provides defense against hostile incursions and offensive fi
   - Base recruit required for all ground unit training.
   - Recruited directly from civilian population.
 - **Specialist Training**:
-  - Costs 1 Soldier + specific unit money cost.
+  - Costs 1 Soldier + specific unit money cost (Tactical Fighters require money only, no soldier).
   - Training Camp discount applies to all ground recruitment.
+  - **Training Duration**: **24 hours (ticks)** for all units (including Soldiers and Scientists).
 - **Unit Upgrades**:
   - Existing Troopers can be upgraded to Dragoons; Laser Troopers can be upgraded to Laser Dragoons.
   - Duration: **12 hours (ticks)**.
@@ -27,7 +28,7 @@ The military system provides defense against hostile incursions and offensive fi
   - Disbanding Soldiers returns them as Civilians.
   - Tactical Fighters are permanently destroyed upon disbanding.
 - **Logistics & Readiness**:
-  - Military units consume double the energy of civilians.
+  - Military units consume **0.7 power/hour** (Tanks and Tactical Fighters consume **1.4 power/hour**).
   - Armies deployed on attacks cannot participate in homeland defense until they return.
 
 ---
@@ -38,15 +39,15 @@ The military system provides defense against hostile incursions and offensive fi
 - **Daily Enlistment Cap**:
   $$\text{Max Soldiers Recruited / 24h} = \left\lfloor \text{Civilian Population} \times 0.10 \right\rfloor$$
 - **Training Camp Discount Formula**:
-  $$\text{TC Discount } \% = \min\left(30\%, \; \left(\frac{\text{Training Camps}}{\text{Total Land}} \times 100\right) \times 3\right)$$
+  $$\text{TC Discount } \% = \min\left(30\%, \; \left\lfloor\frac{\text{Training Camps}}{\text{Total Land}} \times 300\right\rfloor\right)$$
 - **Discounted Unit Training Cost**:
   $$\text{Effective Cost} = \left\lfloor \text{Base Cost} \times \left(1 - \frac{\text{TC Discount } \%}{100}\right) \right\rfloor$$
 
 ### 3.2 Unit Combat Power Valuation
 - **Attacker Force Power Contribution**:
-  $$\text{Unit Offense} = (\text{Soldiers} \times 1) + (\text{Troopers} \times 4) + (\text{Dragoons} \times 5) + (\text{Fighters} \times 6) + (\text{Tanks} \times 9) + (\text{Tactical Fighters} \times 10)$$
+  $$\text{Unit Offense} = (\text{Soldiers} \times 1) + (\text{Troopers} \times 4) + (\text{Dragoons} \times 5) + (\text{Fighters} \times 6) + (\text{Tanks} \times 9) + (\text{Tactical Fighters} \times 12)$$
 - **Defender Garrison Power Contribution**:
-  $$\text{Unit Defense} = (\text{Soldiers} \times 1) + (\text{Laser Troopers} \times 4) + (\text{Laser Dragoons} \times 5) + (\text{Tanks} \times 9) + (\text{Tactical Fighters} \times 4)$$
+  $$\text{Unit Defense} = (\text{Soldiers} \times 1) + (\text{Laser Troopers} \times 4) + (\text{Laser Dragoons} \times 5) + (\text{Tanks} \times 9)$$
 
 ### 3.3 Unit Upgrades & Demobilization Returns
 - **Trooper $\to$ Dragoon Upgrade Cost**: $125\text{ money} \times (1 - \text{Discount})$; takes $12\text{ hours}$.
@@ -58,17 +59,17 @@ The military system provides defense against hostile incursions and offensive fi
 
 ## 4. Specifications Table
 
-| Unit | Off / Def | Base Cost | Housing | Prerequisites & Notes |
-|---|:---:|:---:|:---:|---|
-| **Soldier** | 1 / 1 | 150 money + 1 Civ | 1 Barracks | Basic militia; base recruit for advanced units |
-| **Trooper** | 4 / 0 | 350 money + 1 Sol | 1 Barracks | Dedicated frontline offensive infantry |
-| **Dragoon** | 5 / 0 | 450 money + 1 Sol | 1 Barracks | Cybernetic assault unit; requires **Dragoon** research |
-| **Laser Trooper** | 0 / 4 | 400 money + 1 Sol | 1 Barracks | Dedicated defensive fortifications guard |
-| **Laser Dragoon** | 0 / 5 | 550 money + 1 Sol | 1 Barracks | Cybernetic defensive unit; requires **Laser Dragoon** research |
-| **Fighter** | 6 / 0 | 650 money + 1 Sol | 1 Barracks | High-speed aerial strike unit; requires **Fighters** research |
-| **Tank** | 9 / 9 | 1,750 money + 1 Sol | 2 Barracks | Heavy combined-arms vehicle; balanced offensive & defensive anchor |
-| **Tactical Fighter** | 10–12 / 0–4 | 1,600–1,800 money | 1 Bay Slot *(40/Bay)* | Autonomous AI strike craft; requires **Vesudian Core & AI Tech** |
-| **Scientist** | 0 / 0 | 1,000 money + 1 Sol | 1 Barracks | Non-combatant; generates 1 research point / hour |
+| Unit | Off / Def | Base Cost | Housing | Power Load | Prerequisites & Notes |
+|---|:---:|:---:|:---:|:---:|---|
+| **Soldier** | 1 / 1 | 150 money + 1 Civ | 1 Barracks | 0.7 / hr | Basic militia; base recruit for specialists; 24h train |
+| **Trooper** | 4 / 0 | 350 money + 1 Sol | 1 Barracks | 0.7 / hr | Frontline offensive infantry; 24h train |
+| **Dragoon** | 5 / 0 | 450 money + 1 Sol | 1 Barracks | 0.7 / hr | Cybernetic assault unit; requires **Dragoon** research; 24h train |
+| **Laser Trooper** | 0 / 4 | 400 money + 1 Sol | 1 Barracks | 0.7 / hr | Defensive fortifications guard; 24h train |
+| **Laser Dragoon** | 0 / 5 | 550 money + 1 Sol | 1 Barracks | 0.7 / hr | Cybernetic defense unit; requires **Laser Dragoon** research; 24h train |
+| **Fighter** | 6 / 0 | 650 money + 1 Sol | 1 Barracks | 0.7 / hr | High-speed aerial strike unit; requires **Fighters** research; 24h train |
+| **Tank** | 9 / 9 | 1,750 money + 1 Sol | 2 Barracks | 1.4 / hr | Heavy combined-arms vehicle; balanced anchor; 24h train |
+| **Tactical Fighter** | 12 / 0 | 1,600 money | 1 Bay Slot *(40/Bay)* | 1.4 / hr | Autonomous AI strike craft; requires **TF & ASB** research; 24h train |
+| **Scientist** | 0 / 0 | 1,000 money + 1 Sol | 1 Barracks | 0.7 / hr | Non-combatant; generates 1 research point / hr; 24h train |
 
 ---
 

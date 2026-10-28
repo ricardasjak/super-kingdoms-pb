@@ -52,6 +52,8 @@ The kingdom's economy is sustained by its civilian population and industrial inf
 ### 3.3 Power Grid Consumption & Brownout Penalty
 - **Total Power Demand**:
   $$\text{Power Demand} = (\text{Civilians} \times 0.35) + \sum (\text{Military Units} \times \text{UnitPowerLoad}) + \text{Active Shield Load}$$
+  - $\text{UnitPowerLoad}$: $0.7\text{ power/hour}$ for Soldiers, Specialists, and Scientists; $1.4\text{ power/hour}$ for Tanks and Tactical Fighters.
+  - $\text{Active Shield Load}$: $\text{Total Shield Levels (0–30)} \times 0.01 \times \text{Gross Generation}$.
 - **Brownout Trigger**:
   $$\text{Grid State} = \begin{cases} \mathbf{Normal} & \text{if } \text{Stored Power} + \text{Generation} \ge \text{Demand} \\ \mathbf{Blackout / Brownout} & \text{if } \text{Stored Power} + \text{Generation} < \text{Demand} \end{cases}$$
 - **Blackout Penalties**:
@@ -68,8 +70,8 @@ The kingdom's economy is sustained by its civilian population and industrial inf
 | **Civilian Population** | 50 / Residence | Longevity (+10%), Sector State (2x) | Tax revenue, soldier recruitment pool |
 | **Star Mine Output** | +120 Money / hr | Forest & Wilderness (+25 money/mine) | Flat income unaffected by population decline |
 | **Civilian Power Load** | 0.35 power / civilian / hr | Population count | Scales with residential expansion |
-| **Military Power Load** | Heavy (2x civilian rate) | Army count | Large standing armies require dedicated power plants |
-| **Shield Power Load** | Variable excess | Shield settings (Military / Missile / Probe) | Drains remaining surplus power |
+| **Military Power Load** | 0.7 / unit / hr *(1.4 for Tanks/TF)* | Army count | Large standing armies require dedicated power plants |
+| **Shield Power Load** | 1% of gross gen per level | Shield settings (0–10 levels each) | Maximum 30% of power output |
 | **Sector Tax Siphon** | 0% – 5% | Sector Leader policy | Financed directly into Sector Fund |
 
 ---
