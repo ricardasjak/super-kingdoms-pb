@@ -77,7 +77,7 @@ To ensure a seamless transition without broken dependencies, the clean slate wil
 - **Tasks**:
   1. Implement `POST /api/kingdoms/create` with archetype bonuses and starting assets.
   2. Implement Go simulation phases 4, 5, 6 (Research, Population, Economy/Power) in `pkg/engine/simulation.go`.
-  3. Implement `POST /api/kingdoms/self-tick/step` advancing 16 ticks per step.
+  3. Implement `POST /api/kingdoms/self-tick/step` advancing 24 ticks per step (8 steps = 192 ticks total).
   4. Build `src/pages/create-kingdom.page.tsx` with live archetype selector.
   5. Build `src/pages/status.page.tsx` and the `NewbieStepView` banner.
   6. Write API integration tests for kingdom founding and Newbie step progression.
@@ -88,8 +88,8 @@ To ensure a seamless transition without broken dependencies, the clean slate wil
 - **Acceptance Criteria**:
   - A user can found a kingdom and be assigned a sector slot.
   - Status page displays correct 250 land, 2,250 civs, 300k gold, and 10k power.
-  - Clicking "Advance Step" simulates 16 ticks, updating civilian population, taxes, and power reserves.
-  - Reaching Step 8 completes Newbie Mode.
+  - Clicking "Advance Step" simulates 24 ticks, updating civilian population, taxes, power reserves, and completing 24-tick queues.
+  - Reaching Step 8 completes Newbie Mode (192 ticks total).
 
 ---
 

@@ -23,7 +23,7 @@ Super Kingdoms operates in discrete, competitive round seasons. Players compete 
   - Configurable round duration (default **960 ticks / ~40 days**, 1 tick/hour).
   - **Phase 1 (Global Newbie Mode)**:
     - Complete peaceful development.
-    - Each player advances via **8 Progression Steps** (each simulating 16 engine ticks in one batch = 128 total ticks).
+    - Each player advances via **8 Progression Steps** (each simulating 24 engine ticks in one batch = 192 total ticks).
     - Attacks and espionage completely disabled.
     - Resets allowed.
   - **Phase 2 (PvP Mode)**:

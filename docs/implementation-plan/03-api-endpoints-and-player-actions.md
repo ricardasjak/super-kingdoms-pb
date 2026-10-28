@@ -56,10 +56,10 @@ Wipes the active kingdom and restarts Newbie Mode.
 - **Execution**: Deletes existing kingdom and associated queues, allowing `/api/kingdoms/create` to be called again.
 
 ### 2.3 `POST /api/kingdoms/self-tick/step`
-Advances the kingdom by 1 progression step (16 engine ticks).
+Advances the kingdom by 1 progression step (24 engine ticks).
 - **Constraint**: `is_newbie == true` and `newbie_step < 8`.
-- **Execution**: Invokes Go simulation engine for 16 batch ticks on the caller's realm. Increments `newbie_step`. If step reaches 8, marks `is_newbie = false`.
-- **Response**: `200 OK` with updated kingdom stats and 16-tick event delta.
+- **Execution**: Invokes Go simulation engine for 24 batch ticks on the caller's realm. Increments `newbie_step`. If step reaches 8, marks `is_newbie = false`.
+- **Response**: `200 OK` with updated kingdom stats and 24-tick event delta.
 
 ### 2.4 `POST /api/game/daily-reward`
 Claims the once-per-24h territorial and treasury subsidy.

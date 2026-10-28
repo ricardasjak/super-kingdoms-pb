@@ -194,5 +194,5 @@ In Phase 1 (Global Newbie Mode), the global clock is frozen for player kingdoms.
   ```go
   func (e *Engine) AdvanceKingdomNewbieStep(kingdomId string) error
   ```
-- The engine runs **16 consecutive ticks** for that single kingdom in an isolated in-memory loop, committing the final state to SQLite in one batch.
+- The engine runs **24 consecutive ticks** for that single kingdom in an isolated in-memory loop (advancing $8 \times 24 = 192$ ticks total across all 8 steps), committing the final state to SQLite in one batch.
 - On completing Step 8, the kingdom's `is_newbie` flag is cleared, and it awaits the round's global transition to Phase 2 (PvP Mode).

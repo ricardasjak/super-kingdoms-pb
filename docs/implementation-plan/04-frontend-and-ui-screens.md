@@ -56,9 +56,9 @@ The application layout wraps all in-game views in a persistent `TopStatusBar` di
 
 ### 3.3 `NewbieStepView` (Banner on Status Page during Phase 1)
 - Displayed whenever `kingdom.is_newbie == true`.
-- **Step Meter**: Visual indicator showing `Step X of 8` (each representing 16 engine simulation ticks).
+- **Step Meter**: Visual indicator showing `Step X of 8` (each representing 24 engine simulation ticks = 192 total hours).
 - **Actions**:
-  - **"Advance Next Step (Simulate 16 Hours)"**: Calls `POST /api/kingdoms/self-tick/step`. Shows summary modal of population born, money collected, power generated, and queue completions.
+  - **"Advance Next Step (Simulate 24 Hours)"**: Calls `POST /api/kingdoms/self-tick/step`. Shows summary modal of population born, money collected, power generated, and queue completions.
   - **"Reset Kingdom"**: Emergency restart button allowing the player to wipe and pick a new planet archetype.
 
 ### 3.4 `StatusPage` (`/`)
