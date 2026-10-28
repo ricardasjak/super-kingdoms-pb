@@ -31,3 +31,6 @@ pb/pb_data/
 pb/pb_public/
 pb_prod_data/
 pb_test_data/
+
+# Documentation archives
+docs/game-manual/
