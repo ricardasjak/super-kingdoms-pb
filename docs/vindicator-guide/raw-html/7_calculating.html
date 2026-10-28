@@ -1,0 +1,963 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><script type="text/javascript" src="https://web-static.archive.org/_static/js/bundle-playback.js?v=3grhEDQT" charset="utf-8"></script>
+<script type="text/javascript" src="https://web-static.archive.org/_static/js/wombat.js?v=o9P2E1FK" charset="utf-8"></script>
+<script>window.RufflePlayer=window.RufflePlayer||{};window.RufflePlayer.config={"autoplay":"on","unmuteOverlay":"hidden","showSwfDownload":true};</script>
+<script type="text/javascript" src="https://web-static.archive.org/_static/js/ruffle/ruffle.js"></script>
+<script type="text/javascript">
+    __wm.init("https://web.archive.org/web");
+  __wm.wombat("http://www.angelfire.com/ill/l33t_hacker/Vindicator/7_calculating.html","20190728100034","https://web.archive.org/","web","https://web-static.archive.org/_static/",
+	      "1564308034");
+</script>
+<link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/banner-styles.css?v=1utQkbB3" />
+<link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/iconochive.css?v=3PDvdIFv" />
+<!-- End Wayback Rewrite JS Include -->
+
+<title>7. calculating attacks</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<table width="774" border="0" cellpadding="0" cellspacing="0">
+  <tr> 
+    <td width="774" height="21"> <table width="772" border="0" cellpadding="0" cellspacing="0">
+        <tr> 
+          <td width="39" height="27"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topleft.jpg" width="39" height="27"></td>
+          <td width="706" bordercolor="0" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_top.jpg"></td>
+          <td width="27"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topright.jpg" width="27" height="27"></td>
+        </tr>
+        <tr> 
+          <td height="115" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_left.jpg"></td>
+          <td background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_center.jpg"><table width="708" height="111" border="0" cellpadding="0" cellspacing="0">
+              <tr> 
+                <td width="502" height="41"> <table width="502" border="0">
+                    <tr> 
+                      <td width="398" height="37"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/8_title.jpg" width="311" height="35"></td>
+                      <td width="56"><a href="6_attacking.html" style="cursor:hand" target="mainFrame"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/goback_e.jpg" width="44" height="24" border="0"></a></td>
+                      <td width="56"><a href="7_probing.html" style="cursor:hand" target="mainFrame"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/gofwd_e.jpg" width="44" height="24" border="0"></a></td>
+                    </tr>
+                  </table></td>
+                <td width="206" rowspan="2"><div align="center"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/15_calcpicture.jpg" width="189" height="103"></div></td>
+              </tr>
+              <tr> 
+                <td height="70"> <p align="justify"><strong>When attacking someone, 
+                    you gain between 5% and 10% of their land, money, power and 
+                    civilians. But that is only if your attack is <font size="+1">successful</font>.<br>
+                    To not fail shouldn&#8217;t be very hard if you calculate 
+                    everything correct.</strong></p></td>
+              </tr>
+            </table></td>
+          <td background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_right.jpg"></td>
+        </tr>
+        <tr> 
+          <td height="27"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomleft3.jpg" width="39" height="27"></td>
+          <td background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottom2.jpg"></td>
+          <td><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomright.jpg" width="27" height="27"></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="497"> <table width="774" border="0" cellpadding="0" cellspacing="0">
+        <tr> 
+          <td width="39" height="27"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topleft.jpg" width="39" height="27"></td>
+          <td width="707" bordercolor="0" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_top.jpg"></td>
+          <td width="28"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topright.jpg" width="27" height="27"></td>
+        </tr>
+        <tr> 
+          <td height="443" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_left.jpg"></td>
+          <td background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_center.jpg"><table width="706" height="2040" border="0" cellpadding="0" cellspacing="0">
+              <tr>
+                <td width="706" height="172"> <p align="justify"><strong>There 
+                    are several different bonuses and stats of a kingdom affecting 
+                    their offense and defense, and knowing all those are important 
+                    if you want to be successful when attacking. Even if you can 
+                    use the attack calculator which can be found in the menu to 
+                    the left to calculate attacks, you still have to know what 
+                    to set different values on that one to, in order to make correct 
+                    calculations. </strong></p>
+                  <p align="justify"><strong><font size="+1">How to calculate 
+                    the defending kingdom&#8217;s defense</font><br>
+                    Every military unit has a specific amount of offense and defense 
+                    points, so it&#8217;s good if you have a calculator when doing 
+                    this. The defense points are only used for the military units 
+                    which that person has at home, so if the defending kingdom&#8217;s 
+                    tanks are all out, you should not count with them.</strong></p>
+                  <p align="justify"><strong>Things which affect the defense of 
+                    a kingdom are (&quot;Expect&quot; is what value you should 
+                    expect this statistic to have in your calculations, if you 
+                    don't check it before attacking):</strong></p>
+                  <p>&nbsp;</p></td>
+              </tr>
+              <tr>
+                <td height="196">
+<table width="480" border="0" cellpadding="0" cellspacing="0">
+                    <tr> 
+                      <td width="159" height="196" align="CENTER" valign="TOP"> 
+                        <table height="18" width="159" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topleft.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>If the target is...</b></font></td>
+                          </tr>
+                        </table>
+                        <table width="159" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Sector Leader</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> • Oceanic planet</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Out of power</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> • At peace with you</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="28"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> • Having Mil.Research</font></tr>
+                              </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom.gif" width="159" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="196" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>Effect</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">+10 
+                                      % </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> +20 %</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      -20 % </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> +25%</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> +1 %/MR.</font></div></tr>
+                              </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="196" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>Expect</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      N/A </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> N/A</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      No chg.</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> N/A</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> +30 %</font></div></tr>
+                              </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td width="159" height="196" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            
+                          </tr>
+                        </table>
+                        <table height="18" width="159" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>How to check it</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="19" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> Yellow in sectorlist</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> Look at planet type</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> SoK probing</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="23" bgcolor="#FFF5E6"><font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA">Look at alliance info.</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="27"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> SoR probing</font></tr>
+                              </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom.gif" width="159" height="5" border="0"><br> 
+                        </table></tr>
+                  </table></td>
+              </tr>
+              <tr>
+                <td><p align="justify"><strong>Below is an example of how a person&#8217;s 
+                    SoM can look (you can get this by going to the probe room, 
+                    enter the sector number of the kingdom which you want to probe, 
+                    pick the kingdom in the list, and use the command &quot;Spy 
+                    on Military&quot; in the list). SoM is actually the only stats 
+                    really needed to attack someone:</strong></p>
+                  <p>&nbsp;</p></td>
+              </tr>
+              <tr>
+                <td height="201">
+<table width="504" border="0" cellpadding="0" cellspacing="0">
+                    <tr> 
+                      <td width="159" height="178" align="CENTER" valign="TOP"> 
+                        <table height="18" width="159" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topleft.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="1" color="FFFFEF"> 
+                              <b>Status</b></font></td>
+                          </tr>
+                        </table>
+                        <table width="159" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> Soldiers</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> Troopers</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> Dragoons</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> Laser Troopers</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="28"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> Laser Dragoons</font></tr>
+                              <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> Tanks</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="24"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> Tactical Fighters</font></tr></table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom.gif" width="159" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="178" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="1" color="FFFFEF"> 
+                              <b>Available(0)</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">12</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 222</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      122</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 1570</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 700</font></div></tr>
+                              <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 2063</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      200</font></div></tr>
+                                <tr>  </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="178" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="1" color="FFFFEF"> 
+                              <b>Unavail.(3)</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      0</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 250</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      0 </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"><font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"></font></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA">0</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 0</font></div></tr>
+                              <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 497</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      777</font></div></tr>
+                                <tr>  </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="178" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="1" color="FFFFEF"> 
+                              <b>Unavail.(6)</b></font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">0</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 252</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      0</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"><font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"></font></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA">0</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 0</font></div></tr>
+                               <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 498</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      779</font></div></tr>
+                                <tr> </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td height="178" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="1" color="FFFFEF"> 
+                              <b>Unavail.(22)</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">427</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 0</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      47</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 0</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 0</font></div></tr>
+                               <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 297</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      21</font></div></tr>
+                                <tr> </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td height="178" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/top82right.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="1" color="FFFFEF"> 
+                              <b>Unavail.(10)</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      0</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 770</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      666</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 0</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 0</font></div></tr>
+                               <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 760</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      455</font></div></tr>
+                                <tr> </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table></tr>
+                  </table></td>
+              </tr>
+              <tr>
+                <td height="574">
+<p>&nbsp;</p>
+                  <p align="justify"><strong>If you attack someone, you just have 
+                    to calculate defense for the military in the first row, Home 
+                    Leader. The rest of the army is away because the kingdom has 
+                    recently attacked. This persons base defense is 12*1 (Soldiers) 
+                    + 1570*4 (Laser Troopers) + 700 * 5 (Laser Dragoons) + 2063 
+                    * 9 (Tanks) + 200 * 4 (Tactical Fighters), which is a total 
+                    of 29,159 defense points. The Dragoons and the Troopers are 
+                    offensive units only, so they don&#8217;t count to defense 
+                    at all. Then multiply this with that kingdom&#8217;s bonuses 
+                    to get his total defense.</strong></p>
+                  <p align="justify"><strong><font size="+1">Example</font></strong><br>
+                    <strong>I want to attack the kingdom mentioned earlier, with 
+                    29,159 defense points. But that kingdom is Oceanic, and is 
+                    Sector leader. He also has full military research. None of 
+                    us is at war or peace with the other.</strong></p>
+                  <p align="justify"><strong>Then his defense will be a lot higher 
+                    than just 29,159. <br>
+                    100% + 20% (oceanic) + 10% (sector leader) + 30% (military 
+                    research) = 160% <br>
+                    His total defense will then be 160% of 29,159 defense points 
+                    = 46,654 defense points. </strong></p>
+                  <p align="justify"><strong><font size="+1">How to calculate 
+                    your offense</font><br>
+                    When you&#8217;re done with the defense calculations, it&#8217;s 
+                    time to calculate your offense as well. Your offense must 
+                    always be higher than both the defending kingdom&#8217;s defense 
+                    and <font size="+1">2* THE DEFENDING KINGDOMS LAND</font> 
+                    (important!) to be successful. The minimum defense for all 
+                    kingdoms is always 2 defense points/land, so never send less 
+                    than that&#8230; because then you will fail. This means that 
+                    you will need 500 offense points to break a 250 land kingdom 
+                    which has no defense at all (or a total defense of less than 
+                    500 defense points, including bonuses), since 250*2 = 500. 
+                    And 500 offense points is either 125 troopers or 56 tanks, 
+                    without military bonus. </strong></p>
+                  <p align="justify"><strong>Things which affect your offense 
+                    (all those things, except for the defending kingdom's shields, 
+                    can always be seen by looking at your own different stats) 
+                    are:</strong></p>
+                  <p>&nbsp;</p>
+                  </td>
+              </tr>
+              <tr>
+                <td height="301">
+<table width="480" border="0" cellpadding="0" cellspacing="0">
+                    <tr> 
+                      <td width="159" height="178" align="CENTER" valign="TOP"> <table height="18" width="159" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topleft.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font color="FFFFEF" size="2" face="VERDANA, ARIAL,HELVETICA"><b>If 
+                              you are...</b></font></td>
+                          </tr>
+                        </table>
+                        <table width="159" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Sector Leader</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Mystical Lands</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Shadow Lands</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Desert Wasteland</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="28"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Having Mil.Res.</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Out of power</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="24"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • At peace w. target</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• At war w. target</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="28"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Sending many WL</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Target's M.shields</font></tr>
+                              </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom.gif" width="159" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="178" align="CENTER" valign="TOP"> <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>Effect</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">+10 
+                                      % </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">-10 
+                                      %</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      -5 %</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">+17,5 
+                                      %</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> +1% /MR</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">-20 
+                                      %</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"><font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"></font></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">-10 
+                                      %</font></div></tr>
+                                <tr> 
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> </font><font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">+10 
+                                      %</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> +3% each</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> -Shields%</font></div></tr>
+                              </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="178" align="CENTER" valign="TOP"> <table height="18" width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>Expect</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"><font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"></font><font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"></font></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">N/A</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> N/A</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"><font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"></font></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">N/A</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"><font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"></font></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA">N/A</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> N/A</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> N/A</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      </font><font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA">N/A</font></div></tr>
+                                <tr> 
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> N/A</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> N/A</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> -10 %</font></div></tr>
+                              </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td width="159" height="178" align="CENTER" valign="TOP"> <table height="18" width="159" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>How to check it</b></font></td>
+                          </tr>
+                        </table>
+                        <table width="159" background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">Sector 
+                                      polictics </font> </div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> Your planet type</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      Your planet type</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"><font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"></font><font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"></font></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA">Your planet type</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> Your research room</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> Your power is 0</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      Look at alliance info.</font></div></tr>
+                                <tr> 
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> Look at alliance info.</font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA">+3% each (not first)</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> SoS probing</font></div></tr>
+                              </table>
+                              <img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom.gif" width="159" height="5" border="0"><br> 
+                        </table></tr>
+                  </table></td>
+              </tr>
+              <tr>
+                <td height="418">
+<p>&nbsp;</p>
+                  <p align="justify"><strong>Alliance info can either be viewed 
+                    by clicking on the alliance name at the top of a sector list, 
+                    or by looking at the attack room for a sector which is in 
+                    a pseicific alliance. If the alliance for example is at Peace 
+                    with you, it says &quot;Alliance relations: Peace&quot; in 
+                    there. If it doesn't say anything at all, the alliances do 
+                    not have any specific relation to each others, and attacking 
+                    is not affected. </strong></p>
+                  <p align="justify"><strong>For every additional War Leader you 
+                    send, you get +3% offense, but you don't get any bonus for 
+                    the first one. So if sending 3 WL's, you get 6% bonus to offense.</strong></p>
+                  <p align="justify"><strong>If my kingdom then is Sector Leader, 
+                    Mystical Lands + out of power, and I have 25% military research, 
+                    send three war leaders when attacking (3% extra offense for 
+                    the additional two), and the defender has 5% military shields 
+                    (which decreases offense of attacker) my offensive power will 
+                    be 100% -10% +10% -20% +25% +6% -5% = 106%, which means that 
+                    I will have to multiply my offense with 106% (and the defender&#8217;s 
+                    defense with whatever total % you get from his bonuses) before 
+                    comparing them, to see if I will be successful.</strong></p>
+                  <p align="justify"><strong>It is usually far easier to calculate 
+                    attacking with a Star Kingdoms attack calculator (like the 
+                    one at the bottom of the menu to the left), than in the head, 
+                    so attacking is actually not as complicated as it might seem 
+                    above. You won't have to be a mathematical genius to hit someone 
+                    successfully, all you have to learn is how to find out what 
+                    the different stats of a kingdom are, or what you should expect 
+                    them to be, and the calculator will be able to do most of 
+                    the work for you.</strong><br>
+                  </p>
+                  </td>
+              </tr>
+            </table></td>
+          <td background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_right.jpg"></td>
+        </tr>
+        <tr> 
+          <td height="27"><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomleft3.jpg" width="39" height="27"></td>
+          <td background="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottom2.jpg"></td>
+          <td><img src="/web/20190728100034im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomright.jpg" width="27" height="27"></td>
+        </tr>
+      </table></td>
+  </tr>
+</table>
+</body>
+</html>
+<!--
+     FILE ARCHIVED ON 10:00:34 Jul 28, 2019 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 22:29:53 Oct 28, 2026.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->
+<!--
+playback timings (ms):
+  captures_list: 0.569
+  exclusion.robots: 0.073
+  exclusion.robots.policy: 0.064
+  esindex: 0.006
+  cdx.remote: 5.319
+  LoadShardBlock: 111.621 (3)
+  PetaboxLoader3.datanode: 70.97 (4)
+  PetaboxLoader3.resolve: 89.596 (2)
+  load_resource: 56.999
+-->

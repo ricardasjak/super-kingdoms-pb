@@ -1,0 +1,803 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><script type="text/javascript" src="https://web-static.archive.org/_static/js/bundle-playback.js?v=3grhEDQT" charset="utf-8"></script>
+<script type="text/javascript" src="https://web-static.archive.org/_static/js/wombat.js?v=o9P2E1FK" charset="utf-8"></script>
+<script>window.RufflePlayer=window.RufflePlayer||{};window.RufflePlayer.config={"autoplay":"on","unmuteOverlay":"hidden","showSwfDownload":true};</script>
+<script type="text/javascript" src="https://web-static.archive.org/_static/js/ruffle/ruffle.js"></script>
+<script type="text/javascript">
+    __wm.init("https://web.archive.org/web");
+  __wm.wombat("http://www.angelfire.com/ill/l33t_hacker/Vindicator/5_offdefense.html","20190728100035","https://web.archive.org/","web","https://web-static.archive.org/_static/",
+	      "1564308035");
+</script>
+<link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/banner-styles.css?v=1utQkbB3" />
+<link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/iconochive.css?v=3PDvdIFv" />
+<!-- End Wayback Rewrite JS Include -->
+
+<title>5. Offense and defense</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<script language="JavaScript1.1">
+
+//Vindicator Star Kingdoms DF/Land calculator. By Vindicator, 2003-10-05, &copy;&reg;&#8482;
+
+//global variables
+var totalDefense
+var totalDefense2
+var temp
+var number
+var numberb
+var newnumber
+var myLand
+
+//clears some global values, I have no idea why it should do this, but I think it is useful..
+function clearGlobalValues() {
+totalDefense=""
+}
+
+//displays help alertbox
+function displayHelp() {
+alert("Vindicator DPA calculator\n" +
+      "Online version. By Vindicator. 2003-10-05\n\n" +
+      "How to use:\n1. Paste your own SoM into the textbox to the left.\n"+
+	  "2. Set defense modifiers for your kingdom to the right. \n" +
+	  "3. Press calculate, and a pop up window will display your defense/land. \n"+
+	  "The DPA is what you have without military bonus or shields, since \n" +
+	  "that is the DPA calculation method which is most commonly used in SK. \n" +
+	  "The DPA values show if you have a good defense or not."
+	  )
+}
+
+//clears the text area when clicking on it, if no SoM is in it.
+function clearText() {
+var text = document.form1.textarea.value.indexOf("Paste your own")
+if (text != -1) {clearTextbox()}
+}
+
+//clears text area
+function clearTextbox(){
+document.form1.textarea.value = ""
+}
+
+function getStatsDef(stats){
+//replace stupid things in stats (, and newlines)
+stats = document.form1.textarea.value;
+stats = stats.replace(/,/g,"").replace(/\r/g," ").replace(/\n/g,"")
+.replace("Laser Troopers","LaserTrooopers").replace("Laser Dragoons","LaserDragooons")
+.replace("Laser Dragoon","LaserDragooons").replace("Laser Trooper","LaserTrooopers")
+.replace("Tactical Fighters","TacticalFighters")
+//changing names so the calculator won't mistake LD's for dragoons, and think that
+//"fighters" is the number of TF's.
+
+//gets the stats of defending kingdom
+
+//Get soldiers
+var stat = stats.indexOf("Soldiers");
+    var stat2 = "";
+    if (stat != -1) {
+      stat = stats.substring(stat,(stat+500))
+      stat2 = stat.indexOf(" ")
+      stat2 = stat.substring((stat2 + 1),500)
+      stat2 = Number(stat2.substring(0,stat2.indexOf(" ")))
+}
+document.form1.textfield2.value = stat2
+
+//Get laser troopers
+stat = stats.indexOf("LaserTrooopers");
+stat2 = "";
+    if (stat != -1) {
+      stat = stats.substring(stat,(stat+500))
+      stat2 = stat.indexOf(" ")
+      stat2 = stat.substring((stat2 + 1),500)
+      stat2 = Number(stat2.substring(0,stat2.indexOf(" ")))
+}
+document.form1.textfield4.value = stat2
+
+//Get laser dragoons
+stat = stats.indexOf("LaserDragooons");
+stat2 = "";
+    if (stat != -1) {
+      stat = stats.substring(stat,(stat+500))
+      stat2 = stat.indexOf(" ")
+      stat2 = stat.substring((stat2 + 1),500)
+      stat2 = Number(stat2.substring(0,stat2.indexOf(" ")))
+}
+document.form1.textfield6.value = stat2
+
+//Get tanks
+stat = stats.indexOf("Tanks");
+stat2 = "";
+    if (stat != -1) {
+      stat = stats.substring(stat,(stat+500))
+      stat2 = stat.indexOf(" ")
+      stat2 = stat.substring((stat2 + 1),500)
+      stat2 = Number(stat2.substring(0,stat2.indexOf(" ")))
+}
+document.form1.textfield8.value = stat2
+
+//Get tactical fighters
+stat = stats.indexOf("TacticalFighters");
+stat2 = "";
+    if (stat != -1) {
+      stat = stats.substring(stat,(stat+500))
+      stat2 = stat.indexOf(" ")
+      stat2 = stat.substring((stat2 + 1),500)
+      stat2 = Number(stat2.substring(0,stat2.indexOf(" ")))
+}
+document.form1.textfield10.value = stat2
+//clears the textbox afterwards
+clearTextbox()
+}
+	  	  
+//main function, raises alert window and calls all other functions.
+function calculateAttack() {
+totalDefense = (((calculateDefense()) * (calculateDefBonuses())) / 100)
+myLand = 1;
+if (document.form1.dfLand.value != "") {
+	myLand = parseInt(document.form1.dfLand.value)
+	}	
+
+document.form1.textarea.value = ("DPA value: " + calculateDefense() +
+" * " + calculateDefBonuses() + "% / " + myLand + " land = " +
+parseInt(totalDefense / myLand) + " defense points. \n" +
+"Time since game start: About " + (document.form1.timePassed.value / 2) + " weeks.")
+
+alert(document.form1.textarea.value)
+}
+
+//calculates defense
+function calculateDefense() {
+if (document.form1.textfield2.value == "") {document.form1.textfield2.value = 0}
+if (document.form1.textfield4.value == "") {document.form1.textfield4.value = 0}
+if (document.form1.textfield6.value == "") {document.form1.textfield6.value = 0}
+if (document.form1.textfield8.value == "") {document.form1.textfield8.value = 0}
+if (document.form1.textfield10.value == "") {document.form1.textfield10.value = 0}
+
+return ((document.form1.textfield2.value * 1) + (document.form1.textfield4.value * 4) +
+(document.form1.textfield6.value * 5) + (document.form1.textfield8.value * 9) +
+(document.form1.textfield10.value * 4))
+}
+
+//calculates defensive bonuses
+function calculateDefBonuses() {
+var planetValue = parseInt(document.form1.defenderPlanet.value)
+var dfSl = parseInt(document.form1.dfSl.value)
+var dfPow = parseInt(document.form1.dfPow.value)
+
+if (document.form1.dfSl.checked){dfSl = 10}
+if (document.form1.dfPow.checked){dfPow = 20}
+
+return parseInt(100 + planetValue + dfSl - dfPow)
+}
+
+</script>
+
+<body>
+<table width="774" border="0" cellpadding="0" cellspacing="0">
+  <tr> 
+    <td width="774" height="168"> 
+      <table width="772" border="0" cellpadding="0" cellspacing="0">
+        <tr> 
+          <td width="39" height="27"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topleft.jpg" width="39" height="27"></td>
+          <td width="706" bordercolor="0" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_top.jpg"></td>
+          <td width="27"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topright.jpg" width="27" height="27"></td>
+        </tr>
+        <tr> 
+          <td height="115" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_left.jpg"></td>
+          <td background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_center.jpg"><table width="708" height="111" border="0" cellpadding="0" cellspacing="0">
+              <tr> 
+                <td width="502" height="41"> 
+                  <table width="502" border="0">
+                    <tr> 
+                      <td width="398" height="37"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/5_title.jpg" width="311" height="35"></td>
+                      <td width="56"><a href="4_buildings.html" style="cursor:hand" target="mainFrame"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/goback_e.jpg" width="44" height="24" border="0"></a></td>
+                      <td width="56"><a href="6_attacking.html" style="cursor:hand" target="mainFrame"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/gofwd_e.jpg" width="44" height="24" border="0"></a></td>
+                    </tr>
+                  </table></td>
+                <td width="206" rowspan="2"><div align="center"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/5_attacking.jpg" width="189" height="103"></div></td>
+              </tr>
+              <tr> 
+                <td height="72"> <p align="justify"><strong>Always try to have 
+                    enough defense at home to avoid being attacked. That means 
+                    either 50-70% of your military or more, or so much military 
+                    that you would not want to attack yourself if you had been 
+                    your own opponent.</strong></p></td>
+              </tr>
+            </table></td>
+          <td background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_right.jpg"></td>
+        </tr>
+        <tr> 
+          <td height="27"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomleft3.jpg" width="39" height="27"></td>
+          <td background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottom2.jpg"></td>
+          <td><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomright.jpg" width="27" height="27"></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td height="1458"> 
+      <table width="775" border="0" cellpadding="0" cellspacing="0">
+        <tr> 
+          <td width="39" height="27"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topleft.jpg" width="39" height="27"></td>
+          <td width="707" bordercolor="0" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_top.jpg"></td>
+          <td width="29"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topright.jpg" width="27" height="27"></td>
+        </tr>
+        <tr> 
+          <td height="1404" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_left.jpg"></td>
+          <td background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_center.jpg"><table width="706" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td width="706" height="133">
+<p align="justify"><strong>Star Kingdoms is a war game. You can survive without 
+                    attacking others, but you will probably never do good at Sk 
+                    if you don't. Below are descriptions of the different military 
+                    units. Some of them can only be used for offense, some of 
+                    them only for defending your kingdom, and a few for both purposes.<br>
+                    Soldiers are drafted from your population (you can draft a 
+                    maximum of 10% of your civilians every day into soldiers), 
+                    and from the soldiers, you can train more advanced military 
+                    units - Troopers, Dragoons, Laser Troopers, Laser Dragoons 
+                    and Tanks. Tactical Fighters do not need any soldiers in order 
+                    to be trained.<br>
+                    For most planet types, some of the military units have to 
+                    be researched before they can be trained.</strong></p>
+                  <p>&nbsp;</p></td>
+              </tr>
+              <tr>
+                <td><table width="561" border="0" cellpadding="0" cellspacing="0">
+                    <tr> 
+                      <td width="159" height="247" align="CENTER" valign="TOP"> 
+                        <table height="18" width="159" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topleft.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>Military unit type</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="159" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Soldier</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> • Trooper</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Laser Trooper</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> • Laser Dragoon*</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Dragoon*</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> • Tank</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Scientist</font></tr>
+<tr>
+                                  <td valign="CENTER" align="LEFT" height="28" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> • Tactical Fighter*</font></tr>
+
+                              </table>
+                              <img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom.gif" width="159" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="247" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>Offense</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA">1 
+                                      </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 4</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      - </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> -</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      5 </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 9</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      - </font></div></tr>
+									 <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 10</font></div></tr>
+                              </table>
+                              <img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="247" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>Defense</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      1 </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> -</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      4 </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 5</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      - </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 9</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      - </font></div></tr>
+									  <tr>
+                                  <td height="28" align="LEFT" valign="CENTER" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 4</font></div></tr>
+                              </table>
+                              <img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table>
+                      <td width="81" height="247" align="CENTER" valign="TOP"> 
+                        <table height="18" width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>Cost</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      150 </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 350</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      400 </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 550</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      450 </font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 1750</font></div></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                      1000 </font></div></tr>
+                                <tr> 
+                                  <td height="28" align="LEFT" valign="CENTER" bgcolor="#FFF5E6"> 
+                                    <div align="center"> 
+                                      <div align="left"></div>
+                                      <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 1800</font></div></tr>
+                              </table>
+                              <img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                        </table><td width="159" align="CENTER" valign="TOP"> <table height="18" width="159" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topright.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                              <b>Description</b> </font></td>
+                          </tr>
+                        </table>
+                        <table width="19" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                          <tr> 
+                            <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> Basic military unit</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> Offensive unit only</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> Defensive unit only</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="23" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> Strong defensive unit</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> Strong offensive unit</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> Offense and defense</font></tr>
+                                <tr> 
+                                  <td valign="CENTER" align="LEFT" height="22"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> Can research for you</font></tr>
+<tr>
+                                  <td valign="CENTER" align="LEFT" height="27" bgcolor="#FFF5E6"><font face="VERDANA, 
+
+ARIAL,HELVETICA" size="-1" color="#000000"> No soldiers needed</font></tr>
+
+                              </table>
+                              <img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom.gif" width="159" height="5" border="0"><br> 
+                        </table></tr>
+                  </table></td>
+              </tr>
+              <tr>
+                <td height="967"> 
+                  <div align="justify"><strong>* = This military 
+                    unit usually has to be researched before you can use it. </strong> 
+                  </div>
+                  <p align="justify"><strong>For every % of your land used for 
+                    training camps, to a maximum of 10% of your land, military 
+                    will be 3% cheaper, so a person with 10% training camps will 
+                    be able to train a tank for 1225 money.</strong></p>
+                  <p align="justify"><strong>A kingdom's defense land is calculated 
+                    with ((1x Soldiers + 4x Laser Troopers + 5x Laser Dragoons 
+                    +9x Tanks + 4x TF&#8217;s) / your amount of land) * bonuses. 
+                    The minimum defense for a kingdom is always 2x his amount 
+                    of land defense points, and you don't get any bonuses to land 
+                    defense, which means that a 500 land kingdom with 100 soldiers 
+                    for defense will have 500 * 2 = 1,000 defense points worth 
+                    of defense.<br>
+                    If the military defense is higher than the land defense (which 
+                    it is in most cases), you don't need to include the land defense 
+                    in your calculations.</strong></p>
+                  <p align="justify"><strong>&#8226; Tactical Fighters can only 
+                    be used as long as you have air support bays. Every air support 
+                    bay holds 35 Tactical Fighters, and that number is not increased 
+                    by any bonuses or researches. So a person with 1,000 air bays 
+                    can have a maximum of 35,000 Tactical Fighters sent out as 
+                    most, even if he has more than that which are unsupported. 
+                    If he gets attacked, it is only checked how many TF's which 
+                    are in and supported, not how many of the supported ones which 
+                    are already out.</strong></p>
+                  <p align="justify"><strong>&#8226;You have four different war 
+                    leaders (WL's) to use when attacking. For each one extra you 
+                    use, after the first one, you get a 3% bonus to offense. Your 
+                    army will also return much faster if you use many war leaders. 
+                    For example, if you send 10k tanks with one WL to attack someone 
+                    which is 16 hours away, your 10k tanks will all return after 
+                    16 hours. With two WL&acute;s used, 6k tanks will return after 
+                    8hours, and the other 6k after 16 hours. With three WL&acute;s, 
+                    the return times will be 5-10-16, and with four war leaders 
+                    4-8-12-16.<br>
+                    Attack times for the last three WL&acute;s are always rounded 
+                    down to 25%, 50% and 75% of the closest number which is dividable 
+                    with 4 and less or equal to the first war leader&#8217;s attack 
+                    time, so if you attack someone 11 hours away with four WL&acute;s, 
+                    the return times would be 2-4-6-11, and if you attack someone 
+                    10 hours away, it would be 2-4-6-10, since the closest lower 
+                    or equal number to 10 which can be divided by 4 is 8 (and 
+                    25% of 8 is 2, 50% is 4, and 75% is 8). Also see the Calculations 
+                    chapter at the end of the guide for more calculations on attack 
+                    time efficiency.</strong></p>
+                  <p align="justify"><strong><font size="+1">DPA Calculator</font><br>
+                    Do you think your kingdom has enough defense/land? Or do you 
+                    want to find out which one of several different targets which 
+                    you gain the most land for the least losses when attacking? 
+                    Enter the different stats in the calculator below, and you 
+                    will get a DPA value. This value can be compared to the DPA 
+                    value of friends, or other people which you've taken stats 
+                    of (for example targets). If you don't understand how to use 
+                    it, just click on &quot;Help&quot;.</strong></p>
+                  <form name="form1" method="post" action="">
+                    <table width="706" border="0" cellspacing="0" cellpadding="0">
+                      <tr> 
+                        <td width="155"><table width="155" border="0" cellspacing="0" cellpadding="0">
+                            <tr> 
+                              <td height="118"> <div align="center"> 
+                                  <p>&nbsp;</p>
+                                  <p>
+                                    <textarea name="textarea" cols="19" rows="6" class="input" onclick="clearText()">Paste your own or the defender's SoM in here. Then click on "Get attacker" or "Get Defender"</textarea>
+                                  </p>
+                                </div></td>
+                            </tr>
+                            <tr> 
+                              <td height="19"><div align="center"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/calc_help.jpg" width="52" height="23" style="cursor:hand" onclick="displayHelp()" title="Click here if you need help to
+understand how this calculator works."></div></td>
+                            </tr>
+                            <tr> 
+                              <td height="23"><div align="center"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/calc_getdf.jpg" width="132" height="23" style="cursor:hand" onclick="getStatsDef(textarea.value)" title="Click here to get defender's army,
+after pasting a SoM to the textbox below."></div></td>
+                            </tr>
+                            <tr> 
+                              <td height="23"><div align="center"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/calc_calculate.jpg" onclick="calculateAttack()" style="cursor:hand" title="Click here to
+calculate attack." width="94" height="23"></div></td>
+                            </tr>
+                            <tr> 
+                              <td height="19">
+<div align="center"></div></td>
+                            </tr>
+                          </table></td>
+                        <td width="1"><div align="center"></div></td>
+                        <td width="240"><table width="240" border="0" cellpadding="0" cellspacing="0">
+                            <tr> 
+                              <td width="159" align="CENTER" valign="TOP"> <table height="18" width="159" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topleft.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                                  <tr> 
+                                    <td align="CENTER"><font color="FFFFEF" size="2" face="VERDANA, ARIAL,HELVETICA"><b>Defending 
+                                      army </b></font></td>
+                                  </tr>
+                                </table>
+                                <table width="159" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                                  <tr> 
+                                    <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="26" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Soldiers</font></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="27"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Laser Troopers</font></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="26" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Laser Dragoons</font></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="28"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • Tanks</font></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="28" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Tactical Fighters</font></tr>
+                                      </table>
+                                      <img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom.gif" width="159" height="5" border="0"><br> 
+                                </table>
+                              <td width="81" align="CENTER" valign="TOP"> <table height="18" width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/top82right.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                                  <tr> 
+                                    <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                                      <b>Amount</b> </font></td>
+                                  </tr>
+                                </table>
+                                <table width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                                  <tr> 
+                                    <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                            <div align="center"> <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                              <input name="textfield2" type="text" size="8">
+                                              </font></div></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                              <input name="textfield4" type="text" size="8">
+                                            </div></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                            <div align="center"><font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                              <input name="textfield6" type="text" size="8">
+                                              </font> </div></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT"> <div align="center"> 
+                                              <font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                              <input name="textfield8" type="text" size="8">
+                                              </font></div></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                            <div align="center"><font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 
+                                              <input name="textfield10" type="text" size="8">
+                                              </font> </div></tr>
+                                      </table>
+                                      <img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                                </table></tr>
+                          </table></td>
+                        <td width="310"><table width="240" border="0" cellpadding="0" cellspacing="0">
+                            <tr> 
+                              <td width="159" align="CENTER" valign="TOP"> <table height="18" width="159" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/topleft.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                                  <tr> 
+                                    <td align="CENTER"><font color="FFFFEF" size="2" face="VERDANA, ARIAL,HELVETICA"><b>Defense 
+                                      modifiers </b></font></td>
+                                  </tr>
+                                </table>
+                                <table width="159" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                                  <tr> 
+                                    <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="26" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000"> • 
+                                            <select name="defenderPlanet" id="select2">
+                                              <option value="0" selected>Mountainous</option>
+                                              <option value="0">Mystical L.</option>
+                                              <option value="0">Volcanic I.</option>
+                                              <option value="0">Terra Form</option>
+                                              <option value="0">Forrest &amp; 
+                                              W.</option>
+                                              <option value="20">Oceanic</option>
+                                              <option value="0">Multiple T.</option>
+                                              <option value="0">Desert W.</option>
+                                            </select>
+                                            </font></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="26"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">Weeks into the game </font></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="27" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Sector Leader</font></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="27"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Powerless</font></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" height="27" bgcolor="#FFF5E6"><font face="VERDANA, ARIAL,HELVETICA" size="-1" color="#000000">• Your Land</font></tr>
+                                      </table>
+                                      <img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom.gif" width="159" height="5" border="0"><br> 
+                                </table>
+                              <td width="81" align="CENTER" valign="TOP"> <table height="18" width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/top82right.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                                  <tr> 
+                                    <td align="CENTER"><font face="VERDANA, ARIAL,HELVETICA" size="2" color="FFFFEF"> 
+                                      <b>Amount</b> </font></td>
+                                  </tr>
+                                </table>
+                                <table width="81" background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/middle82.gif" marginheight="0" marginwidth="0" cellspacing="0" border="0" cellpadding="0">
+                                  <tr> 
+                                    <td align="CENTER"> <table width="95%" border="0" cellpadding="3" cellspacing="1">
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                            <div align="right">Planet type </div></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT"> <div align="right"><font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                              </font><font color="#000000" size="-1" face="VERDANA, ARIAL,HELVETICA"> 
+                                              <select name="timePassed">
+                                                <option value="0" selected>0</option>
+                                                <option value="1">0.5</option>
+                                                <option value="2">1</option>
+                                                <option value="3">1.5</option>
+                                                <option value="4">2</option>
+                                                <option value="5">2.5</option>
+                                                <option value="6">3</option>
+                                                <option value="7">3.5</option>
+                                                <option value="8">4</option>
+                                                <option value="9">4.5</option>
+                                                <option value="10">5</option>
+                                                <option value="11">5.5</option>
+                                                <option value="12">6</option>
+                                                <option value="13">6.5</option>
+                                                <option value="14">7</option>
+                                                <option value="15">7.5</option>
+                                                <option value="16">8</option>
+                                                <option value="17">8.5</option>
+                                                <option value="18">9</option>
+                                                <option value="19">9.5</option>
+                                                <option value="20">10</option>
+                                                <option value="21">10.5</option>
+                                                <option value="22">11</option>
+                                                <option value="23">11.5</option>
+                                                <option value="24">12</option>
+                                                <option value="25">12.5</option>
+                                                <option value="26">13</option>
+                                                <option value="27">13.5</option>
+                                                <option value="28">14</option>
+                                                <option value="29">14.5</option>
+                                                <option value="30">15</option>
+                                              </select>
+                                              </font></div></tr>
+                                        <tr> 
+                                          <td height="27" valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                            <div align="right"> 
+                                              <input type="checkbox" name="dfSl" value="0">
+                                            </div></tr>
+                                        <tr> 
+                                          <td height="28" align="LEFT" valign="CENTER"> 
+                                            <div align="right"> 
+                                              <input type="checkbox" name="dfPow" value="0">
+                                              <font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> </font></div></tr>
+                                        <tr> 
+                                          <td valign="CENTER" align="LEFT" bgcolor="#FFF5E6"> 
+                                            <div align="right"><font color="#000000" size="-1" face="VERDANA, 
+
+ARIAL,HELVETICA"> 
+                                              <input name="dfLand" type="text" value="1" size="8">
+                                              </font> </div></tr>
+                                      </table>
+                                      <img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bottom82.gif" width="81" height="5" border="0"><br> 
+                                </table></tr>
+                          </table></td>
+                      </tr>
+                    </table>
+                  </form>
+                  
+                </td>
+              </tr>
+            </table></td>
+          <td background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_right.jpg"></td>
+        </tr>
+        <tr> 
+          <td height="27"><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomleft3.jpg" width="39" height="27"></td>
+          <td background="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottom2.jpg"></td>
+          <td><img src="/web/20190728100035im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomright.jpg" width="27" height="27"></td>
+        </tr>
+      </table></td>
+  </tr>
+</table>
+</body>
+</html>
+<!--
+     FILE ARCHIVED ON 10:00:35 Jul 28, 2019 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 22:29:50 Oct 28, 2026.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->
+<!--
+playback timings (ms):
+  captures_list: 0.445
+  exclusion.robots: 0.067
+  exclusion.robots.policy: 0.056
+  esindex: 0.007
+  cdx.remote: 20.516
+  LoadShardBlock: 2671.425 (3)
+  PetaboxLoader3.datanode: 2678.855 (4)
+  load_resource: 51.762
+  PetaboxLoader3.resolve: 35.969
+-->

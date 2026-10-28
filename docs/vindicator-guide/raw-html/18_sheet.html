@@ -1,0 +1,679 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head><script type="text/javascript" src="https://web-static.archive.org/_static/js/bundle-playback.js?v=3grhEDQT" charset="utf-8"></script>
+<script type="text/javascript" src="https://web-static.archive.org/_static/js/wombat.js?v=o9P2E1FK" charset="utf-8"></script>
+<script>window.RufflePlayer=window.RufflePlayer||{};window.RufflePlayer.config={"autoplay":"on","unmuteOverlay":"hidden","showSwfDownload":true};</script>
+<script type="text/javascript" src="https://web-static.archive.org/_static/js/ruffle/ruffle.js"></script>
+<script type="text/javascript">
+    __wm.init("https://web.archive.org/web");
+  __wm.wombat("http://www.angelfire.com/ill/l33t_hacker/Vindicator/18_sheet.html","20190728100038","https://web.archive.org/","web","https://web-static.archive.org/_static/",
+	      "1564308038");
+</script>
+<link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/banner-styles.css?v=1utQkbB3" />
+<link rel="stylesheet" type="text/css" href="https://web-static.archive.org/_static/css/iconochive.css?v=3PDvdIFv" />
+<!-- End Wayback Rewrite JS Include -->
+
+<title>18. Vindicator SK Spreadsheet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<script language="JavaScript">
+
+//Star Kingdoms Spreadsheet. By: Vindicator. version 1.05. 2003-04-09, 2003-04-10, 2003-04-29, 2003-12-02, 2004-01-21 &copy;&reg;&#8482;
+
+//1.01 update, 2003-04-09
+//If people want specific characters between different values to make it easier to distinguish them,
+//they can enter that in the Textbox for -Space characters-. If they enter -_____- the kingdom data will
+// be shown like -kingdom _____ nw _____ land- in the comparisons.
+
+//1.02 update, 2003-04-10
+//added reset buttons and bank setting button. Updated help.
+
+//1.03 update, 2003-04-29
+//Updated the help file, changed max NW*change for auto bank settings to 500.
+
+//1.04 Update, 2003-12-02
+// New design, time between probings added, in case people using this spreadsheet wait longer than 1 hour between comparsions.
+// Help rewritten.
+
+//1.05 Update.
+//Removed unnecessary things, like the spaces between values.
+//Added a help which is a lot more detailed, for those who need it.
+//Added possibility to save up to 20 sectors with a comment. I didn't enable cookies, so it's just for as long as the window is open.
+//added tab things in the results so that values are shown in nice columns and are easier to read.
+
+//global variables
+var xxminland
+var xxmaxland
+var xxminnw
+var xxmaxnw
+var xxmaxlandchange
+var xxminlandchange
+var xxminnwchange
+var xxmaxnwchange
+var xxmaxlandchangepercent
+var xxminlandchangepercent
+var xxmaxnwchangepercent
+var xxminnwchangepercent
+var charbetween
+var timebetween
+
+//variables for saving sectors and comments about them in the list
+var s1sector = ""
+var s2sector = ""
+var s3sector = ""
+var s4sector = ""
+var s5sector = ""
+var s6sector = ""
+var s7sector = ""
+var s8sector = ""
+var s9sector = ""
+var s10sector = ""
+var s11sector = ""
+var s12sector = ""
+var s13sector = ""
+var s14sector = ""
+var s15sector = ""
+var s16sector = ""
+var s17sector = ""
+var s18sector = ""
+var s19sector = ""
+var s20sector = ""
+
+var s1comment = ""
+var s2comment = ""
+var s3comment = ""
+var s4comment = ""
+var s5comment = ""
+var s6comment = ""
+var s7comment = ""
+var s8comment = ""
+var s9comment = ""
+var s10comment = ""
+var s11comment = ""
+var s12comment = ""
+var s13comment = ""
+var s14comment = ""
+var s15comment = ""
+var s16comment = ""
+var s17comment = ""
+var s18comment = ""
+var s19comment = ""
+var s20comment = ""
+
+//saves a sector in the list
+function saveInList() {
+if (document.form1.sectorsave.value == 1) { s1comment = document.form1.commentfield.value ; s1sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 2) { s2comment = document.form1.commentfield.value ; s2sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 3) { s3comment = document.form1.commentfield.value ; s3sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 4) { s4comment = document.form1.commentfield.value ; s4sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 5) { s5comment = document.form1.commentfield.value ; s5sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 6) { s6comment = document.form1.commentfield.value ; s6sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 7) { s7comment = document.form1.commentfield.value ; s7sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 8) { s8comment = document.form1.commentfield.value ; s8sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 9) { s9comment = document.form1.commentfield.value ; s9sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 10) { s10comment = document.form1.commentfield.value ; s10sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 11) { s11comment = document.form1.commentfield.value ; s11sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 12) { s12comment = document.form1.commentfield.value ; s12sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 13) { s13comment = document.form1.commentfield.value ; s13sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 14) { s14comment = document.form1.commentfield.value ; s14sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 15) { s15comment = document.form1.commentfield.value ; s15sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 16) { s16comment = document.form1.commentfield.value ; s16sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 17) { s17comment = document.form1.commentfield.value ; s17sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 18) { s18comment = document.form1.commentfield.value ; s18sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 19) { s19comment = document.form1.commentfield.value ; s19sector = document.form1.oldstats.value}
+if (document.form1.sectorsave.value == 20) { s20comment = document.form1.commentfield.value ; s20sector = document.form1.oldstats.value}
+document.form1.oldstats.value = "Saved old stats as sector no. " + document.form1.sectorsave.value + "."
+return
+}
+
+//loads a sector from the list
+function getFromList(){
+if (document.form1.sectorsave.value == 1) {document.form1.commentfield.value = s1comment ; document.form1.oldstats.value = s1sector}
+if (document.form1.sectorsave.value == 2) {document.form1.commentfield.value = s2comment ; document.form1.oldstats.value = s2sector}
+if (document.form1.sectorsave.value == 3) {document.form1.commentfield.value = s3comment ; document.form1.oldstats.value = s3sector}
+if (document.form1.sectorsave.value == 4) {document.form1.commentfield.value = s4comment ; document.form1.oldstats.value = s4sector}
+if (document.form1.sectorsave.value == 5) {document.form1.commentfield.value = s5comment ; document.form1.oldstats.value = s5sector}
+if (document.form1.sectorsave.value == 6) {document.form1.commentfield.value = s6comment ; document.form1.oldstats.value = s6sector}
+if (document.form1.sectorsave.value == 7) {document.form1.commentfield.value = s7comment ; document.form1.oldstats.value = s7sector}
+if (document.form1.sectorsave.value == 8) {document.form1.commentfield.value = s8comment ; document.form1.oldstats.value = s8sector}
+if (document.form1.sectorsave.value == 9) {document.form1.commentfield.value = s9comment ; document.form1.oldstats.value = s9sector}
+if (document.form1.sectorsave.value == 10) {document.form1.commentfield.value = s10comment ; document.form1.oldstats.value = s10sector}
+if (document.form1.sectorsave.value == 11) {document.form1.commentfield.value = s11comment ; document.form1.oldstats.value = s11sector}
+if (document.form1.sectorsave.value == 12) {document.form1.commentfield.value = s12comment ; document.form1.oldstats.value = s12sector}
+if (document.form1.sectorsave.value == 13) {document.form1.commentfield.value = s13comment ; document.form1.oldstats.value = s13sector}
+if (document.form1.sectorsave.value == 14) {document.form1.commentfield.value = s14comment ; document.form1.oldstats.value = s14sector}
+if (document.form1.sectorsave.value == 15) {document.form1.commentfield.value = s15comment ; document.form1.oldstats.value = s15sector}
+if (document.form1.sectorsave.value == 16) {document.form1.commentfield.value = s16comment ; document.form1.oldstats.value = s16sector}
+if (document.form1.sectorsave.value == 17) {document.form1.commentfield.value = s17comment ; document.form1.oldstats.value = s17sector}
+if (document.form1.sectorsave.value == 18) {document.form1.commentfield.value = s18comment ; document.form1.oldstats.value = s18sector}
+if (document.form1.sectorsave.value == 19) {document.form1.commentfield.value = s19comment ; document.form1.oldstats.value = s19sector}
+if (document.form1.sectorsave.value == 20) {document.form1.commentfield.value = s20comment ; document.form1.oldstats.value = s20sector}
+return
+}
+
+//gets new stats from the input box.
+function getStats(){
+if ((document.form1.getstatsfield.value != "") && (document.form1.getstatsfield.value != "---New stats saved---")
+&& (document.form1.getstatsfield.value != "---Old stats saved---") &&
+(document.form1.getstatsfield.value !="---Copy a sectorlist and paste it here---")){
+
+document.form1.resultfield.value = ("$" + removeStuff(document.form1.getstatsfield.value))
+document.form1.getstatsfield.value = "---New stats saved---"
+}
+}
+
+//gets old stats from the input box.
+function saveStats(){
+if ((document.form1.getstatsfield.value != "") && (document.form1.getstatsfield.value != "---New stats saved---")
+&& (document.form1.getstatsfield.value != "---Old stats saved---") &&
+(document.form1.getstatsfield.value !="---Copy a sectorlist and paste it here---")){
+document.form1.oldstats.value = ("$" + removeStuff(document.form1.getstatsfield.value))
+document.form1.getstatsfield.value = "---Old stats saved---"
+}
+}
+
+//reset the box where the old stats are saved.
+function resetold(){
+document.form1.oldstats.value = ""
+}
+
+//reset the box where the new stats are saved.
+function resetnew(){
+document.form1.resultfield.value = ""
+}
+
+//clear the input box.
+function clearBox(){
+if (document.form1.getstatsfield.value == "---New stats saved---") {document.form1.getstatsfield.value = ""}
+if (document.form1.getstatsfield.value == "---Old stats saved---") {document.form1.getstatsfield.value = ""}
+if (document.form1.getstatsfield.value == "---Copy a sectorlist and paste it here---")
+{document.form1.getstatsfield.value = ""}
+}
+
+//Main function. compares two stats, gets different values, filters specific kingdoms.
+function compareStats() {
+var temp = String(document.form1.resultfield.value)
+var tempb = String(document.form1.oldstats.value)
+if (tempb == "") {return ""}
+if (temp == "") {return ""}
+timebetween = parseInt(document.form1.timebetween.value)
+
+xxminland = -999999
+xxmaxland = 999999
+xxminnw  = -99999999
+xxmaxnw = 999999999
+xxmaxlandchange = 999999
+xxminlandchange  = -999999
+xxminnwchange  = -999999
+xxmaxnwchange = 999999
+xxmaxlandchangepercent = 999999
+xxminlandchangepercent  = -999999
+xxmaxnwchangepercent = 999999
+xxminnwchangepercent  = -999999
+if (document.form1.miniland.value != "") {xxminland = document.form1.miniland.value}
+if (document.form1.maxiland.value != "") {xxmaxland = document.form1.maxiland.value}
+if (document.form1.mininw.value != "") {xxminnw = document.form1.mininw.value}
+if (document.form1.maxinw.value != "") {xxmaxnw = document.form1.maxinw.value}
+
+if (document.form1.minilandchange.value != "") {xxminlandchange = document.form1.minilandchange.value}
+if (document.form1.maxilandchange.value != "") {xxmaxlandchange = document.form1.maxilandchange.value}
+if (document.form1.mininwchange.value != "") {xxminnwchange = document.form1.mininwchange.value}
+if (document.form1.maxinwchange.value != "") {xxmaxnwchange = document.form1.maxinwchange.value}
+
+if (document.form1.minilandpercentchange.value != "") {xxminlandchangepercent = document.form1.minilandpercentchange.value}
+if (document.form1.maxilandpercentchange.value != "") {xxmaxlandchangepercent = document.form1.maxilandpercentchange.value}
+if (document.form1.mininwpercentchange.value != "") {xxminnwchangepercent = document.form1.mininwpercentchange.value}
+if (document.form1.maxinwpercentchange.value != "") {xxmaxnwchangepercent = document.form1.maxinwpercentchange.value}
+
+document.form1.getstatsfield.value = "Kingdom name"
+if (document.form1.showNw.checked == true) {
+document.form1.getstatsfield.value = (document.form1.getstatsfield.value + "\tNW ")}
+if (document.form1.showNwChange.checked == true) {
+document.form1.getstatsfield.value = (document.form1.getstatsfield.value + "\tNW+ ")}
+if (document.form1.showNwPercentChange.checked == true) {
+document.form1.getstatsfield.value = (document.form1.getstatsfield.value + "\tNW%+ ")}
+if (document.form1.showLand.checked == true) {
+document.form1.getstatsfield.value = (document.form1.getstatsfield.value + "\tLand ")}
+if (document.form1.showLandChange.checked == true) {
+document.form1.getstatsfield.value = (document.form1.getstatsfield.value + "\tLand+ ")}
+if (document.form1.showLandPercentChange.checked == true) {
+document.form1.getstatsfield.value = (document.form1.getstatsfield.value + "\tLand%+ ")}
+document.form1.getstatsfield.value = (document.form1.getstatsfield.value + "")
+compare (temp, tempb)
+}
+
+//sets the settings to find banks.
+function bankreset () {
+document.form1.showLandPercentChange.checked = false
+document.form1.showLandChange.checked = false
+document.form1.showLand.checked = false
+document.form1.showNwPercentChange.checked = true
+document.form1.showNwChange.checked = true
+document.form1.showNw.checked = true
+
+document.form1.miniland.value = 500
+document.form1.minilandchange.value = 0
+document.form1.minilandpercentchange.value = ""
+
+document.form1.maxiland.value = ""
+document.form1.maxilandchange.value = 0
+document.form1.maxilandpercentchange.value = ""
+
+document.form1.mininw.value = ""
+document.form1.mininwchange.value = 0
+document.form1.mininwpercentchange.value = 1
+
+document.form1.maxinw.value = ""
+document.form1.maxinwchange.value = ""
+document.form1.maxinwpercentchange.value = 400
+}
+
+//selects different kingdom parts from the text files saved.
+function compare(temp, tempb) {
+if ((tempb == "$" )|| (temp == "$")) {return ""}
+if ((tempb == " " )|| (temp == " ")) {return ""}
+var pos1 = (tempb.indexOf("#"))
+var name = tempb.substring((tempb.indexOf("$") + 1) , pos1)
+tempb = tempb.substring(pos1 + 2, tempb.length)
+var oldland = Number(tempb.substring(0,tempb.indexOf(" ")))
+tempb = tempb.substring(tempb.indexOf(" ") + 1, tempb.length)
+var oldnw = Number(tempb.substring(0,tempb.indexOf(" ")))
+tempb = tempb.substring(tempb.indexOf(" ") + 1, tempb.length)
+
+var pos2 = (temp.indexOf("#"))
+var newname = temp.substring((temp.indexOf("$") + 1) , pos2)
+temp = temp.substring(pos2 + 2, temp.length)
+var newland = Number(temp.substring(0,temp.indexOf(" ")))
+temp = temp.substring(temp.indexOf(" ") + 1, temp.length)
+var newnw = Number(temp.substring(0,temp.indexOf(" ")))
+temp = temp.substring(temp.indexOf(" ") + 1, temp.length)
+
+var nwchange = (parseInt(newnw - oldnw))
+var landchange = (parseInt(newland - oldland))
+
+if (name != "None") {if (xxminland < newland)
+ {if (xxmaxland >= newland) {if
+(xxminnw < newnw) {if (xxmaxnw >= newnw) {if (xxminlandchange <= landchange) {if
+(xxmaxlandchange >= landchange) {if (xxminnwchange <= nwchange) {if
+(xxmaxnwchange >= nwchange)  {
+
+var nwpercentchange = 0
+if (oldnw != 0) {nwpercentchange = parseInt((((newnw - oldnw) / (oldnw/100)) * 2000) / timebetween)}
+var landpercentchange = 0
+if (oldland != 0) {landpercentchange = parseInt((((newland - oldland) / (oldland/100)) * 100) / timebetween)}
+
+if (xxminlandchangepercent <= landpercentchange) {if
+(xxmaxlandchangepercent >= landpercentchange) {if (xxminnwchangepercent <= nwpercentchange) {if
+(xxmaxnwchangepercent >= nwpercentchange) {
+
+if (document.form1.showNw.checked == false) {newnw = ""}
+if (document.form1.showLand.checked == false) {newland = ""}
+
+if (newland != "") {newland = ("" + newland) }
+if (newnw != "") {newnw = ("" + newnw ) }
+if (landchange != "") {landchange = ("" + landchange ) }
+if (nwchange != "") {nwchange = ("" + nwchange ) }
+
+if (newland < 0) {newland = ("\t" + newland) }
+if (newnw < 0) {newnw = ("\t" + newnw ) }
+if (landchange < 0) {landchange = ("\t" + landchange ) }
+if (nwchange < 0) {nwchange = ("\t" + nwchange ) }
+
+if (landchange >= 0) {landchange = ("\t+" + landchange) }
+if (nwchange >= 0) {nwchange = ("\t+" + nwchange) }
+if (landpercentchange >= 0) {landpercentchange = ("\t+" + landpercentchange) }
+if (nwpercentchange >= 0) {nwpercentchange = ("\t+" + nwpercentchange) }
+
+if (document.form1.showLandChange.checked == false) {landchange = ""}
+if (document.form1.showNwChange.checked == false) {nwchange = ""}
+if (document.form1.showNwPercentChange.checked == false) {nwpercentchange = ""}
+if (document.form1.showLandPercentChange.checked == false) {landpercentchange = ""}
+
+var namelength = name.length
+while (namelength < 18) {
+name = (name + " ")
+namelength = namelength + 1
+}
+
+document.form1.getstatsfield.value = (document.form1.getstatsfield.value + "\n" + name + newnw +
+nwchange + nwpercentchange + "\t" + newland +  landchange + landpercentchange)
+}
+}
+
+}}}}}}}}}}}
+
+compare(temp,tempb)
+}
+
+//removes unnecessary stuff (like planet types and coordinates)
+function removeStuff(data) {
+var data = data.replace(/,/g,"")
+.replace(/Kingdom Name (Sector Coords)/g,"")
+.replace(/Planet Type Land Networth Tactical/g,"")
+.replace(/Planet Type Land Networth/g,"")
+.replace(/Return Tactical/g,"")
+.replace(/Tactical/g,"")
+.replace(/Kingdom Name /g,"")
+.replace(/\r/g,"").replace(/\n/g,"$ ")
+.replace(/Mystical Lands/g,"")
+.replace(/Multiple Terrain/g,"").replace(/Forest and Wilderness/g,"")
+.replace(/Oceanic/g,"").replace(/Terra Form/g,"")
+.replace(/Volcanic Inferno/g,"").replace(/Mountainous/g,"")
+.replace(/Desert Wasteland/g,"")
+.replace(/11h/g,"")
+.replace(/12h/g,"")
+.replace(/13h/g,"")
+.replace(/14h/g,"")
+.replace(/15h/g,"")
+.replace(/16h/g,"")
+.replace(/17h/g,"")
+.replace(/18h/g,"")
+.replace(/19h/g,"")
+.replace(/20h/g,"")
+.replace(/21h/g,"")
+.replace(/22h/g,"")
+.replace(/23h/g,"")
+.replace(/24h/g,"")
+.replace(/25h/g,"")
+.replace(/26h/g,"")
+.replace(/27h/g,"")
+.replace(/28h/g,"")
+.replace(/29h/g,"")
+.replace(/30h/g,"")
+.replace(/1h/g,"")
+.replace(/2h/g,"")
+.replace(/3h/g,"")
+.replace(/4h/g,"")
+.replace(/5h/g,"")
+.replace(/6h/g,"")
+.replace(/7h/g,"")
+.replace(/8h/g,"")
+.replace(/9h/g,"")
+.replace(/10h/g,"")
+.replace(/   /g," ")
+.replace(/  /g," ")
+.replace(/Open Open Open Open Open Open/g,"None () 0 0") //if scouter is researched
+.replace(/Open Open Open Open Open/g,"None () 0 0")
+.replace(/@/g,"")
+.replace(/DEAD DEAD DEAD DEAD DEAD/g,"0 0") //if scouter is researched
+.replace(/DEAD DEAD DEAD DEAD/g,"0 0")
+.replace(/Reserved Reserved Reserved Reserved Reserved Reserved/g,"None () 0 0") //if scouter is researched
+.replace(/Reserved Reserved Reserved Reserved Reserved/g,"None () 0 0")
+.replace(/$/g,"$ ")
+.replace(/  /g," ")
+data = (data + " $")
+//data = data.substring(4 , data.length)
+data = removeCoords(data)
+data.replace(/$ # /g,"")
+
+return data
+}
+
+//removes stupid coords and adds some other symbols instead.
+function removeCoords(data) {
+if ((data == "$") || (data.indexOf("(") == -1)) {return ""}
+var f = data.substring(0,(data.indexOf("(") - 1))
+var g = f + " #" + data.substring((data.indexOf(")") +1) , (data.indexOf("$") +1))
+var h = String(g + removeCoords(data.substring((data.indexOf("$") +2) , data.length)))
+
+return (h)
+} 
+
+//displays helpbox.
+function showHelp(){
+alert("Vindicator SK spreadsheet. By Vindicator. 2004-01-20\n\n" +
+"This is a spreadsheet for finding banks or good targets in Star Kingdoms. To use it, "+
+"you first of all copy one sector at the time to the big textfield, and press -Get Old-."+
+"The sector info will be converted to kingdom stats text, which you can copy from the old stats field "+
+"to a text editor and save. Don't forget to also take notes about which sectors it is "+
+"then wait at least one hour, to make sure that both the hour has changed and the sector data " +
+"has been updated. If you wait several hours, don't forget to set the field next to " +
+"help - Time between stats - to the correct number.\n\n"+
+
+"After that, copy one sector from the text editor to the old stats field, then go to the same sector in SK, "+
+"and get the recent kingdom info of it, which you paste into the big textbox. Then click on -Get New-.\n\n"+
+"If you have done this correct, both the two fields to the right should be filled with kingdom stats text. "+
+"The first row of settings in the field below the big text area is what you should compare (or list in the "+
+"comparison). You can list kingdom names, NW, land, NW change (Named NW+), Land change (Land+), Land%+ " +
+"and NW%+. The last two are comparisons of how much kigndoms have grown in NW and land compared to "+
+"their own size, because big kingdoms usually grow much faster than smaller ones.\n"+
+"You can also chose if you want to remove kingdoms below or above specific values by entering that "+
+"on the rows below. If you want to make a comparison for a to landgrab, you are probably not interested "+
+"in kingdoms which have gained 0 land, for example, and can therefore set Min land change to 1.\n"+
+"For automatic bank-finding settings, just click on -Banks- at the top.\n\n"+
+
+"After this, you click on the -Compare- button to compare stats. The kingdom comparisons will appear in "+
+"the window which you pasted data to before (input/output window).  Someone with a NW*change "+
+"of between 100 and 250 is usually inactive and a good bank, 250-500 is a possible bank, while people "+
+"with more than that definately aren't, unless they have a really high income.")
+}
+
+</script>
+
+
+<body>
+<table width="774" border="0" cellpadding="0" cellspacing="0">
+  <tr> 
+    <td width="774" height="21"> <table width="772" border="0" cellpadding="0" cellspacing="0">
+        <tr> 
+          <td width="39" height="27"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topleft.jpg" width="39" height="27"></td>
+          <td width="706" bordercolor="0" background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_top.jpg"></td>
+          <td width="27"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topright.jpg" width="27" height="27"></td>
+        </tr>
+        <tr> 
+          <td height="115" background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_left.jpg"></td>
+          <td background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_center.jpg"><table width="708" height="111" border="0" cellpadding="0" cellspacing="0">
+              <tr> 
+                <td width="502" height="41"> 
+                  <table width="502" border="0">
+                    <tr> 
+                      <td width="398" height="37"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/18_title.jpg" width="400" height="35"></td>
+                      <td width="56"><a href="14_calculations.html" style="cursor:hand" target="mainFrame"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/goback_e.jpg" width="44" height="24" border="0"></a></td>
+                      <td width="56"><a href="16_calculator.html" style="cursor:hand" target="mainFrame"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/gofwd_e.jpg" width="44" height="24" border="0"></a></td>
+                    </tr>
+                  </table></td>
+                <td width="206" rowspan="2"><div align="center"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/18_screen.jpg" width="189" height="103"></div></td>
+              </tr>
+              <tr> 
+                <td height="70"><p align="justify"><strong>The spreadsheet below 
+                    has been designed for finding banks or good targets in Star 
+                    Kingdoms. If you need help to understand how it works, just 
+                    click on &lt;Help&gt; at the bottom right.</strong></p>
+                  </td>
+              </tr>
+            </table></td>
+          <td background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_right.jpg"></td>
+        </tr>
+        <tr> 
+          <td height="27"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomleft3.jpg" width="39" height="27"></td>
+          <td background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottom2.jpg"></td>
+          <td><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomright.jpg" width="27" height="27"></td>
+        </tr>
+      </table></td>
+  </tr>
+  <tr> 
+    <td> 
+      <table width="773" border="0" cellpadding="0" cellspacing="0">
+        <tr> 
+          <td width="39" height="27"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topleft.jpg" width="39" height="27"></td>
+          <td width="707" bordercolor="0" background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_top.jpg"></td>
+          <td width="27"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_topright.jpg" width="27" height="27"></td>
+        </tr>
+        <tr> 
+          <td background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_left.jpg"></td>
+          <td background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_center.jpg">
+<form name="form1" method="post" action="">
+              <table width="662" border="0">
+                <tr>
+                  <td width="656" height="354"> 
+                    <table width="644" border="0">
+                      <tr> 
+                        <td width="353" height="348"> 
+                          <table width="407" border="0">
+                            <tr> 
+                              <td width="391"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/sh_new.jpg" width="90" height="26" onclick="getStats()" style="cursor:hand" title="Click to get new stats."><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/sh_old.jpg" width="81" height="26" onclick="saveStats()" style="cursor:hand" title="Click to get old stats."><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/sh_calculate.jpg" width="95" height="26" onclick="compareStats()" style="cursor:hand" title="Click to compare old and new stats."><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/sh_banks.jpg" width="68" height="26" style="cursor:hand" title="Change the settings to search for ordinary banks." onclick="bankreset()"></td>
+                            </tr>
+                            <tr> 
+                              <td> <textarea name="getstatsfield" cols="60" rows="18" id="textarea12" onclick="clearBox()">---Copy a sectorlist and paste it here---</textarea></td>
+                            </tr>
+                          </table></td>
+                        <td width="281"><table width="239" border="0">
+                            <tr> 
+                              <td width="275"><font color="#000000"><strong> 
+                                <input type="button" name="Submit" value="Save As" onclick="saveInList()" style="cursor:hand" title="Click to save sector for later.">
+                                <select name="sectorsave" size="1">
+                                  <option value="1" selected>1</option>
+                                  <option value="2">2</option>
+								  <option value="3">3</option>
+								  <option value="4">4</option>
+								  <option value="5">5</option>
+								  <option value="6">6</option>
+								  <option value="7">7</option>
+								  <option value="8">8</option>
+								  <option value="9">9</option>
+								  <option value="10">10</option>
+								  <option value="11">11</option>
+								  <option value="12">12</option>
+								  <option value="13">13</option>
+								  <option value="14">14</option>
+								  <option value="15">15</option>
+								  <option value="16">16</option>
+								  <option value="17">17</option>
+								  <option value="18">18</option>
+								  <option value="19">19</option>
+								  <option value="20">20</option>
+                                </select>
+                                <input type="button" name="Submit2" value="Load" onclick="getFromList()" style="cursor:hand" title="Click to load a sector from the list.">
+                                <input name="commentfield" type="text" value="-comments-" size="12">
+                                </strong></font></td>
+                            </tr>
+                            <tr> 
+                              <td><font color="#000000"><strong><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/sh_oldstats.jpg" width="189" height="21" align="absbottom" style="cursor:hand" title="Reset old stats field." onclick="resetold()"> 
+                                </strong></font></td>
+                            </tr>
+                            <tr> 
+                              <td height="72"> 
+                                <textarea name="oldstats" cols="30" rows="4" id="textarea13"></textarea> 
+                              </td>
+                            </tr>
+                            <tr> 
+                              <td><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/sh_newstats.jpg" width="196" height="21" align="absbottom" style="cursor:hand" title="Reset new stats field." onclick="resetnew()"></td>
+                            </tr>
+                            <tr> 
+                              <td><textarea name="resultfield" cols="30" rows="4" id="textarea14"></textarea></td>
+                            </tr>
+                            <tr> 
+                              <td height="24"><font color="#000000"><strong>Hours 
+                                between stats</strong> <font color="#000000"> 
+                                <input name="timebetween" type="text" id="timebetween" value="1" size="8">
+                                </font> </font></td>
+                            </tr>
+                            <tr> 
+                              <td height="32">
+<div align="left"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/sh_help.jpg" width="68" height="26" align="absbottom" onclick="showHelp()" title="Click here if you need help to understand how this page works." style="cursor:hand"><a href="20_sheetexplain.html"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/help_8.jpg" width="142" height="26" title="Click here if you need detailed help to understand how this page works." style="cursor:hand"></a></div></td>
+                            </tr>
+                          </table></td>
+                      </tr>
+                    </table></td>
+                </tr>
+                <tr>
+                  <td><table width="650" border="0">
+                      <tr> 
+                        <td width="90" height="21"><strong>Show results</strong></td>
+                        <td width="86"><div align="left"><strong><font color="#000000"> 
+                            <input name="showLand" type="checkbox" id="showLand3" value="checkbox" checked>
+                            Land</font></strong></div></td>
+                        <td width="85"><div align="left"><strong><font color="#000000"> 
+                            <input name="showLandChange" type="checkbox" id="showLandChange3" value="checkbox" checked>
+                            Land+</font></strong></div></td>
+                        <td width="86"><div align="left"><strong><font color="#000000"> 
+                            <input name="showLandPercentChange" type="checkbox" id="showLandPercentChange3" value="checkbox">
+                            Land%+</font></strong></div></td>
+                        <td width="86"><div align="left"><strong><font color="#000000"> 
+                            <input name="showNw" type="checkbox" id="showNw3" value="checkbox" checked>
+                            NW</font></strong></div></td>
+                        <td width="84"><div align="left"><strong><font color="#000000"> 
+                            <input name="showNwChange" type="checkbox" id="showNwChange3" value="checkbox" checked>
+                            NW+</font></strong></div></td>
+                        <td width="103"><div align="left"><strong><font color="#000000"> 
+                            <input name="showNwPercentChange" type="checkbox" id="showNwPercentChange3" value="checkbox">
+                            NW%+ </font></strong></div></td>
+                      </tr>
+                      <tr> 
+                        <td><strong>Sort by Min</strong></td>
+                        <td><input name="miniland" type="text" id="miniland3" value="1" size="12"></td>
+                        <td><font color="#FFFFFF"> 
+                          <input name="minilandchange" type="text" id="minilandchange3" size="12">
+                          </font></td>
+                        <td><font color="#FFFFFF"><font color="#FFFFFF"> 
+                          <input name="minilandpercentchange" type="text" id="minilandpercentchange3" size="12">
+                          </font></font></td>
+                        <td><input name="mininw" type="text" id="mininw2" size="12"></td>
+                        <td><font color="#FFFFFF"> 
+                          <input name="mininwchange" type="text" id="mininwchange3" size="12">
+                          </font></td>
+                        <td><font color="#FFFFFF"><font color="#FFFFFF"> 
+                          <input name="mininwpercentchange" type="text" id="mininwpercentchange3" size="12">
+                          </font></font></td>
+                      </tr>
+                      <tr> 
+                        <td><strong>Sort by Max</strong></td>
+                        <td><font color="#FFFFFF"> 
+                          <input name="maxiland" type="text" id="maxiland3" size="12">
+                          </font></td>
+                        <td><font color="#FFFFFF"> 
+                          <input name="maxilandchange" type="text" id="maxilandchange3" size="12">
+                          </font></td>
+                        <td><font color="#FFFFFF"><font color="#FFFFFF"> 
+                          <input name="maxilandpercentchange" type="text" id="maxilandpercentchange3" size="12">
+                          </font></font></td>
+                        <td><font color="#FFFFFF"> 
+                          <input name="maxinw" type="text" id="maxinw3" size="12">
+                          </font></td>
+                        <td><font color="#FFFFFF"> 
+                          <input name="maxinwchange" type="text" id="maxinwchange3" size="12">
+                          </font></td>
+                        <td><font color="#FFFFFF"><font color="#FFFFFF"> 
+                          <input name="maxinwpercentchange" type="text" id="maxinwpercentchange3" size="12">
+                          </font></font></td>
+                      </tr>
+                    </table></td>
+                </tr>
+              </table>
+            </form>
+            <p align="justify"><strong><br>
+              </strong></p>
+            </td>
+          <td background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_right.jpg"></td>
+        </tr>
+        <tr> 
+          <td height="27"><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomleft3.jpg" width="39" height="27"></td>
+          <td background="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottom2.jpg"></td>
+          <td><img src="/web/20190728100038im_/http://www.angelfire.com/ill/l33t_hacker/Vindicator/bg_bottomright.jpg" width="27" height="27"></td>
+        </tr>
+      </table></td>
+  </tr>
+</table>
+</body>
+</html>
+<!--
+     FILE ARCHIVED ON 10:00:38 Jul 28, 2019 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 22:30:10 Oct 28, 2026.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+-->
+<!--
+playback timings (ms):
+  captures_list: 0.447
+  exclusion.robots: 0.05
+  exclusion.robots.policy: 0.04
+  esindex: 0.01
+  cdx.remote: 26.883
+  LoadShardBlock: 328.542 (3)
+  PetaboxLoader3.datanode: 114.397 (4)
+  PetaboxLoader3.resolve: 126.29 (2)
+  load_resource: 39.279
+-->
