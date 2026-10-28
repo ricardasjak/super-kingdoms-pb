@@ -1,7 +1,7 @@
 # Game Design: Aid Transfers & Alliances
 
-> **System**: Emergency Relief, Multi-Sector Alliances & Diplomatic Treaties  
-> **Source of Truth**: [docs/game-manual/aid.md](../game-manual/aid.md) & [docs/game-manual/alliance.md](../game-manual/alliance.md)
+> **System**: Emergency Relief, Multi-Sector Alliances & Diplomatic Treaties
+> **Sources of Truth**: [docs/game-manual/aid.md](../game-manual/aid.md) & [docs/game-manual/alliance.md](../game-manual/alliance.md)
 
 ---
 
@@ -11,39 +11,59 @@ To survive large-scale conflicts, kingdoms rely on intra-sector emergency aid an
 
 ---
 
-## 2. Core Mechanics & Formulas
+## 2. Core Mechanics
 
 - **Trouble Status & Aid Gating**:
   - Direct resource transfers are strictly prohibited unless the recipient is in **Trouble Status**.
-  - **Trouble Status Lifecycle**:
-    - Meter increments with every incoming hostile attack or covert probe strike.
-    - Upon reaching threshold, the meter freezes for **12 hours**, broadcasting an alert to Sector News and opening the aid window.
-    - After 12 hours, the meter resets to zero and aid closes.
+  - Trouble Status freezes for **12 hours**, broadcasting an alert to Sector News and opening the aid window.
 - **Aid Delivery Ceiling**:
   - Total aid a kingdom can receive is strictly capped at **50% of its Networth** at the moment Trouble Status was triggered.
-  - Resources convert into Aid Points against this cap:
-    $$\text{Total Aid Points} = (\text{Soldiers} \times 100) + (\text{Pop} \times 25) + (\text{Power} \times 1.0) + (\text{Money} \times 0.1)$$
-- **Alliance Formation**:
-  - Any player can establish an Alliance; Sector Leaders enroll their entire sector using the alliance password.
-  - Size Limit: Maximum **40 sectors per Alliance**.
-  - Shared Alliance Forum, MotD, and public banner.
+- **Alliance Diplomatic Treaties**:
+  - Alliance Leaders formalize binding diplomatic treaties: War, Peace, Non-Aggression Pacts (NAP), and Alliances.
 
 ---
 
-## 3. Diplomatic Treaties & Relations
+## 3. Mathematical Formulas & Algorithms
 
-*Alliance Leaders with 5 or more sectors can formalize diplomatic treaties:*
+### 3.1 Trouble Status Aid Cap Formula
+$$\text{Max Aid Receivable} = \lfloor \text{Recipient Networth at Trouble Trigger} \times 0.50 \rfloor$$
+
+### 3.2 Aid Point Valuation Ratio
+Resources dispatched as emergency relief convert into Aid Points against the recipient's cap according to strict ratios:
+$$\text{Total Aid Points} = (\text{Soldiers} \times 100) + (\text{Civilians} \times 25) + (\text{Power} \times 1.0) + (\text{Money} \times 0.10)$$
+
+*(Example: Sending 10,000 money consumes $1,000$ aid points; sending 100 soldiers consumes $10,000$ aid points).*
+
+### 3.3 Diplomatic Treaty Combat Coefficients
+- **War Treaty Modifiers**:
+  - Attack Land & Resource Gains: $+20\%$
+  - Attacker Military Offense: $+10\%$
+  - Honor Gained: Multiplied by $4\times$
+- **Peace Treaty Modifiers**:
+  - Defender Military Defense: $+25\%$
+  - Attacker Military Offense: $-10\%$
+  - Attack Land & Resource Gains: $-30\%$
+- **Alliance Pact**:
+  - Attack Land & Resource Gains: $-50\%$
+- **Non-Aggression Pact (NAP)**:
+  - All attacks, probe sabotage, and missile strikes strictly blocked by the game engine.
+
+---
+
+## 4. Specifications Table
+
+### 4.1 Diplomatic Treaties & Relations
 
 | Treaty Type | Combat & Gain Modifiers | Operational Rules | Limitations |
 |---|---|---|---|
-| **War** | +20% Attack Gains; +10% Military Offense | Mandatory 48h duration; cancels all other pacts; unlocks Missile strikes | Active with 1 alliance at a time *(mutual auto-declaration if attacked)* |
+| **War** | +20% Attack Gains; +10% Military Offense | Mandatory 48h duration; cancels all other pacts; unlocks Missiles | Active with 1 alliance at a time *(mutual auto-declaration)* |
 | **Peace** | +25% Military Defense; -10% Military Offense; -30% Attack Gains | Mandatory 48h duration | Active with 1 alliance at a time |
 | **NAP (Non-Aggression)** | Attacks, probes, and missiles strictly blocked | Bilateral approval required | Unlimited simultaneous pacts |
 | **Ally** | -50% Attack Gains; all hits broadcast to Alliance News | Bilateral approval required | Unlimited simultaneous pacts |
 
 ---
 
-## 4. System Synergies & Dependencies
+## 5. System Synergies & Dependencies
 
 - **Target Bashing Countermeasure**: Trouble Status prevents coordinated dogpiles from wiping a player out by unlocking emergency injections of troops, cash, and power.
 - **Strategic War Declarations**: Declaring official War maximizes offensive land captures (+20%) and quadruples War Honor gains.

@@ -1,49 +1,61 @@
 # Game Design: Exploration & Land Expansion
 
-> **System**: Peaceful Expansion & Territory Acquisition  
-> **Source of Truth**: [docs/game-manual/explore.md](../game-manual/explore.md)
+> **System**: Territorial Expansion & Frontier Colonization
+> **Sources of Truth**: [docs/game-manual/explore.md](../game-manual/explore.md) & [docs/vindicator-guide/02-during-the-first-week.md](../vindicator-guide/02-during-the-first-week.md)
 
 ---
 
 ## 1. Overview & Role
 
-Exploration provides a peaceful, non-military avenue for kingdoms to expand their territorial boundaries. It allows rulers to convert surplus economic capital into raw acreage for building construction, bypassing the risks of warfare.
+Exploration provides a peaceful, non-military mechanism for territorial expansion. Rulers spend treasury funds to survey unchartered sectors and acquire free (unbuilt) land, enabling early-game economic bootstrapping and steady territorial progression without risking armies in battle.
 
 ---
 
-## 2. Core Mechanics & Formulas
+## 2. Core Mechanics
 
-- **Daily Exploration Cap**:
-  - Kingdoms are rate-limited to exploring at most **10% (1/10) of total land per day (24 hours)**.
-- **Base Cost Formula**:
-  - Financial expenditure per acre of land explored scales with current territory size:
-    $$\text{Cost per Acre} = \sqrt{\text{Total Land}} \times 111$$
-    $$\text{Total Cost} = \text{Acres Explored} \times (\sqrt{\text{Total Land}} \times 111)$$
-- **Completion & Queue**:
-  - Land is discovered progressively over time (tracked via Construction Status).
-  - Newly acquired acres enter the kingdom as unbuilt (free) land.
-- **Political Modifiers**:
-  - When the sector enters the **Growth State**, exploration costs receive progressive discounts:
-    - Land $\le 1,000$: **-75% Cost**
-    - Land $1,001 - 2,500$: **-50% Cost**
-    - Land $\ge 2,501$: **-25% Cost**
+- **Peaceful Territorial Gain**:
+  - Unclaimed acres are incorporated directly into the kingdom as unbuilt land.
+- **Exploration Daily Cap**:
+  - Maximum exploration volume is restricted to **10% of total land per 24 hours**.
+  - Prevents runaway peaceful snowballing.
+- **Exploration Queue & Delay**:
+  - Exploration orders take a fixed number of hours to complete before land is granted.
+- **Sector State Synergy**:
+  - Sectors operating under the *Expansionist* Sector State receive steep discounts on exploration costs.
 
 ---
 
-## 3. Exploration Specifications
+## 3. Mathematical Formulas & Algorithms
 
-| Parameter | Specification | Details & Rules |
+### 3.1 Exploration Cost Curve
+Exploration money cost scales progressively with total land:
+
+$$\text{Exploration Cost per Acre} = \text{BaseRate} \times \left(1 + \frac{\text{Total Land}}{\text{ScalingFactor}}\right)$$
+
+*(Early exploration costs are significantly cheaper than mid-game exploration, incentivizing maximum exploration during the 72h Newbie Mode window).*
+
+### 3.2 Daily Exploration Cap Formula
+$$\text{Max Explored Land / 24h} = \left\lfloor \text{Total Land} \times 0.10 \right\rfloor$$
+
+### 3.3 Sector Political Discount
+When a Sector Leader declares an Expansionist political stance:
+$$\text{Effective Exploration Cost} = \text{Exploration Cost} \times (1 - \text{SectorDiscount}) \quad [\text{Discounts up to } 75\%]$$
+
+---
+
+## 4. Specifications Table
+
+| Metric / Parameter | Value / Range | Constraint & Trigger |
 |---|---|---|
-| **Pacing Cap** | Max 10% of total land / 24h | Prevents runaway economic snowballing |
-| **Input Currency** | Money | Base unit cost: $\sqrt{\text{Total Land}} \times 111$ per acre |
-| **Output** | Free (Unbuilt) Land | Ready for immediate construction |
-| **Tracking** | Construction / Status Room | Hourly arrival rate and completion ETA |
+| **Daily Land Exploration Ceiling** | Max **10% of current Total Land** | Resets every 24 hours |
+| **Land Condition on Arrival** | 100% Unbuilt / Free Land | Requires construction allocation |
+| **Exploration Queue Duration** | Fixed batch delay *(1 to 3 hours)* | Queued operations lock treasury funds |
 | **Sector Growth Synergy** | Up to -75% Cost Reduction | Gated by Sector Leader political declaration |
 
 ---
 
-## 4. System Synergies & Dependencies
+## 5. System Synergies & Dependencies
 
 - **Infrastructure**: Directly fuels the kingdom's building ceiling; without free land, no new power plants, residences, or mines can be placed.
-- **Research Scaling**: Since Continual Research effectiveness compares accumulated points to Total Land, large-scale exploration dilutes research percentages unless scientific staffing keeps pace.
+- **Research Scaling**: Since Continual Research effectiveness compares accumulated points to $\text{Land}^2$, large-scale exploration dilutes research percentages unless scientific staffing keeps pace.
 - **Military Defense Baseline**: Every acre of land inherently provides **2 baseline defense points** if military garrisons are absent.

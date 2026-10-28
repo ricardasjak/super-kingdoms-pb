@@ -1,7 +1,7 @@
 # Game Design: Kingdom Buildings
 
-> **System**: Kingdom Development & Infrastructure  
-> **Source of Truth**: [docs/game-manual/buildings.md](../game-manual/buildings.md)
+> **System**: Kingdom Development & Infrastructure
+> **Sources of Truth**: [docs/game-manual/buildings.md](../game-manual/buildings.md) & [docs/vindicator-guide/04-the-buildings.md](../vindicator-guide/04-the-buildings.md)
 
 ---
 
@@ -11,47 +11,76 @@ Buildings form the physical infrastructure of a kingdom, dictating population ca
 
 ---
 
-## 2. Core Mechanics & Formulas
+## 2. Core Mechanics
 
 - **Construction**:
   - Requires free land and sufficient money.
   - Base building cost scales proportionally with total owned land.
 - **Razing**:
   - Demolishes buildings immediately to reclaim free land.
-  - Yields scrap money:
-    $$\text{Refund} = \frac{\text{Building Cost}}{8}$$
+  - Yields scrap money refund.
 - **Converting**:
   - Converts any non-power plant building into another standard building.
-  - Duration: **24 hours (ticks)**.
-  - Reuses structural materials at half price:
-    $$\text{Cost} = \frac{\text{Building Cost}}{2}$$
-  - *Note*: Power plants cannot be converted via standard conversion.
-- **Upgrading Power Plants**:
-  - Upgrades existing Nuclear Power Plants into Fusion Power Plants once **Fusion Technology** is researched.
-  - Duration: **12 hours (ticks)**.
-  - Cost:
-    $$\text{Cost} = \frac{\text{Building Cost}}{4}$$
-- **Housing Priority & Overflow**:
-  - Barracks house military units first. If Barracks are full, military units overflow into Residences, displacing civilian population.
+  - Conversion Duration: **24 hours (ticks)**.
+- **Overcrowding & Military Eviction**:
+  - If military units exceed Barracks capacity, troops overflow into Residences, forcibly evicting civilians and capping demographic growth.
+- **Arson Susceptibility**:
+  - Residences, Barracks, Powerplants, and Factories can be targeted by hostile probe arson missions.
+  - **Star Mines are completely immune to arson and cannot be destroyed.**
 
 ---
 
-## 3. Building Specifications
+## 3. Mathematical Formulas & Algorithms
 
-| Building | Primary Output / Capacity | Special Conditions / Formula | Prerequisite |
+### 3.1 Demolition & Conversion
+- **Razing Refund Equation**:
+  $$\text{Refund Money} = \left\lfloor \frac{\text{Building Cost}}{8} \right\rfloor$$
+- **Conversion Duration**: Fixed at $24\text{ ticks (hours)}$.
+
+### 3.2 Demographic Capacities & Growth
+- **Residence Base Capacity**: $50\text{ civilians per residence}$.
+- **Max Residence Capacity (with Population Research)**:
+  $$\text{Capacity} = 50 \times (1 + \text{PopulationBonus}) \quad [\text{Max } 60\text{ civilians}]$$
+  *(With Longevity breakthrough technology: Base $55 \to \text{Max } 66$ civilians).*
+- **Civilian Energy Consumption**:
+  $$\text{Hourly Power Drain} = \text{Civilians} \times 0.35\text{ power/hour}$$
+- **Natural Population Growth Rate**:
+  $$\text{Max Hourly Growth} = \min(2.5\%, \; \text{Free Housing Capacity})$$
+
+### 3.3 Barracks & Housing Logistics
+- **Barracks Base Capacity**: $75\text{ slots per barrack}$.
+- **Housing Slot Consumption**:
+  - Soldier, Trooper, Laser Trooper, Dragoon, Laser Dragoon, Scientist: $1\text{ slot}$ each.
+  - Tank: $2\text{ slots}$ each.
+  - Tactical Fighters & Probes: $0\text{ barracks slots}$ (Tactical Fighters require Air Support Bays at $40/\text{bay}$; Probes require zero housing).
+
+### 3.4 Economic & Industrial Yields
+- **Star Mine Gross Revenue**:
+  $$\text{Base Mine Revenue} = 120\text{ money/hour per mine}$$
+  - Star Mines require **$0\text{ power}$** and operate at $100\%$ efficiency immediately upon completion.
+- **Training Camp Recruitment Discount**:
+  $$\text{Discount} = \min\left(30\%, \; \left(\frac{\text{Training Camps}}{\text{Total Land}} \times 100\rfloor) \times 3\rfloor)$$
+- **Probe Factory Output**:
+  $$\text{Probes Generated / Hour} = (50\% \text{ to } 100\%) \times \text{Factories}$$
+
+---
+
+## 4. Specifications Table
+
+| Building | Primary Output / Role | Housing / Output Metric | Tech Prerequisite |
 |---|---|---|---|
-| **Residence** | 50 Civilians or Military | Displaced military can occupy; civilians generate tax income (55 with *Longevity*) | None |
-| **Barracks** | 75 Military Units | Supports all military types (including Tanks) | None |
-| **Star Mine** | +120 Money / hour | Primary resource extraction; no placement limit | None |
-| **Nuclear Power Plant** | +100 Power / hour | Max storage: 500 power; excess power is lost | None |
-| **Fusion Power Plant** | +140 Power / hour | Max storage: 1,000 power; higher efficiency | Fusion Technology |
+| **Residence** | Housing, taxes & drafting | 50 Civilians *(up to 60 with Pop Research)* | None |
+| **Barracks** | Military logistics & billeting | 75 Infantry/Scientists *(Tanks take 2 slots)* | None |
+| **Star Mine** | Flat mineral extraction | +120 Money / hr *(0 power consumed; arson immune)* | None |
+| **Nuclear Plant** | Early energy generation | +100 Power / hr *(Stores max 500)* | None |
+| **Fusion Plant** | Advanced clean power | +140 Power / hr *(Stores max 1,000)* | Fusion Technology (30k pts) |
 | **Training Camp** | Training cost discount | $\text{Discount} = (\% \text{ of Land} \times 3)$, capped at **30%** | None |
-| **Probe Factory** | Probe manufacturing | Produces $(50\% \text{ to } 100\%) \times \text{Factories}$ probes / hour | None |
-| **Air Support Bay** | 40 Tactical Fighters | Necessary life-support/dock for Tactical Fighters | Vesudian Core & AI Tech |
+| **Probe Factory** | Probe manufacturing | $(50\% \text{ to } 100\%) \times \text{Factories}$ probes / hr | None |
+| **Air Support Bay** | Tactical Fighter dock | 40 Tactical Fighters per Bay Slot | Vesudian Core & AI Tech |
 
 ---
 
-## 4. System Synergies & Dependencies
+## 5. System Synergies & Dependencies
 
 - **Economy & Taxes**: Residences provide tax revenue from civilians; Star Mines provide direct industrial credits.
 - **Energy Grid**: Power plants sustain population and military. Military units consume double civilian power.

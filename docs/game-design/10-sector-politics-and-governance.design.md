@@ -1,70 +1,78 @@
 # Game Design: Sector Politics & Governance
 
-> **System**: Sector Leadership, Taxation, Strategic States & Influences  
-> **Source of Truth**: [docs/game-manual/politics.md](../game-manual/politics.md)
+> **System**: Sector Elections, Collective Taxation, Sector States & Orbital Stations
+> **Sources of Truth**: [docs/game-manual/sector.md](../game-manual/sector.md) & [docs/game-manual/politics.md](../game-manual/politics.md) & [docs/vindicator-guide/14-extra-calculations-and-formulas.md](../vindicator-guide/14-extra-calculations-and-formulas.md)
 
 ---
 
 ## 1. Overview & Role
 
-Kingdoms are grouped into political units known as Sectors. Through democratic elections, sectors appoint a Sector Leader who sets fiscal policy, directs strategic postures via Sector States, and deploys high-impact Sector Influences (orbital stations, galactic weather buffs, and biological/electronic weapons) financed by the shared Sector Fund.
+Every sector unites 10 neighboring kingdoms into a collective political entity. Rulers elect a Sector Leader (Monarch) who sets sector tax policies, manages the shared Sector Treasury, activates powerful Sector States, and constructs orbital infrastructure or hostile sector weapons.
 
 ---
 
-## 2. Core Mechanics & Formulas
+## 2. Core Mechanics
 
-- **Elections & Leadership**:
-  - Each kingdom casts 1 vote; the candidate with the simple majority becomes **Sector Leader**.
-  - **Leader Buff**: Sector Leader receives a passive **+10% military effectiveness bonus** (both offense and defense).
-  - Leader appoints a Vice Leader to assist with sector communication and forum moderation.
-- **Sector Taxation & Treasury**:
-  - Leader sets a tax rate between **0% and 5%** deducted from all member kingdoms' gross hourly income.
-  - Revenue pools into the **Sector Fund**, which finances strategic enhancements and sector weapons.
-- **Sector Strategic States**:
-  - The Leader can shift the sector into one of five mutually exclusive operational states.
-- **Sector Weapons Gating**:
-  - Offensive weapons can only target rival sectors within a **$0.5\times$ to $2.0\times$ Sector Networth** range.
+- **Democratic Elections**:
+  - Every ruler casts 1 vote for Sector Leader.
+  - Victory requires receiving more than **50% of active sector votes** (or highest tally upon tie-break).
+- **Sector Leader Combat & Travel Privileges**:
+  - The Monarch receives a direct **+10% combat offense and defense bonus**.
+  - Attacks between kingdoms within the same sector receive a **-10% travel time discount**.
+- **Shared Sector Treasury**:
+  - Funded via an automated sector income tax levied on all member kingdoms.
+  - Used exclusively to finance orbital enhancements, sector buffs, or hostile sector weapons.
 
 ---
 
-## 3. Specifications: States & Influences
+## 3. Mathematical Formulas & Algorithms
 
-### 3.1 Sector States
+### 3.1 Sector Leader Privileges & Intra-Sector Travel
+- **Monarch Combat Bonus**:
+  $$\text{Monarch Offense} = \text{Base Offense} \times 1.10, \quad \text{Monarch Defense} = \text{Base Defense} \times 1.10$$
+- **Intra-Sector Travel Modifier**:
+  $$S_{\text{bonus}} = -10\% \text{ travel time if attacker and defender share the same sector}$$
 
-| State | Primary Effects | Operational Trade-offs |
+### 3.2 Sector Taxation Formula
+- **Hourly Sector Fund Inflow**:
+  $$\text{Sector Fund Deposit} = \sum_{k=1}^{10} \left( \text{Gross Income}_k \times \frac{\text{SectorTaxRate}}{100} \right) \quad [\text{Tax Rate } 0\% \text{ to } 5\%]$$
+
+### 3.3 Dynamic Sector Weapon Cost Scaling
+Costs of dynamic sector weapons scale with the target sector's Networth or Land:
+- **Dark Matter Plague**: $\text{Cost} = \text{Target Sector NW} \times 3.0$
+- **Super Virus**: $\text{Cost} = \text{Target Sector Land} \times 225$
+- **SpyNet**: $\text{Cost} = (\text{Target Sector NW} \times 1.0) + 3,750,000$
+- **Solar Winds Buff**: $\text{Cost} = \text{Sector NW} \times 0.25$
+
+---
+
+## 4. Specifications Table
+
+### 4.1 Sector States (Monarch Proclamations)
+
+| Sector State | Upkeep / Constraint | Sector-Wide Operational Effects |
 |---|---|---|
-| **None** | Baseline gameplay | None |
-| **Growth** | 2x birth rate; -75% / -50% / -25% exploration cost scaling | +10% defensive casualties |
-| **Mobilization** | Military training accelerated to **12 hours** | Probe storage capped at 5; only 3 War Leaders usable |
-| **Offensive** | +10% Land gains on attacks | +10% offensive casualties; **0% MA Protection** when defending |
-| **Defensive** | Military Shields permanently at 10% (0 energy cost); -25% defensive casualties | Only 2 War Leaders usable |
+| **Normal** | 0% Fund Upkeep | Baseline standard operations; neutral modifiers |
+| **Peaceful** | 10% Fund Upkeep | +25% Civilian Birthrate, -20% Exploration Cost |
+| **Expansionist** | 20% Fund Upkeep | -75% Land Exploration Cost, +10% Building Cost |
+| **Offensive** | 30% Fund Upkeep | +10% Military Offense, +10% Attack Gains, -10% Defense |
+| **Defensive** | 30% Fund Upkeep | +20% Military Defense, -20% Attack Travel Speed |
+| **Mobilization** | 40% Fund Upkeep | -30% Soldier & Unit Training Costs, -15% Civilian Taxes |
 
-### 3.2 Sector Enhancements (Treasury Funded)
+### 4.2 Sector Enhancements & Weapons Matrix
 
-| Enhancement | Cost | Strategic Effect | Duration |
-|---|---|---|---|
-| **Cloning Station** | 500,000 money | +10% Sector Birthrate | Permanent *(until destroyed)* |
-| **Research Station** | 5,000,000 money | +10% Sector Research Efficiency | Permanent *(until destroyed)* |
-| **Sector Defense** | 10,000,000 money | +4,500 Baseline Defense Points | Permanent *(until destroyed)* |
-| **Solar Winds** | $\text{Sector NW} \times 0.25$ | +50% Power Production | 48 hours |
-| **Warp Gate** | $\text{Sector Land} \times 100$ | Base attack march time -1 hour | 24 hours |
-| **Nano Bots** | $\text{Sector NW} \times 0.35$ | +10% Economic Income | 24 hours |
-| **Sector Cure** | $\text{Sector NW} \times 0.75$ | 25% chance to cure Plague; 75% chance to cure Virus | Instant |
-
-### 3.3 Sector Weapons (Hostile Deployments)
-
-| Weapon | Cost | Hostile Effects on Target Sector | Duration |
-|---|---|---|---|
-| **Dark Matter Plague** | $\text{Target NW} \times 3.0$ | Loses 1% soldiers/tick; -20% income; -20% power; -50% birthrate | Until cured |
-| **Super Virus** | $\text{Target Land} \times 225$ | -10% Income; -10% Power Production | Until cured |
-| **Solar Cloud** | 3,750,000 money | Base attack march time +2 hours | 24 hours |
-| **Black Hole** | $\text{Target NW} \times 1.0$ | Blocks all intergalactic travel | 24 hours |
-| **SpyNet** | $(\text{Target NW} \times 1.0) + 3,750,000$ | Siphons **25%** of target's Sector Fund | Instant |
-| **Targeted Missile Strike** | 3,750,000 money | 10% chance to permanently destroy an orbital station | Instant |
+| Project | Type | Base Cost | Core Effect | Duration |
+|---|---|---|---|---|
+| **Cloning Station** | Enhancement | 500,000 money | +10% Sector Birthrate | Permanent *(until destroyed)* |
+| **Research Station** | Enhancement | 5,000,000 money | +10% Sector Research Output | Permanent *(until destroyed)* |
+| **Sector Defense** | Enhancement | 10,000,000 money | +4,500 Baseline Defense Points | Permanent *(until destroyed)* |
+| **Solar Winds** | Enhancement | $\text{NW} \times 0.25$ | +50% Power Production | 48 hours |
+| **Dark Matter Plague** | Weapon | $\text{Target NW} \times 3.0$ | Loses 1% soldiers/tick, -20% income, -20% power | Until cured |
+| **SpyNet** | Weapon | $\text{NW} + 3.75\text{M}$ | Siphons **25%** of target Sector Fund | Instant |
 
 ---
 
-## 4. System Synergies & Dependencies
+## 5. System Synergies & Dependencies
 
 - **Coordinated Warfare**: Sector States like *Offensive* or *Mobilization* are coordinated before major war campaigns to maximize land gains.
 - **Economic Drainage**: High sector tax rates can strain individual kingdom budgets unless channeled into high-yield enhancements like *Solar Winds* or *Nano Bots*.
