@@ -23,7 +23,7 @@
 | 2 | `MineGold.aspx` | Mine gold action | Medium (check relation to 0030) | |
 | 3 | `AFKBuilder.aspx` | AFK/auto builder | Medium | |
 | 4 | `TargetFinder.aspx` | Target finder: search/filter targets by criteria | High (supports attack/missile) | |
-| 5 | `Probe.aspx` | Probing/scouting another kingdom (intel) | High | |
+| 5 | `Probe.aspx` | Probing/scouting another kingdom (intel) | High | Draft (0062) |
 | 6 | `MySector.aspx` (+ `?last=true`) | Sector view: kingdoms in your sector, paging | High | |
 | 7 | `Politics.aspx` | Politics (rulers, votes, or similar) | Medium | |
 | 8 | `Alliances.aspx`, `AllianceInfo.aspx` | Alliance list, create/join, alliance details | High (split: list/join, info/management) | |
