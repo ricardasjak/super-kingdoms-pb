@@ -24,23 +24,37 @@
 | 3 | `AFKBuilder.aspx` | AFK/auto builder | Medium | |
 | 4 | `TargetFinder.aspx` | Target finder: search/filter targets by criteria | High (supports attack/missile) | |
 | 5 | `Probe.aspx` | Probing/scouting another kingdom (intel) | High | Draft (0062) |
-| 6 | `MySector.aspx` (+ `?last=true`) | Sector view: kingdoms in your sector, paging | High | |
-| 7 | `Politics.aspx` | Politics (rulers, votes, or similar) | Medium | |
+| 6 | `MySector.aspx` (+ `?last=true`) | Sector view: kingdoms in your sector, paging | High | Draft (0064) |
+| 7 | `Politics.aspx` | Sector politics & democratic Sector Leader (SL) elections | Medium | Draft (0072) |
 | 8 | `Alliances.aspx`, `AllianceInfo.aspx` | Alliance list, create/join, alliance details | High (split: list/join, info/management) | |
-| 9 | `KingdomNews.aspx` | Kingdom news/event log (attacks received, etc.) | High | |
-| 10 | `News.aspx` | Global/game news | Low | |
-| 11 | `MailRoom.aspx`, `Inbox.aspx` | Messaging: inbox, compose | Medium | |
-| 12 | `Achievements.aspx` | Achievements | Low (check overlap with 0051 rewards) | |
-| 13 | `Preferences.aspx` | Account/kingdom preferences | Low | |
-| 14 | `SubmitBug.aspx` | Bug report form | Low | |
-| 15 | Sidebar "Manage" / "Sk Uni" sections | Possible extra pages (rankings, help); still to identify | Check | |
+| 9 | `KingdomNews.aspx` | Kingdom news/event log (attacks received, etc.) | High | Draft (0065) |
+| 10 | `UniversalNews.aspx`, `News.aspx` | Global/game news & announcements | Low | Draft (0066) |
+| 11 | `Msg.aspx`, `SendMessages.aspx`, `Sent.aspx` | In-game messaging (inbox, compose, sent) & SL mass broadcast | Medium | Draft (0070, 0071) |
+| 12 | `Preferences.aspx` | Account/kingdom preferences | Low | |
+| 13 | `Scores.aspx`, `ScoresDomination.aspx`, category boards | Live universe scores & leaderboards (domination, networth, land, honor, kills, faith, alliances, data export) | High | Draft (0067) |
+| 14 | `ScoresArchive.aspx`, `CareerStats.aspx` | Scores archive (rounds R1–R117+, boards, breakdown) & career statistics | High | Draft (0068) |
+| 15 | `Stratagems.aspx` | Stratagems: tactical round modifiers & activation | Medium | |
+| 16 | `Achievements.aspx` | Player badges & milestone achievements | Low | |
 
 ## Suggested order
-1. Intel/targeting: 5 → 4 → 6, so the attack/missile stories have their dependencies.
-2. Social: alliances (8), then messaging (11), then kingdom news (9).
-3. Economy extras: modules (1), mine gold (2), AFK builder (3), politics (7).
-4. Low priority: news, achievements, preferences, bug report.
+1. Intel/targeting: 5 (probes) → 4 (target finder) → 6 (sector view), establishing dependencies for attack/missile.
+2. Competitive & rankings: 13 (live scores & leaderboards) → 14 (scores archive & career stats).
+3. Social & communications: 8 (alliances) → 11 (messaging & SL broadcast) → 7 (sector politics & SL elections) → 9 (kingdom news).
+4. Economy & tactics: 1 (modules) → 2 (mine gold) → 3 (AFK builder) → 15 (stratagems).
+5. Low priority: news (10), preferences (12), achievements (16), bug report.
+
+## Audited Sidebar Structure
+A complete audit of Star Kingdoms navigation was conducted:
+- **Status:** `Overview.aspx`, `Modules.aspx`, `MineGold.aspx`, `AFKBuilder.aspx`
+- **Sector:** `MySector.aspx`, `Politics.aspx`, `KingdomNews.aspx`
+- **Manage:** `Stratagems.aspx`, `Preferences.aspx`
+- **Military:** `Units.aspx`, `Attack.aspx`, `Disband.aspx`, `Missiles.aspx`
+- **Intel:** `Probe.aspx`, `TargetFinder.aspx`
+- **Alliance:** `Alliances.aspx`
+- **Sk Uni:** `Scores.aspx` (Leaderboards & Archive), `UniversalNews.aspx`
+- **Comms:** `Msg.aspx`, `SendMessages.aspx`, `Sent.aspx`
+- **Misc:** `Achievements.aspx`, `Help.aspx`
 
 ## Open points
-- Sidebar sections "Manage", "Sk Uni", "Misc" were expanded, but I didn't capture their full link lists. A quick follow-up pass would confirm there are no other pages (item 15).
-- Some pages, such as Modules and Politics, may be unrelated to your goals. Tell me which to drop before story writing.
+- Confirm whether `Modules.aspx` fits current project scope or should be deferred.
+- Confirm if `Data_v3.aspx` universe dumps should be exposed as an unauthenticated or token-authenticated public endpoint for third-party tools.
