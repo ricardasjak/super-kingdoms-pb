@@ -25,7 +25,7 @@
 | 4 | `TargetFinder.aspx` | Target finder: search/filter targets by criteria | High (supports attack/missile) | |
 | 5 | `Probe.aspx` | Probing/scouting another kingdom (intel) | High | Draft (0062) |
 | 6 | `MySector.aspx` (+ `?last=true`) | Sector view: kingdoms in your sector, paging | High | Draft (0064) |
-| 7 | `Politics.aspx` | Sector politics & democratic Sector Leader (SL) elections | Medium | Draft (0072) |
+| 7 | `Politics.aspx` | Sector politics, democratic Sector Leader (SL) elections, attack bonus & alliance control | Medium | Draft (0072, 0073) |
 | 8 | `Alliances.aspx`, `AllianceInfo.aspx` | Alliance list, create/join, alliance details | High (split: list/join, info/management) | |
 | 9 | `KingdomNews.aspx` | Kingdom news/event log (attacks received, etc.) | High | Draft (0065) |
 | 10 | `UniversalNews.aspx`, `News.aspx` | Global/game news & announcements | Low | Draft (0066) |
