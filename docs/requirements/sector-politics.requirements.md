@@ -2,7 +2,7 @@
 
 ## Origin
 
-Derived from user request to implement Step 7 (`Politics.aspx`) so that each sector democratically elects their Sector Leader (SL) to govern and represent the sector. Detailed narrative in [../stories/0072.sector-politics-and-elections.story.md](../stories/0072.sector-politics-and-elections.story.md).
+Derived from user request to implement Step 7 (`Politics.aspx`) and Sector Leader rules so that each sector democratically elects their Sector Leader (SL), with networth tie-breaking, an additive 10% attacking bonus, and alliance membership powers. Detailed narrative in [../stories/0072.sector-politics-and-elections.story.md](../stories/0072.sector-politics-and-elections.story.md) and [../stories/0073.sector-leader.story.md](../stories/0073.sector-leader.story.md).
 
 ## Requirements
 
@@ -21,3 +21,5 @@ Derived from user request to implement Step 7 (`Politics.aspx`) so that each sec
 - REQ-POL-010: The system shall allow the elected Sector Leader to edit the sector's public announcement message (Message of the Day / MotD) displayed on `MySector.aspx`.
 - REQ-POL-011: The system shall display a distinct `[Sector Leader]` badge next to the elected leader's kingdom name across sector views and leaderboards.
 - REQ-POL-012: The system shall grant the Sector Leader permission to initiate sector-wide mass broadcast messages via the messaging system.
+- REQ-POL-013: The system shall grant the active Sector Leader a flat 10% attacking bonus on military offensive strikes, stacked additively with existing attack modifiers.
+- REQ-POL-014: The system shall grant the Sector Leader executive authority to join the sector to an alliance or withdraw the sector from an alliance.
