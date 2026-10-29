@@ -38,12 +38,12 @@ $$\text{Points Required For Max} = (\text{Total Land})^2 \times \text{FieldFacto
 #### Exact Research Field Factors & Caps
 | Continual Research Field | Max Cap | Field Factor | Effective In-Game Benefit |
 |---|:---:|:---:|---|
-| **Population Bonus** | $+20\%$ | $0.0100$ | Increases residence capacity from 50 to 60 civilians |
-| **Power Bonus** | $+50\%$ | $0.0060$ | Increases power generation output across all powerplants |
-| **Military Strength** | $+30\%$ | $0.0063$ | Boosts both offensive and defensive combat ratings ($+1\%$/level) |
-| **Money Bonus** | $+25\%$ | $0.0110$ | Amplifies revenue from civilian taxes and Star Mines |
-| **Reactor Warp Core Efficiency** | $+20\%$ | $0.0100$ | Reduces military attack travel times by up to $-20\%$ |
-| **Frequency Decryption Center (FDC)** | $25\%$ | $0.0170$ | Probability to expose enemy probe origin and mission on incoming ops |
+| **Population Bonus** | $+20\%$ | $0.00475$ | Increases residence capacity from 50 to 60 civilians |
+| **Power Bonus** | $+50\%$ | $0.00311$ | Increases power generation output across all power plants |
+| **Military Strength** | $+30\%$ | $0.00291$ | Boosts both offensive and defensive combat ratings ($+1\%$/level) |
+| **Money Bonus** | $+25\%$ | $0.00535$ | Amplifies revenue from civilian taxes and Star Mines |
+| **Reactor Warp Core Efficiency** | $+20\%$ | $0.00173$ | Reduces military attack travel times by up to $-20\%$ (Requires Energy Core) |
+| **Frequency Decryption Center (FDC)** | $25\%$ | $0.00040$ | Probability to expose enemy probe origin and mission on incoming ops |
 
 ### 3.2 Current Bonus Calculation
 When research points $P$ are below the threshold required for maximum bonus:
@@ -51,15 +51,14 @@ $$\text{Current Bonus } \% = \min\left(\text{MaxBonus}, \; \text{MaxBonus} \time
 
 ### 3.3 Static Breakthrough Technologies
 Static projects require fixed cumulative point pools:
-- **S.C.O.U.T.E.R.**: $15,000\text{ pts}$
-- **Fusion Technology**: $30,000\text{ pts}$
-- **Energy Core**: $50,000\text{ pts}$
-- **Dragoons**: $60,000\text{ pts}$
-- **Laser Dragoons**: $72,000\text{ pts}$
-- **Probe Armor**: $92,000\text{ pts}$
-- **Longevity**: $100,000\text{ pts}$
-- **Fighters**: $150,000\text{ pts}$
-- **Vesudian Core and AI Technology**: $500,000\text{ pts}$ *(or $600,000\text{ pts}$ in classic v1.1)*
+- **Longevity (`r_long`)**: $30,000\text{ pts}$ — $+5$ residence capacity (holds $55 \to 66$).
+- **Fusion Technology (`r_fusion`)**: $30,000\text{ pts}$ — $+50\%$ power generation bonus; unlocks Fusion Missiles.
+- **Energy Core (`r_core`)**: $30,000\text{ pts}$ (prereq: Fusion Tech) — $+20\%$ power output; unlocks Energy Missiles, $-10\%$ travel time, prerequisites for Warp Core & Probe Armor.
+- **Dragoons (`r_dr`)**: $30,000\text{ pts}$ (prereq: Longevity) — unlocks Dragoon assault unit.
+- **Laser Dragoons (`r_ld`)**: $40,000\text{ pts}$ (prereq: Longevity) — unlocks Laser Dragoon defense unit.
+- **Fighters (`r_ft`)**: $80,000\text{ pts}$ (prereq: Dragoons) — unlocks Fighter aerial unit.
+- **Probe Armor (`r_armor`)**: $92,000\text{ pts}$ (prereq: Energy Core) — cuts probe mission losses by $50\%$.
+- **Tactical Fighters & Air Support Bays (`r_tf`)**: $300,000\text{ pts}$ (prereq: Fighters + Energy Core) — unlocks Air Support Bay construction and Tactical Fighters.
 
 ---
 
@@ -69,15 +68,14 @@ Static projects require fixed cumulative point pools:
 
 | Technology | Points Required | Prerequisites | Unlocks & Effects |
 |---|---|---|---|
-| **S.C.O.U.T.E.R.** | 15,000 | None | Accurately predicts attack arrival and return times across the universe |
-| **Fusion Technology** | 30,000 | None | Unlocks Fusion Power Plants and Fusion Missiles |
-| **Energy Core** | 50,000 | Fusion Technology | +20% power output, unlocks Energy Missiles, -10% attack time |
-| **Dragoons** | 60,000 | None | Unlocks Dragoon cybernetic assault unit |
-| **Laser Dragoons** | 72,000 | None | Unlocks Laser Dragoon cybernetic defense unit |
-| **Probe Armor** | 92,000 | Fusion Technology | Decreases probe losses on missions by 50% |
-| **Longevity** | 100,000 | Vesudian Core & AI Tech | 4x civilian birth rate; Residences hold 55 civilians (up from 50) |
-| **Fighters** | 150,000 | Dragoons + Laser Dragoons | Unlocks Fighter aviation strike unit |
-| **Vesudian Core & AI Tech** | 500,000 | Fighters | Unlocks Air Support Bays and Tactical Fighters |
+| **Longevity** | 30,000 | None | +5 residence base capacity (holds 55 civs, up to 66 with Pop research) |
+| **Fusion Technology** | 30,000 | None | +50% power generation bonus; unlocks Fusion Missiles |
+| **Energy Core** | 30,000 | Fusion Technology | +20% power output, unlocks Energy Missiles, -10% attack time, enables Warp research |
+| **Dragoons** | 30,000 | Longevity | Unlocks Dragoon cybernetic assault unit |
+| **Laser Dragoons** | 40,000 | Longevity | Unlocks Laser Dragoon cybernetic defense unit |
+| **Fighters** | 80,000 | Dragoons | Unlocks Fighter aerial strike unit |
+| **Probe Armor** | 92,000 | Energy Core | Decreases probe losses on missions by 50% |
+| **Tactical Fighters & Air Support Bays** | 300,000 | Fighters + Energy Core | Unlocks Air Support Bays and Tactical Fighters |
 
 ---
 

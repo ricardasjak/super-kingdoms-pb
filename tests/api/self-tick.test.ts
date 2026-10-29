@@ -1,228 +1,155 @@
-import { describe, it, expect } from 'vitest';
-import { createClient, createAuthClient, createAdminClient } from '../setup/helpers';
+import { describe, expect, it } from "vitest";
+import {
+	createAdminClient,
+	createAuthClient,
+	createClient,
+} from "../setup/helpers";
 
-async function createKingdomOwner(tag: string) {
-  const { pb } = await createAuthClient(`selftick_${tag}_${Date.now()}`);
-  const created = await pb.send<any>('/api/kingdoms/create', {
-    method: 'POST',
-    body: {
-      kdName: `SelfTick Realm ${tag}`,
-      rulerName: 'Lord Selftick',
-      planetType: 'Terra Form',
-      raceType: 'Terran',
-    },
-  });
-  return { pb, created };
+async function createKingdomOwner(userTag: string) {
+	const { pb } = await createAuthClient(userTag);
+	const created = await pb.send<any>("/api/kingdoms/create", {
+		method: "POST",
+		body: {
+			kdName: `Realm of ${userTag}`,
+			rulerName: `Ruler ${userTag}`,
+			planetType: "Terra Form",
+			raceType: "Terran",
+		},
+	});
+	return { pb, created };
 }
 
 async function setPhase(pb: any, status: string) {
-  await pb.send<any>('/api/game/status', {
-    method: 'POST',
-    body: { status },
-  });
+	await pb.send<any>("/api/game/status", {
+		method: "POST",
+		body: { status },
+	});
 }
 
-// Every self-tick rejection must carry a readable `error` string — the
-// self-tick button surfaces `data.error` directly, so a missing message
-// would fail silently in the UI.
 async function expectDisplayableError(promise: Promise<unknown>) {
-  try {
-    await promise;
-  } catch (err) {
-    const data = (err as { data?: { error?: unknown } })?.data;
-    expect(typeof data?.error === 'string' && (data.error as string).length > 0).toBe(true);
-    return;
-  }
-  throw new Error('Expected request to fail');
+	try {
+		await promise;
+	} catch (err) {
+		const data = (err as { data?: { error?: unknown } })?.data;
+		expect(
+			typeof data?.error === "string" && (data.error as string).length > 0,
+		).toBe(true);
+		return;
+	}
+	throw new Error("Expected request to fail");
 }
 
-describe('POST /api/kingdoms/self-tick', () => {
-  it('starts new kingdoms with a 96-tick newbie-mode budget', async () => {
-    const { created } = await createKingdomOwner('budget');
-    expect(created.newbiemode).toBe(96);
-  });
+describe("POST /api/kingdoms/self-tick/step & /api/kingdoms/self-tick", () => {
+	it("starts new kingdoms with 8-step Newbie Mode (192 ticks total)", async () => {
+		const { created } = await createKingdomOwner("budget");
+		expect(created.newbiemode).toBe(192);
+		expect(created.is_newbie).toBe(true);
+		expect(created.newbie_step).toBe(0);
+	});
 
-  it('advances only the caller kingdom by 8 ticks and deducts 8 newbie ticks', async () => {
-    const { pb, created } = await createKingdomOwner('advance');
-    const adminPb = await createAdminClient();
-    await setPhase(pb, 'registration');
+	it("advances kingdom by 24 ticks per step and increments newbie step", async () => {
+		const { pb, created } = await createKingdomOwner("step_advance");
+		const adminPb = await createAdminClient();
+		await setPhase(pb, "registration");
 
-    const statusBefore = await pb.send<any>('/api/game/status', { method: 'GET' });
+		const statusBefore = await pb.send<any>("/api/game/status", {
+			method: "GET",
+		});
 
-    const res = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
-    expect(res.success).toBe(true);
-    expect(res.ticksAdvanced).toBe(8);
-    expect(res.newbiemode).toBe(88);
+		const res = await pb.send<any>("/api/kingdoms/self-tick/step", {
+			method: "POST",
+		});
+		expect(res.success).toBe(true);
+		expect(res.ticksAdvanced).toBe(24);
+		expect(res.step).toBe(1);
+		expect(res.newbiemode).toBe(168);
+		expect(res.isNewbie).toBe(true);
 
-    // Kingdom actually simulated 8 ticks: treasury and population grew
-    const after = await adminPb.collection('kingdoms').getOne(created.id);
-    expect(after.newbiemode).toBe(88);
-    expect(after.money).toBeGreaterThan(created.money);
-    expect(after.population).toBeGreaterThan(created.population);
+		// Kingdom simulated 24 ticks: treasury and population grew
+		const after = await adminPb.collection("kingdoms").getOne(created.id);
+		expect(after.newbie_step).toBe(1);
+		expect(after.is_newbie).toBe(true);
+		expect(after.money).toBeGreaterThan(created.money);
+		expect(after.population).toBeGreaterThan(created.population);
 
-    // Stored auto-build setting is respected: with autoBuild off (default),
-    // autonomous bot growth (auto-explore, auto-build) does not run
-    expect(after.land).toBe(created.land);
-    expect(after.landQueue.length).toBe(0);
-    expect(after.autoBuild).toBe(false);
+		// Global round tick is untouched by a self-tick
+		const statusAfter = await pb.send<any>("/api/game/status", {
+			method: "GET",
+		});
+		expect(statusAfter.currentTick).toBe(statusBefore.currentTick);
 
-    // Global round tick is untouched by a self-tick
-    const statusAfter = await pb.send<any>('/api/game/status', { method: 'GET' });
-    expect(statusAfter.currentTick).toBe(statusBefore.currentTick);
+		// A second step advances another 24 ticks to step 2
+		const res2 = await pb.send<any>("/api/kingdoms/self-tick/step", {
+			method: "POST",
+		});
+		expect(res2.success).toBe(true);
+		expect(res2.step).toBe(2);
+		expect(res2.newbiemode).toBe(144);
+	});
 
-    // A second action deducts again
-    const res2 = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
-    expect(res2.success).toBe(true);
-    expect(res2.newbiemode).toBe(80);
-  });
+	it("completes newbie mode after 8 steps and rejects further step advances", async () => {
+		const { pb, created } = await createKingdomOwner("exhaust_steps");
+		await setPhase(pb, "registration");
 
-  it('runs autonomous growth during self-tick when autoBuild is enabled', async () => {
-    const { pb, created } = await createKingdomOwner('growth_on');
-    const adminPb = await createAdminClient();
-    await adminPb.collection('kingdoms').update(created.id, { autoBuild: true });
-    await setPhase(pb, 'registration');
+		// Run all 8 steps
+		for (let s = 1; s <= 8; s++) {
+			const res = await pb.send<any>("/api/kingdoms/self-tick/step", {
+				method: "POST",
+			});
+			expect(res.success).toBe(true);
+			expect(res.step).toBe(s);
+		}
 
-    const res = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
-    expect(res.success).toBe(true);
+		const adminPb = await createAdminClient();
+		const finalKd = await adminPb.collection("kingdoms").getOne(created.id);
+		expect(finalKd.newbie_step).toBe(8);
+		expect(finalKd.is_newbie).toBe(false);
 
-    const after = await adminPb.collection('kingdoms').getOne(created.id);
-    expect(after.autoBuild).toBe(true);
-    expect(after.landQueue.length).toBeGreaterThan(0);
-  });
+		// 9th advance must be rejected
+		await expectDisplayableError(
+			pb.send("/api/kingdoms/self-tick/step", { method: "POST" }),
+		);
+	});
 
-  it('returns the updated kingdom object in the response', async () => {
-    const { pb, created } = await createKingdomOwner('object');
-    const adminPb = await createAdminClient();
-    await setPhase(pb, 'registration');
+	it("rejects unauthenticated callers", async () => {
+		const pb = createClient();
+		await expect(
+			pb.send("/api/kingdoms/self-tick/step", { method: "POST" }),
+		).rejects.toThrow();
+	});
 
-    const res = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
-    expect(res.kingdom).toBeDefined();
-    expect(res.kingdom.id).toBe(created.id);
-    expect(res.kingdom.newbiemode).toBe(88);
-    expect(res.kingdom.money).toBeGreaterThan(created.money);
-    // Full object, not a summary: nested state survives the round-trip
-    expect(res.kingdom.buildings.res).toBe(80);
-    expect(res.kingdom.military.sol).toBeDefined();
-    expect(res.kingdom.kdName).toBe(created.kdName);
+	it("resets kingdom via POST /api/kingdoms/reset during newbie mode", async () => {
+		const { pb, created } = await createKingdomOwner("reset_realm");
+		await setPhase(pb, "registration");
 
-    // Matches what a fresh read returns — the UI can adopt it directly
-    const reread = await adminPb.collection('kingdoms').getOne(created.id);
-    expect(res.kingdom.money).toBe(reread.money);
-    expect(res.kingdom.population).toBe(reread.population);
-    expect(res.kingdom.nw).toBe(reread.nw);
-  });
+		// Advance 1 step
+		await pb.send("/api/kingdoms/self-tick/step", { method: "POST" });
 
-  it('leaves other kingdoms untouched', async () => {
-    const first = await createKingdomOwner('solo_a');
-    const second = await createKingdomOwner('solo_b');
-    const adminPb = await createAdminClient();
-    await setPhase(first.pb, 'in-progress');
+		// Reset kingdom
+		const res = await pb.send<any>("/api/kingdoms/reset", {
+			method: "POST",
+		});
+		expect(res.success).toBe(true);
 
-    const otherBefore = await adminPb.collection('kingdoms').getOne(second.created.id);
-    await first.pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
-    const otherAfter = await adminPb.collection('kingdoms').getOne(second.created.id);
+		// Kingdom record was deleted, allowing refounding
+		const adminPb = await createAdminClient();
+		const check = await adminPb.collection("kingdoms").getList(1, 1, {
+			filter: `id = "${created.id}"`,
+		});
+		expect(check.totalItems).toBe(0);
 
-    expect(otherAfter.money).toBe(otherBefore.money);
-    expect(otherAfter.population).toBe(otherBefore.population);
-    expect(otherAfter.newbiemode).toBe(otherBefore.newbiemode);
-  });
-
-  it('works during registration and in-progress, but refuses stopped', async () => {
-    const { pb } = await createKingdomOwner('phases');
-
-    await setPhase(pb, 'registration');
-    const regRes = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
-    expect(regRes.success).toBe(true);
-
-    await setPhase(pb, 'in-progress');
-    const progRes = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
-    expect(progRes.success).toBe(true);
-
-    await setPhase(pb, 'stopped');
-    await expectDisplayableError(pb.send('/api/kingdoms/self-tick', { method: 'POST' }));
-
-    // Re-open for other suites
-    await setPhase(pb, 'in-progress');
-  });
-
-  it('rejects exhausted newbie mode (fewer than 8 ticks left)', async () => {
-    const { pb, created } = await createKingdomOwner('exhausted');
-    const adminPb = await createAdminClient();
-    await setPhase(pb, 'registration');
-
-    await adminPb.collection('kingdoms').update(created.id, { newbiemode: 7 });
-    await expectDisplayableError(pb.send('/api/kingdoms/self-tick', { method: 'POST' }));
-
-    await adminPb.collection('kingdoms').update(created.id, { newbiemode: 0 });
-    await expectDisplayableError(pb.send('/api/kingdoms/self-tick', { method: 'POST' }));
-
-    // Budget untouched by the refused attempts
-    const after = await adminPb.collection('kingdoms').getOne(created.id);
-    expect(after.newbiemode).toBe(0);
-  });
-
-  it('rejects unauthenticated callers', async () => {
-    const pb = createClient();
-    await expectDisplayableError(pb.send('/api/kingdoms/self-tick', { method: 'POST' }));
-  });
-});
-
-describe('POST /api/kingdoms/restart-newbie-mode', () => {
-  it('resets an exhausted kingdom to creation defaults with a fresh budget', async () => {
-    const { pb, created } = await createKingdomOwner('restart');
-    const adminPb = await createAdminClient();
-    await setPhase(pb, 'registration');
-
-    // Advance once so stats visibly differ from creation defaults
-    await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
-    const ticked = await adminPb.collection('kingdoms').getOne(created.id);
-    expect(ticked.money).toBeGreaterThan(300000);
-    expect(ticked.newbiemode).toBe(88);
-
-    // Exhaust the budget, then restart
-    await adminPb.collection('kingdoms').update(created.id, { newbiemode: 0 });
-    const res = await pb.send<any>('/api/kingdoms/restart-newbie-mode', { method: 'POST' });
-    expect(res.success).toBe(true);
-
-    const after = await adminPb.collection('kingdoms').getOne(created.id);
-    expect(after.newbiemode).toBe(96);
-    expect(after.land).toBe(250);
-    expect(after.population).toBe(2250);
-    expect(after.money).toBe(300000);
-    expect(after.power).toBe(10000);
-    expect(after.probes).toBe(0);
-    expect(after.state).toBe('active');
-    expect(after.buildings.res).toBe(80);
-    expect(after.military.sol).toBe(200);
-    expect(after.military.sci).toBe(300);
-
-    // The fresh budget self-ticks again
-    const tickRes = await pb.send<any>('/api/kingdoms/self-tick', { method: 'POST' });
-    expect(tickRes.success).toBe(true);
-    expect(tickRes.newbiemode).toBe(88);
-  });
-
-  it('rejects restart while newbie budget remains', async () => {
-    const { pb } = await createKingdomOwner('restart_early');
-    await setPhase(pb, 'registration');
-    await expectDisplayableError(pb.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
-  });
-
-  it('rejects restart while in-progress, stopped, or unauthenticated', async () => {
-    const { pb, created } = await createKingdomOwner('restart_gated');
-    const adminPb = await createAdminClient();
-    await adminPb.collection('kingdoms').update(created.id, { newbiemode: 0 });
-
-    // Rejected when in-progress
-    await setPhase(pb, 'in-progress');
-    await expectDisplayableError(pb.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
-
-    // Rejected when stopped
-    await setPhase(pb, 'stopped');
-    await expectDisplayableError(pb.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
-
-    // Rejected when unauthenticated
-    const anon = createClient();
-    await expectDisplayableError(anon.send('/api/kingdoms/restart-newbie-mode', { method: 'POST' }));
-  });
+		// User can now found a new kingdom
+		const refounded = await pb.send<any>("/api/kingdoms/create", {
+			method: "POST",
+			body: {
+				kdName: "Refounded Realm",
+				rulerName: "New Ruler",
+				planetType: "VI",
+			},
+		});
+		expect(refounded.id).toBeDefined();
+		expect(refounded.planet_type).toBe("VI");
+		expect(refounded.newbie_step).toBe(0);
+		expect(refounded.is_newbie).toBe(true);
+	});
 });

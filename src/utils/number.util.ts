@@ -5,8 +5,8 @@
  * @returns The rounded number.
  */
 export function roundTo(value: number, decimals = 1): number {
-  const factor = 10 ** decimals;
-  return Math.round(value * factor) / factor;
+	const factor = 10 ** decimals;
+	return Math.round(value * factor) / factor;
 }
 
 /**
@@ -16,10 +16,10 @@ export function roundTo(value: number, decimals = 1): number {
  * (part / total) * 100
  */
 export function calculatePercentage(
-  part: number,
-  total: number,
-  decimals = 1
+	part: number,
+	total: number,
+	decimals = 1,
 ): number {
-  if (total <= 0) return 0;
-  return roundTo((part / total) * 100, decimals);
+	if (total <= 0) return 0;
+	return roundTo((part / total) * 100, decimals);
 }

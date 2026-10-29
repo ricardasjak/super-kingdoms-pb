@@ -48,8 +48,8 @@ At kingdom creation, rulers select a homeworld archetype. Each of the 8 planet t
 |---|---|---|---|---|
 | **Forest and Wilderness** | +15% to +30% Population | +25 Money / Star Mine | +15% to +20% Attack Travel Time | Starts with **500 Soldiers** |
 | **Desert Wasteland** | +17.5% to +30% Offense | -90% Trooper & Dragoon Cost | -10% Population | Starts with **Dragoons** unlocked; **FDC fixed at 25%** |
-| **Volcanic Inferno** | -70% to -85% Power Required | Fusion Plants store 10,000 Power *(vs 1k)* | -10% to -15% Population | Starts with **Fusion Technology** & **10 Fusion Missiles** |
-| **Mystical Lands** | -30% Attack Travel Time | -50% Power Required | -10% Offensive Strength | Starts with **S.C.O.U.T.E.R.** & **Fusion Technology** |
+| **Volcanic Inferno** | -70% to -85% Power Required | Power Plants store 10,000 Power *(vs 1k)* | -10% to -15% Population | Starts with **Fusion Technology** & **10 Fusion Missiles** |
+| **Mystical Lands** | -30% Attack Travel Time | -50% Power Required | -10% Offensive Strength | Starts with **Fusion Technology** |
 | **Mountainous** | +15% to +25% Income | +75% Attack War Honor, +15% Probe Def | -20% Power Production | Starts with **Laser Dragoons** unlocked |
 | **Oceanic** | +10% to +20% Defense | -25% Building Cost | +10% to +25% Research Required | Starts with **250 Laser Troopers** |
 | **Terra Form** | +40% Research Efficiency | Max Research Cap +20% | -10% Income | Starts with **1,500 points** in Pop, Power, Mil, Money |

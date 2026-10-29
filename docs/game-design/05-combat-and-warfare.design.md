@@ -20,12 +20,12 @@ The combat system drives territorial conquest and military conflict. Players lau
 - **Home Defense Golden Rule**:
   - Keep **50% to 70%** of total military power at home to deter opportunistic counter-attacks.
 - **War Shields**:
-  - Powered by surplus energy at launch, mitigating offensive combat casualties by **25% to 50%**.
+  - Powered by surplus energy at launch (5 power per biological unit, 15 power per mechanical unit), mitigating offensive combat casualties by up to **50%** (reducing losses from 8% down to 4%).
 - **Land & Resource Plunder**:
-  - Successful invasions capture between **5% and 10%** of the defender's land, civilians, power, and treasury funds.
+  - Successful invasions capture between **5% and 10%** of the defender's land, civilians, power, and treasury funds, scaled by relative Networth and mitigated by MA Protection.
 - **Multiple Attack (MA) Protection & Trouble Status**:
-  - Increments with each incoming attack or probe; caps at **50%** incoming damage mitigation.
-  - Decays gradually each hour. Sustained incursions trigger **Trouble Status** (12-hour freeze enabling emergency sector aid).
+  - Gains **+10% MA** per incoming attack, decaying by **-2% per tick** down to 0% (capped at **50%**).
+  - Reaching **30% MA** triggers **Trouble Status** (12-hour freeze enabling emergency sector aid).
 
 ---
 
@@ -33,9 +33,9 @@ The combat system drives territorial conquest and military conflict. Players lau
 
 ### 3.1 Combat Force Equations
 - **Base Attacker Offense**:
-  $$\text{Base Offense} = (\text{Soldiers} \times 1) + (\text{Troopers} \times 4) + (\text{Dragoons} \times 5) + (\text{Fighters} \times 6) + (\text{Tanks} \times 9) + (\text{Tactical Fighters} \times 10)$$
+  $$\text{Base Offense} = (\text{Soldiers} \times 1) + (\text{Troopers} \times 4) + (\text{Dragoons} \times 5) + (\text{Fighters} \times 6) + (\text{Tanks} \times 9) + (\text{Tactical Fighters} \times 12)$$
 - **Base Defender Defense**:
-  $$\text{Base Defense} = (\text{Soldiers} \times 1) + (\text{Laser Troopers} \times 4) + (\text{Laser Dragoons} \times 5) + (\text{Tanks} \times 9) + (\text{Tactical Fighters} \times 4)$$
+  $$\text{Base Defense} = (\text{Soldiers} \times 1) + (\text{Laser Troopers} \times 4) + (\text{Laser Dragoons} \times 5) + (\text{Tanks} \times 9)$$
 
 ### 3.2 Combat Multipliers & Modifiers
 - **Offensive Multiplier**:
@@ -64,11 +64,38 @@ A kingdom inherently possesses militia defense derived from its territory that c
 $$\text{Land Defense} = \text{Defender Land} \times 2$$
 $$\text{Effective Defense} = \max(\text{Total Defense}, \; \text{Land Defense})$$
 
-### 3.4 Battle Outcome Resolution
+### 3.4 Battle Outcome Resolution & Plunder
 $$\text{Battle Result} = \begin{cases} \mathbf{Victory (Invasion Success)} & \text{if } \text{Total Offense} \ge \text{Effective Defense} + 1 \\ \mathbf{Defeat (Invasion Failure)} & \text{if } \text{Total Offense} \le \text{Effective Defense} \end{cases}$$
 *(Ties result in battle failure. Attacker must exceed effective defense by at least 1 point).*
 
-### 3.5 Attack Travel Time Formula (Torus Coordinates Wrap-Around)
+- **Plunder Calculation (on Victory)**:
+  $$\text{Gain } \% = \text{clamp}\left(0.05 + 0.05 \times \left(\frac{\text{Target NW}}{\text{Attacker NW}} - 0.5\right), \; 0.05, \; 0.10\right) \times \left(1 - \frac{\text{MA}\%}{100}\right)$$
+  - Captured Land $= \lfloor\text{Defender Land} \times \text{Gain } \%\rfloor$
+  - Captured Civilians $= \lfloor\text{Defender Civilians} \times \text{Gain } \%\rfloor$
+  - Looted Money $= \lfloor\text{Defender Money} \times \text{Gain } \%\rfloor$
+  - Siphoned Power $= \lfloor\text{Defender Power} \times \text{Gain } \%\rfloor$
+
+### 3.5 Combat Casualties & War Shields
+- **Attacker Casualties**:
+  - Required war shield energy $= (\text{Bio Units} \times 5) + (\text{Mech Units [Tanks, TF]} \times 15)$.
+  - War Shield Coverage: $\text{Coverage} = \min\left(1.0, \; \frac{\text{Power Spent}}{\text{Required Shield Energy}}\right)$.
+  - Attacker Loss Rate: $\text{Loss } \% = 8\% \times (1 - 0.50 \times \text{Coverage}) \quad [4\% \text{ to } 8\%]$.
+  - Each dispatched unit type loses this percentage.
+- **Defender Casualties (apply on both victory and defeat)**:
+  - Linear scaling between $1/3$ and $2/3$ of Attacker Networth:
+    $$\text{Def Loss } \% = \begin{cases}
+    10\% & \text{if } \frac{\text{Defender NW}}{\text{Attacker NW}} \ge \frac{2}{3} \\
+    5\% & \text{if } \frac{\text{Defender NW}}{\text{Attacker NW}} \le \frac{1}{3} \\
+    5\% + 15\% \times \left(\frac{\text{Defender NW}}{\text{Attacker NW}} - \frac{1}{3}\right) & \text{otherwise}
+    \end{cases}$$
+  - Each home defense unit type stationed in the kingdom loses this percentage.
+
+### 3.6 Multiple Attack (MA) Protection & Trouble Status
+- **MA Gain**: $+10\%$ per incoming attack hit.
+- **MA Decay**: $-2\%$ per hourly tick (capped at maximum $50\%$).
+- **Trouble Status Trigger**: Reaching $\text{MA} \ge 30\%$ triggers Trouble Status for **12 hours**, opening the emergency aid window.
+
+### 3.7 Attack Travel Time Formula (Torus Coordinates Wrap-Around)
 Travel time between attacker $(X_1, Y_1)$ and defender $(X_2, Y_2)$ on a 10x10 sector grid wraps around the boundaries:
 $$v_1 = \min(|X_1 - X_2|, \; 10 - |X_1 - X_2|), \quad v_2 = \min(|Y_1 - Y_2|, \; 10 - |Y_1 - Y_2|)$$
 $$\text{Attack Time (hours)} = \left(\sqrt{v_1^2 + v_2^2} + 14\right) \times \left(\frac{100 + P_{\text{bonus}} + S_{\text{bonus}} + E_{\text{bonus}} + W_{\text{bonus}}}{100}\right)$$
@@ -77,7 +104,7 @@ $$\text{Attack Time (hours)} = \left(\sqrt{v_1^2 + v_2^2} + 14\right) \times \le
 - $E_{\text{bonus}}$: $-10\%$ if Energy Core is researched.
 - $W_{\text{bonus}}$: Up to $-20\%$ from Reactor Warp Core Efficiency research.
 
-### 3.6 War Leader Return Waves & Efficiency Score ($S$)
+### 3.8 War Leader Return Waves & Efficiency Score ($S$)
 If an attack is launched with $N$ generals and one-way duration $T$:
 - Troops split into $N$ equal waves returning at intervals of $\frac{T}{N}, \frac{2T}{N}, \dots, T$.
 - **Efficiency Score ($S$) Equation**:

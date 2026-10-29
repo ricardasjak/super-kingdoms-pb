@@ -40,14 +40,19 @@ The espionage system enables rulers to conduct clandestine surveillance, steal e
 - **Probe Net Worth**:
   $$\text{Probe NW} = \left\lfloor \frac{\text{Probes}}{1,000} \right\rfloor \quad [1\text{ NW per 1,000 probes}]$$
 
-### 3.3 Sabotage Impact Equations
+### 3.3 Probe Mission Success & Casualties
+- **Mission Success Probability**:
+  $$\text{Base Chance} = \frac{\text{Probes Sent}}{\text{Defender Probes} + (\text{Defender Land} \times 4)}$$
+  $$\text{Success Probability } \% = \text{clamp}(\text{Base Chance} \times 100, \; 20\%, \; 95\%) - \text{Defender Probe Shields } \%$$
+- **Mission Probe Casualties**:
+  - Successful missions: minimal losses ($0\%$ to $5\%$).
+  - Failed missions: $10\%$ to $20\%$ of dispatched probes are destroyed.
+  - With **Probe Armor** research, all mission probe losses are halved ($-50\%$).
 - **Suicide Power Overload**:
   $$\text{Target Power Depleted} = \text{Dispatched Probes} \times 2$$
   *(Consumes $100\%$ of dispatched probes).*
 - **Counter-Espionage Detection Probability**:
   $$\text{Exposure Chance} = \text{Defender FDC Research } \% \quad [\text{Max } 25\%]$$
-- **Damage Mitigation via Probe Armor**:
-  $$\text{Mission Probe Losses} = \text{Base Losses} \times 0.50 \quad [\text{Requires Probe Armor Tech}]$$
 
 ---
 

@@ -1,0 +1,162 @@
+/* Retro Sci-Fi Terminal & Deep Space Theme overrides for Pico CSS */
+
+:root {
+	--pico-font-family:
+		ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Monaco, Consolas,
+		"Courier New", monospace;
+	--pico-font-size: 14px;
+	--pico-line-height: 1.5;
+
+	/* Deep Space Terminal Palette */
+	--pico-background-color: #0b0f19;
+	--pico-card-background-color: #121927;
+	--pico-card-border-color: #1f2c42;
+	--pico-card-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+
+	--pico-color: #d1d5db;
+	--pico-h1-color: #38bdf8;
+	--pico-h2-color: #7dd3fc;
+	--pico-h3-color: #bae6fd;
+	--pico-muted-color: #94a3b8;
+	--pico-muted-border-color: #1e293b;
+
+	/* Accents */
+	--pico-primary: #0284c7;
+	--pico-primary-background: #0284c7;
+	--pico-primary-hover: #0369a1;
+	--pico-primary-focus: rgba(2, 132, 199, 0.25);
+	--pico-primary-inverse: #ffffff;
+
+	/* Custom Game Signals */
+	--sk-gold: #f59e0b;
+	--sk-power: #06b6d4;
+	--sk-land: #10b981;
+	--sk-combat: #ef4444;
+	--sk-border-subtle: #1e293b;
+}
+
+body {
+	background-color: var(--pico-background-color);
+	color: var(--pico-color);
+	font-family: var(--pico-font-family);
+	min-height: 100vh;
+	margin: 0;
+	padding: 0;
+}
+
+/* Crisp Retro Terminal Borders */
+header,
+nav,
+article,
+table,
+footer {
+	border-radius: 4px;
+}
+
+/* Compact Data Tables */
+table {
+	font-size: 0.9rem;
+	border-collapse: collapse;
+}
+
+th,
+td {
+	padding: 0.5rem 0.75rem;
+	border-bottom: 1px solid var(--sk-border-subtle);
+}
+
+th {
+	color: #38bdf8;
+	text-transform: uppercase;
+	font-size: 0.8rem;
+	letter-spacing: 0.05em;
+}
+
+/* Badges and Values */
+.gold-text {
+	color: var(--sk-gold);
+	font-weight: 600;
+}
+.power-text {
+	color: var(--sk-power);
+	font-weight: 600;
+}
+.land-text {
+	color: var(--sk-land);
+	font-weight: 600;
+}
+.combat-text {
+	color: var(--sk-combat);
+	font-weight: 600;
+}
+
+/* Status Bar Top Grid */
+.top-status-bar {
+	background: #080c14;
+	border-bottom: 1px solid #1e293b;
+	padding: 0.6rem 1.2rem;
+	position: sticky;
+	top: 0;
+	z-index: 100;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: 1rem;
+	font-size: 0.85rem;
+}
+
+.top-status-bar .resources {
+	display: flex;
+	gap: 1.2rem;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.nav-links {
+	display: flex;
+	gap: 0.6rem;
+	align-items: center;
+	flex-wrap: wrap;
+	padding: 0.4rem 0;
+}
+
+.nav-links a {
+	padding: 0.3rem 0.6rem;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	text-decoration: none;
+	font-size: 0.85rem;
+}
+
+.nav-links a:hover,
+.nav-links a[aria-current="page"] {
+	border-color: #38bdf8;
+	background: rgba(56, 189, 248, 0.1);
+}
+
+/* Compact Forms & Buttons */
+button,
+[role="button"] {
+	font-family: var(--pico-font-family);
+	font-size: 0.85rem;
+	padding: 0.45rem 0.9rem;
+	cursor: pointer;
+}
+
+input,
+select,
+textarea {
+	font-family: var(--pico-font-family);
+	font-size: 0.85rem;
+	background-color: #0d131f !important;
+	border-color: #1f2c42 !important;
+	color: #f1f5f9 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+	border-color: #38bdf8 !important;
+	box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2) !important;
+}

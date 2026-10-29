@@ -1,308 +1,494 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import {
-  LogIn,
-  UserPlus,
-  Sparkles,
-  CheckCircle2,
-  AlertCircle,
-  Database,
-  ArrowRight,
-  Crown,
-  Globe2,
-  Bot,
-  TrendingUp,
-} from 'lucide-react';
-
-import { useAuth } from '../context/use-auth.hook';
-import { useKingdom } from '../hooks/use-kingdom.hook';
-import { useGameStatus } from '../hooks/use-game-status.hook';
-import { SelfTickButton } from '../components/self-tick-button';
-import { BotProfileChip } from '../components/bot-profile-chip';
-import { AutoBuildToggle } from '../components/auto-build-toggle';
-import { KingdomCard } from '../components/kingdom-card';
-import { CreateKingdomForm } from '../components/create-kingdom-form';
-import { checkPbHealth, type PbHealthStatus, POCKETBASE_URL } from '../lib/pocketbase';
+import type React from "react";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { CreateKingdomForm } from "../components/create-kingdom-form";
+import { NewbieStepView } from "../components/newbie-step-view";
+import { useAuth } from "../context/use-auth.hook";
+import { useKingdom } from "../hooks/use-kingdom.hook";
 
 export const HomePage: React.FC = () => {
-  const { user, isAuthenticated, logout } = useAuth();
-  const { kingdom, hasKingdom, isLoading: kdLoading, refetch } = useKingdom();
-  const { status: gameStatus } = useGameStatus();
-  const [tickError, setTickError] = useState<string | null>(null);
-  const [pbHealth, setPbHealth] = useState<PbHealthStatus | null>(null);
-  const [isChecking, setIsChecking] = useState<boolean>(true);
-  const [inlineCreateOpen, setInlineCreateOpen] = useState<boolean>(false);
+	const { user, isAuthenticated } = useAuth();
+	const { kingdom, hasKingdom, isLoading: kdLoading, refetch } = useKingdom();
 
-  useEffect(() => {
-    let mounted = true;
-    checkPbHealth().then((status) => {
-      if (mounted) {
-        setPbHealth(status);
-        setIsChecking(false);
-      }
-    });
-    return () => {
-      mounted = false;
-    };
-  }, []);
+	const [showFoundingForm, setShowFoundingForm] = useState(false);
 
-  return (
-    <div className="home-container">
-      {/* ─── UNAUTHENTICATED STATE ─── */}
-      {!isAuthenticated ? (
-        <>
-          <section className="hero-section">
-            <div className="hero-pill">
-              <Sparkles size={16} />
-              <span>Interstellar Tick-Based Strategy Engine</span>
-            </div>
+	// Unauthenticated Welcome View
+	if (!isAuthenticated) {
+		return (
+			<div style={{ maxWidth: "800px", margin: "2rem auto" }}>
+				<article style={{ textAlign: "center", padding: "3rem 2rem" }}>
+					<header>
+						<h1
+							style={{
+								fontSize: "2.4rem",
+								margin: "0 0 0.5rem 0",
+								letterSpacing: "0.05em",
+							}}
+						>
+							SUPER KINGDOMS
+						</h1>
+						<p
+							style={{
+								color: "var(--pico-muted-color)",
+								fontSize: "1.1rem",
+								margin: 0,
+							}}
+						>
+							Turn-Based Interstellar Strategy &amp; Galaxy Conquest
+						</p>
+					</header>
 
-            <h1 className="hero-title">Command Your Empire Across the Cosmos</h1>
+					<p
+						style={{
+							margin: "1.5rem 0 2rem 0",
+							lineHeight: 1.6,
+							fontSize: "0.95rem",
+						}}
+					>
+						Found your sovereign realm across 100 galactic sectors, govern
+						economies, colonize planetary territory, deploy espionage probes,
+						and command orbital fleets.
+					</p>
 
-            <p className="hero-subtitle">
-              Colonize alien biomes, manage sovereign economies, conduct espionage,
-              and command subordinate protectorates in a persistent full-stack realm.
-            </p>
+					<div
+						style={{ display: "flex", gap: "1rem", justifyContent: "center" }}
+					>
+						<Link
+							to="/login"
+							role="button"
+							style={{ padding: "0.75rem 2rem", fontWeight: 600 }}
+						>
+							🚀 Launch Command Deck
+						</Link>
+					</div>
+				</article>
+			</div>
+		);
+	}
 
-            <div className="hero-actions">
-              <Link to="/login" className="btn btn-primary btn-lg">
-                <LogIn size={20} />
-                <span>Log In</span>
-              </Link>
-              <Link to="/register" className="btn btn-secondary btn-lg">
-                <UserPlus size={20} />
-                <span>Register New Ruler</span>
-              </Link>
-            </div>
-          </section>
+	// Authenticated: Loading State
+	if (kdLoading) {
+		return (
+			<article style={{ textAlign: "center", padding: "4rem 1rem" }}>
+				<p aria-busy="true">Synchronizing galactic telemetry...</p>
+			</article>
+		);
+	}
 
-          {/* Feature Highlights Grid */}
-          <div className="features-grid">
-            <div className="feature-card card">
-              <div className="feature-icon" style={{ background: 'rgba(99, 102, 241, 0.15)', color: '#818cf8' }}>
-                <Globe2 size={24} />
-              </div>
-              <h3>14 Planetary Biomes</h3>
-              <p>
-                From Mountainous and Volcanic Infernos to Mystical Lands, each planet
-                shapes your empire's terrain, capacity, and energy dynamics.
-              </p>
-            </div>
+	// Authenticated: No Kingdom Found
+	if (!hasKingdom || !kingdom) {
+		return (
+			<div style={{ maxWidth: "680px", margin: "2rem auto" }}>
+				<article>
+					<header style={{ textAlign: "center", paddingBottom: "1rem" }}>
+						<h2 style={{ margin: "0 0 0.5rem 0" }}>
+							👑 Unclaimed Sovereign Account
+						</h2>
+						<p style={{ color: "var(--pico-muted-color)", margin: 0 }}>
+							Commander <strong>{user?.name || user?.email}</strong>, you have
+							not yet established a kingdom in the current round.
+						</p>
+					</header>
 
-            <div className="feature-card card">
-              <div className="feature-icon" style={{ background: 'rgba(6, 182, 212, 0.15)', color: '#22d3ee' }}>
-                <Sparkles size={24} />
-              </div>
-              <h3>7 Unique Species</h3>
-              <p>
-                Lead the Ancients, Terran, Xivornai, Shadow, and more — each with
-                specialized racial advantages in combat, science, or commerce.
-              </p>
-            </div>
+					{!showFoundingForm ? (
+						<div style={{ textAlign: "center", margin: "2rem 0 1rem" }}>
+							<p style={{ fontSize: "0.9rem", marginBottom: "1.5rem" }}>
+								Found your realm today to receive 250 starting acres, 2,250
+								civilians, $300,000 treasury credits, and sector deployment
+								coordinates.
+							</p>
+							<button
+								type="button"
+								onClick={() => setShowFoundingForm(true)}
+								style={{ padding: "0.75rem 2rem", fontWeight: 600 }}
+							>
+								🪐 Found Your Kingdom Now
+							</button>
+						</div>
+					) : (
+						<div style={{ marginTop: "1.5rem" }}>
+							<CreateKingdomForm
+								onSuccess={() => {
+									setShowFoundingForm(false);
+									refetch();
+								}}
+								onCancel={() => setShowFoundingForm(false)}
+							/>
+						</div>
+					)}
+				</article>
+			</div>
+		);
+	}
 
-            <div className="feature-card card">
-              <div className="feature-icon" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#34d399' }}>
-                <Bot size={24} />
-              </div>
-              <h3>Vassal Protectorates</h3>
-              <p>
-                Every sovereign kingdom commands 5 subordinate autonomous realms
-                expanding under your galactic sphere of influence.
-              </p>
-            </div>
+	// Authenticated: Active Kingdom Command Deck
+	const buildings = kingdom.buildings || {
+		res: 80,
+		plants: 40,
+		rax: 10,
+		sm: 30,
+		pf: 10,
+		tc: 0,
+		asb: 0,
+	};
+	const military = kingdom.military || {
+		sol: 200,
+		tr: 0,
+		dr: 0,
+		lt: 0,
+		ld: 0,
+		ft: 0,
+		t: 0,
+		tf: 0,
+		sci: 300,
+	};
 
-            <div className="feature-card card">
-              <div className="feature-icon" style={{ background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24' }}>
-                <TrendingUp size={24} />
-              </div>
-              <h3>Deep Economic Simulation</h3>
-              <p>
-                Manage power grids, residential housing, space markets, probe factories,
-                and tax income with every simulated game tick.
-              </p>
-            </div>
-          </div>
-        </>
-      ) : (
-        /* ─── AUTHENTICATED STATE ─── */
-        <div className="auth-home-content">
-          {kdLoading ? (
-            <div className="card loading-placeholder">
-              <div className="spinner-large" />
-              <p className="text-secondary" style={{ marginTop: '1rem' }}>
-                Synchronizing realm intelligence...
-              </p>
-            </div>
-          ) : !hasKingdom ? (
-            /* ─── AUTHENTICATED BUT NO KINGDOM ─── */
-            <div className="no-kd-wrapper">
-              <div className="card no-kd-card">
-                <div className="no-kd-badge">
-                  <Crown size={32} color="#f59e0b" />
-                </div>
-                <h2>No Sovereign Kingdom Found</h2>
-                <p className="no-kd-desc">
-                  Welcome, <strong>{user?.name || user?.email}</strong>. Your sovereign account is ready,
-                  but you haven't founded a kingdom yet. Claim your territory and start ruling among the stars!
-                </p>
+	const resCap = (buildings.res || 0) * 50;
+	const grossIncome =
+		(buildings.sm || 0) * 140 + Math.round((kingdom.population || 2250) * 2);
+	const powerOutput = (buildings.plants || 0) * 100;
+	const powerDrain = Math.round(
+		(kingdom.population || 2250) * 0.25 +
+			(military.sol || 200) * 0.7 +
+			(military.sci || 300) * 0.7,
+	);
+	const netPower = powerOutput - powerDrain;
+	const barracksCap = (buildings.rax || 0) * 100;
+	const totalTroops =
+		(military.sol || 0) +
+		(military.tr || 0) +
+		(military.dr || 0) +
+		(military.lt || 0) +
+		(military.ld || 0) +
+		(military.ft || 0) +
+		(military.t || 0) +
+		(military.tf || 0);
 
-                <div className="no-kd-actions">
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-lg"
-                    onClick={() => setInlineCreateOpen((prev) => !prev)}
-                  >
-                    <Crown size={20} />
-                    <span>{inlineCreateOpen ? 'Hide Founding Form' : 'Found Your Kingdom Now'}</span>
-                    <ArrowRight size={18} />
-                  </button>
-                  <Link to="/create" className="btn btn-secondary btn-lg">
-                    <span>Dedicated Creation Screen</span>
-                  </Link>
-                </div>
-              </div>
+	return (
+		<div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+			{/* ─── NEWBIE MODE STEP RUNNER ─── */}
+			<NewbieStepView />
 
-              {/* Seamless Inline Creation Form */}
-              {inlineCreateOpen && (
-                <div style={{ marginTop: '2rem' }}>
-                  <CreateKingdomForm
-                    onSuccess={() => {
-                      setInlineCreateOpen(false);
-                      refetch();
-                    }}
-                    onCancel={() => setInlineCreateOpen(false)}
-                  />
-                </div>
-              )}
-            </div>
-          ) : (
-            /* ─── AUTHENTICATED WITH ACTIVE KINGDOM ─── */
-            <div className="active-kd-wrapper">
-              <div className="section-header-row">
-                <div>
-                  <h1 className="page-heading">Command Deck</h1>
-                  <p className="page-subheading">
-                    Live telemetry for the sovereign realm of <strong>{kingdom?.kdName}</strong>
-                  </p>
-                </div>
-                <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                  {kingdom && (
-                    <>
-                      <AutoBuildToggle />
-                      {kingdom.autoBuild && (
-                        <BotProfileChip label={kingdom.botSettings?.label} />
-                      )}
-                      <SelfTickButton
-                        newbiemode={kingdom.newbiemode}
-                        gamePhase={gameStatus?.status}
-                        className="btn-sm"
-                        onError={(msg) => setTickError(msg)}
-                        onSuccess={() => {
-                          setTickError(null);
-                          refetch();
-                        }}
-                      />
-                    </>
-                  )}
-                  <button
-                    type="button"
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => refetch()}
-                    title="Refresh telemetry"
-                  >
-                    <Sparkles size={15} />
-                    <span>Refresh Telemetry</span>
-                  </button>
-                </div>
-              </div>
+			{/* ─── 4-CARD METRIC GRID ─── */}
+			<div className="grid">
+				{/* Card 1: Demographics & Territory */}
+				<article style={{ margin: 0 }}>
+					<header>
+						<h4 style={{ margin: 0, fontSize: "0.95rem", color: "#7dd3fc" }}>
+							🌍 Territory &amp; Population
+						</h4>
+					</header>
+					<table style={{ width: "100%", margin: 0 }}>
+						<tbody>
+							<tr>
+								<td>Total Land</td>
+								<td style={{ textAlign: "right" }}>
+									<strong className="land-text">{kingdom.land} Acres</strong>
+								</td>
+							</tr>
+							<tr>
+								<td>Free (Unbuilt) Land</td>
+								<td style={{ textAlign: "right" }}>
+									<strong>{kingdom.free_land ?? 80} Acres</strong>
+								</td>
+							</tr>
+							<tr>
+								<td>Civilian Population</td>
+								<td style={{ textAlign: "right" }}>
+									<strong>
+										{(kingdom.population || 2250).toLocaleString()}
+									</strong>
+								</td>
+							</tr>
+							<tr>
+								<td>Housing Capacity</td>
+								<td style={{ textAlign: "right" }}>
+									<span>{resCap.toLocaleString()}</span>{" "}
+									<small style={{ color: "var(--pico-muted-color)" }}>
+										({buildings.res || 80} Res)
+									</small>
+								</td>
+							</tr>
+							<tr>
+								<td>Growth Rate</td>
+								<td style={{ textAlign: "right", color: "var(--sk-land)" }}>
+									+2.5% / hour
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<footer style={{ padding: "0.6rem", textAlign: "center" }}>
+						<Link to="/kingdom/explore" style={{ fontSize: "0.8rem" }}>
+							&rarr; Dispatch Land Survey
+						</Link>
+					</footer>
+				</article>
 
-              {tickError && (
-                <div className="card" style={{ padding: "0.75rem 1rem", marginBottom: "1rem", borderColor: "var(--accent-rose)", color: "var(--accent-rose)" }}>
-                  <strong>Self-tick failed:</strong> {tickError}
-                </div>
-              )}
+				{/* Card 2: Economy & Production */}
+				<article style={{ margin: 0 }}>
+					<header>
+						<h4 style={{ margin: 0, fontSize: "0.95rem", color: "#7dd3fc" }}>
+							💰 Treasury &amp; Revenue
+						</h4>
+					</header>
+					<table style={{ width: "100%", margin: 0 }}>
+						<tbody>
+							<tr>
+								<td>Stored Treasury</td>
+								<td style={{ textAlign: "right" }}>
+									<strong className="gold-text">
+										${(kingdom.money || 300000).toLocaleString()}
+									</strong>
+								</td>
+							</tr>
+							<tr>
+								<td>Star Mines</td>
+								<td style={{ textAlign: "right" }}>
+									<strong>{buildings.sm || 30} Mines</strong>{" "}
+									<small style={{ color: "var(--pico-muted-color)" }}>
+										(${(buildings.sm * 140).toLocaleString()}/hr)
+									</small>
+								</td>
+							</tr>
+							<tr>
+								<td>Civilian Taxes</td>
+								<td style={{ textAlign: "right" }}>
+									+$
+									{Math.round(
+										(kingdom.population || 2250) * 2,
+									).toLocaleString()}
+									/hr
+								</td>
+							</tr>
+							<tr>
+								<td>Estimated Gross Revenue</td>
+								<td style={{ textAlign: "right", color: "var(--sk-gold)" }}>
+									+${grossIncome.toLocaleString()}/hr
+								</td>
+							</tr>
+							<tr>
+								<td>Sector Tax Rate</td>
+								<td style={{ textAlign: "right" }}>0% (Exempt)</td>
+							</tr>
+						</tbody>
+					</table>
+					<footer style={{ padding: "0.6rem", textAlign: "center" }}>
+						<Link to="/kingdom/growth" style={{ fontSize: "0.8rem" }}>
+							&rarr; Manage Infrastructure
+						</Link>
+					</footer>
+				</article>
+			</div>
 
-              {kingdom && <KingdomCard kingdom={kingdom} onRefresh={refetch} />}
-            </div>
-          )}
+			<div className="grid">
+				{/* Card 3: Energy Grid */}
+				<article style={{ margin: 0 }}>
+					<header>
+						<h4 style={{ margin: 0, fontSize: "0.95rem", color: "#7dd3fc" }}>
+							⚡ Power Grid Dynamics
+						</h4>
+					</header>
+					<table style={{ width: "100%", margin: 0 }}>
+						<tbody>
+							<tr>
+								<td>Stored Energy</td>
+								<td style={{ textAlign: "right" }}>
+									<strong className="power-text">
+										{(kingdom.power || 10000).toLocaleString()} MWh
+									</strong>
+								</td>
+							</tr>
+							<tr>
+								<td>Active Generators</td>
+								<td style={{ textAlign: "right" }}>
+									<strong>{buildings.plants || 40} Power Plants</strong>
+								</td>
+							</tr>
+							<tr>
+								<td>Gross Generation</td>
+								<td style={{ textAlign: "right", color: "var(--sk-power)" }}>
+									+{powerOutput.toLocaleString()} / hr
+								</td>
+							</tr>
+							<tr>
+								<td>Grid Consumption</td>
+								<td style={{ textAlign: "right" }}>
+									-{powerDrain.toLocaleString()} / hr
+								</td>
+							</tr>
+							<tr>
+								<td>Net Energy Balance</td>
+								<td style={{ textAlign: "right" }}>
+									<strong
+										style={{
+											color:
+												netPower >= 0 ? "var(--sk-power)" : "var(--sk-combat)",
+										}}
+									>
+										{netPower >= 0 ? `+${netPower}` : netPower} / hr
+									</strong>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<footer style={{ padding: "0.6rem", textAlign: "center" }}>
+						<span style={{ fontSize: "0.8rem", color: "var(--sk-land)" }}>
+							● Grid Status: Optimal (Normal)
+						</span>
+					</footer>
+				</article>
 
-          {/* User Account Session Info */}
-          <div className="card profile-dashboard" style={{ marginTop: '2rem' }}>
-            <div className="profile-header">
-              <div className="profile-avatar">
-                {(user?.name || user?.email || 'U').charAt(0).toUpperCase()}
-              </div>
-              <div className="profile-info">
-                <h2>Ruler Account: {user?.name || user?.email}</h2>
-                <p>Authenticated via PocketBase Auth Collection</p>
-              </div>
-            </div>
+				{/* Card 4: Armed Forces Garrison */}
+				<article style={{ margin: 0 }}>
+					<header>
+						<h4 style={{ margin: 0, fontSize: "0.95rem", color: "#7dd3fc" }}>
+							🛡️ Military Readiness
+						</h4>
+					</header>
+					<table style={{ width: "100%", margin: 0 }}>
+						<tbody>
+							<tr>
+								<td>Stationed Soldiers</td>
+								<td style={{ textAlign: "right" }}>
+									<strong>
+										{(military.sol || 200).toLocaleString()} Troops
+									</strong>{" "}
+									<small style={{ color: "var(--pico-muted-color)" }}>
+										({totalTroops} total)
+									</small>
+								</td>
+							</tr>
+							<tr>
+								<td>Assigned Scientists</td>
+								<td style={{ textAlign: "right" }}>
+									<strong>
+										{(military.sci || 300).toLocaleString()} Researchers
+									</strong>
+								</td>
+							</tr>
+							<tr>
+								<td>Barracks Capacity</td>
+								<td style={{ textAlign: "right" }}>
+									<span>{barracksCap.toLocaleString()}</span>{" "}
+									<small style={{ color: "var(--pico-muted-color)" }}>
+										({buildings.rax || 10} Barracks)
+									</small>
+								</td>
+							</tr>
+							<tr>
+								<td>Espionage Probes</td>
+								<td style={{ textAlign: "right" }}>
+									<strong>{kingdom.probes || 0} Probes</strong> (
+									{kingdom.probe_credits ?? 10} credits)
+								</td>
+							</tr>
+							<tr>
+								<td>Composite Net Worth</td>
+								<td style={{ textAlign: "right" }}>
+									<strong style={{ color: "#a78bfa" }}>
+										{(kingdom.networth || 13350).toLocaleString()}
+									</strong>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<footer style={{ padding: "0.6rem", textAlign: "center" }}>
+						<Link to="/kingdom/military" style={{ fontSize: "0.8rem" }}>
+							&rarr; Train Armed Forces
+						</Link>
+					</footer>
+				</article>
+			</div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <div className="detail-row">
-                <span className="detail-label">User Record ID:</span>
-                <span className="detail-value">{user?.id}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Account Email:</span>
-                <span className="detail-value">{user?.email}</span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Kingdom Status:</span>
-                <span className="detail-value" style={{ color: hasKingdom ? 'var(--accent-emerald)' : 'var(--accent-amber)', fontWeight: 600 }}>
-                  {hasKingdom ? `Active (${kingdom?.kdName})` : 'Unfounded'}
-                </span>
-              </div>
-              <div className="detail-row">
-                <span className="detail-label">Account Created:</span>
-                <span className="detail-value">
-                  {user?.created ? new Date(user.created).toLocaleString() : 'N/A'}
-                </span>
-              </div>
-            </div>
-
-            <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-subtle)' }}>
-              <button
-                type="button"
-                onClick={logout}
-                className="btn btn-danger btn-sm"
-              >
-                <LogIn size={16} style={{ transform: 'rotate(180deg)' }} />
-                <span>Sign Out ({user?.email})</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Backend Status Callout */}
-      <div className="backend-banner" style={{ marginTop: '3rem' }}>
-        <div className="backend-banner-left">
-          <Database size={20} color="var(--accent-primary)" />
-          <div>
-            <span>PocketBase Engine: </span>
-            <code className="backend-url-code">{POCKETBASE_URL}</code>
-            <span style={{ marginLeft: '0.75rem' }}>
-              {isChecking ? (
-                'Checking connection...'
-              ) : pbHealth?.isOnline ? (
-                <span style={{ color: 'var(--accent-emerald)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  <CheckCircle2 size={15} /> Connected
-                </span>
-              ) : (
-                <span style={{ color: 'var(--accent-amber)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                  <AlertCircle size={15} /> Server unreachable (Ensure PocketBase is running)
-                </span>
-              )}
-            </span>
-          </div>
-        </div>
-        {!pbHealth?.isOnline && !isChecking && (
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            Start PocketBase: <code className="backend-url-code">./pb/pocketbase serve</code>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+			{/* ─── QUICK COMMAND CONSOLE ─── */}
+			<article style={{ margin: 0 }}>
+				<header>
+					<h4 style={{ margin: 0, fontSize: "0.95rem", color: "#7dd3fc" }}>
+						🕹️ Sovereign Operations Console
+					</h4>
+				</header>
+				<div
+					style={{
+						display: "flex",
+						gap: "0.75rem",
+						flexWrap: "wrap",
+						padding: "0.5rem 0",
+					}}
+				>
+					<Link
+						to="/kingdom/growth"
+						role="button"
+						className="secondary"
+						style={{
+							flex: "1 1 140px",
+							textAlign: "center",
+							fontSize: "0.82rem",
+						}}
+					>
+						🏗️ Buildings
+					</Link>
+					<Link
+						to="/kingdom/explore"
+						role="button"
+						className="secondary"
+						style={{
+							flex: "1 1 140px",
+							textAlign: "center",
+							fontSize: "0.82rem",
+						}}
+					>
+						🗺️ Explore Land
+					</Link>
+					<Link
+						to="/kingdom/military"
+						role="button"
+						className="secondary"
+						style={{
+							flex: "1 1 140px",
+							textAlign: "center",
+							fontSize: "0.82rem",
+						}}
+					>
+						⚔️ Recruit Military
+					</Link>
+					<Link
+						to="/kingdom/research"
+						role="button"
+						className="secondary"
+						style={{
+							flex: "1 1 140px",
+							textAlign: "center",
+							fontSize: "0.82rem",
+						}}
+					>
+						🔬 Tech Tree
+					</Link>
+					<Link
+						to="/kingdom/targets"
+						role="button"
+						className="secondary"
+						style={{
+							flex: "1 1 140px",
+							textAlign: "center",
+							fontSize: "0.82rem",
+						}}
+					>
+						🎯 Target Scanner
+					</Link>
+					<Link
+						to="/kingdom/reports"
+						role="button"
+						className="secondary"
+						style={{
+							flex: "1 1 140px",
+							textAlign: "center",
+							fontSize: "0.82rem",
+						}}
+					>
+						📡 Espionage Probes
+					</Link>
+				</div>
+			</article>
+		</div>
+	);
 };

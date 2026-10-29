@@ -32,13 +32,16 @@ Missiles and planetary shields represent high-stakes strategic warfare. Rulers c
 - **Energy Missile Damage**:
   $$\text{Damage} = 8\text{ land destroyed}, \; 1,000\text{ civilians killed} \quad [\text{Capped at } 1.0\% \text{ Land}, \; 5.0\% \text{ Pop}]$$
 
-### 3.2 Shield Combat Mitigation Formulas
+### 3.2 Shield Power Upkeep & Combat Mitigation Formulas
+- **Shield Power Upkeep per Tick**:
+  $$\text{Shield Power Drain / Tick} = \text{Total Shield Levels} \times (0.01 \times \text{Current Gross Power Generation})$$
+  *(Across all 3 arrays: Missile, Military, Probe; 0 to 10 levels each; maximum 30% of total hourly power output).*
 - **Military Defense Shield Formula**:
   $$\text{Attacker Offense Penalty} = -1\% \text{ per active shield level} \quad [\text{Max } -10\%]$$
 - **Missile Interception Rate**:
   $$\text{Interception Chance} = \text{Missile Shield Level} \times 10\% \quad [\text{Max } 100\%]$$
 - **Probe Interference Rate**:
-  $$\text{Hostile Probe Failure Bonus} = +20\% \text{ at max Probe Shield level}$$
+  $$\text{Hostile Probe Failure Bonus} = \text{Probe Shield Level} \times 2\% \quad [\text{Max } 20\%]$$
 
 ---
 

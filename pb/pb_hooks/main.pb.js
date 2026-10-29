@@ -4,6 +4,30 @@
 onBootstrap((e) => {
   e.next()
   console.log("Super Kingdoms PB instance started.")
+
+  try {
+    const users = $app.findCollectionByNameOrId("users")
+    const devAccounts = [
+      { email: "test@example.com", pass: "password123", name: "Commander" },
+      { email: "admin@superkingdoms.internal", pass: "password123", name: "Admin" }
+    ]
+
+    for (let i = 0; i < devAccounts.length; i++) {
+      const acc = devAccounts[i]
+      try {
+        $app.findAuthRecordByEmail("users", acc.email)
+      } catch {
+        const u = new Record(users)
+        u.setEmail(acc.email)
+        u.setPassword(acc.pass)
+        u.set("name", acc.name)
+        $app.save(u)
+        console.log(`[bootstrap] Seeded dev user: ${acc.email}`)
+      }
+    }
+  } catch (err) {
+    console.log("[bootstrap] Dev user seed notice: " + err)
+  }
 })
 
 // ─── SPA Fallback (BrowserRouter support) ────────────────────────────────────

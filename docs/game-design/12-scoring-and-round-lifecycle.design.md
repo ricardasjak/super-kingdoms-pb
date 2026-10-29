@@ -20,9 +20,29 @@ Super Kingdoms operates in discrete, competitive round seasons. Players compete 
   - A kingdom may only attack or probe targets within a **3x Networth window**:
     $$\frac{1}{3} \times \text{Own NW} \le \text{Target NW} \le 3 \times \text{Own NW}$$
 - **Round Pacing & Phase Progression**:
-  - **Phase 1 (Newbie Mode)**: 72 hours of total protection and peaceful economic development.
-  - **Phase 2 (PvE Mode)**: Bot targets and intra-sector consolidation.
-  - **Phase 3 (PvP Mode)**: Full galaxy warfare, sector politics, and alliance diplomacy.
+  - Configurable round duration (default **960 ticks / ~40 days**, 1 tick/hour).
+  - **Phase 1 (Global Newbie Mode)**:
+    - Complete peaceful development.
+    - Each player advances via **8 Progression Steps** (each simulating 24 engine ticks in one batch = 192 total ticks).
+    - Attacks and espionage completely disabled.
+    - Resets allowed.
+  - **Phase 2 (PvP Mode)**:
+    - Global clock begins ticking (1 tick/hour).
+    - Kingdoms assigned to 10-kingdom sectors on a 10x10 torus galaxy grid.
+    - Full galaxy warfare, espionage, sector politics, and alliance diplomacy unlocked.
+
+---
+
+## 2.1 Standard Starting Assets
+
+Every newly founded kingdom spawns with:
+- **Territory**: 250 Land (acres)
+- **Demographics**: 2,250 Civilians
+- **Treasury**: 300,000 Money
+- **Energy**: 10,000 Power
+- **Armed Forces**: 200 Soldiers, 100 Scientists, 0 Specialists, 0 Probes
+- **Infrastructure**: Baseline distribution (e.g., 20 Residences, 10 Power Plants, 10 Barracks, 10 Star Mines, 200 Free Land)
+- **Planet Starter Assets**: Archetype-specific bonus unlocks and units added on day one.
 
 ---
 

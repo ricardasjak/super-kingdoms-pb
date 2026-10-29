@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useKingdom } from "../hooks/use-kingdom.hook";
-import { useKingdomMessage } from "../context/kingdom-message.context";
 import { MaxButton } from "../components/max-button";
 import { Tooltip } from "../components/tooltip";
 import { GAME_PARAMS } from "../constants/game-params.constants";
+import { useKingdomMessage } from "../context/kingdom-message.context";
+import { useKingdom } from "../hooks/use-kingdom.hook";
 import type { BuildingType, MilitaryUnitType } from "../types/game.types";
 import {
 	calculateFreeLand,
@@ -57,7 +58,6 @@ export const KingdomGrowthPage: React.FC = () => {
 	const [isBuilding, setIsBuilding] = useState(false);
 	const [isRazeMode, setIsRazeMode] = useState(false);
 
-	const targetStr = JSON.stringify(buildings?.target);
 	const isAutomatedProfile = Boolean(kingdom?.botSettings?.label);
 
 	useEffect(() => {
@@ -89,8 +89,7 @@ export const KingdomGrowthPage: React.FC = () => {
 			}
 			setTargetInitialized(true);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps, we only want to update the target queue when the target is updated, not when any other state changes.
-	}, [targetStr, kingdom?.land]);
+	}, [buildings, kingdom?.land, targetInitialized]);
 
 	if (!kingdom || !buildings) return null;
 
@@ -650,8 +649,11 @@ export const KingdomGrowthPage: React.FC = () => {
 								⚙️ Automation Settings
 							</Link>
 							{isAutomatedProfile && (
-								<span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
-									Targets governed by profile <strong>{kingdom.botSettings?.label}</strong>.
+								<span
+									style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}
+								>
+									Targets governed by profile{" "}
+									<strong>{kingdom.botSettings?.label}</strong>.
 								</span>
 							)}
 						</div>

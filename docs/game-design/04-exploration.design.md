@@ -28,11 +28,11 @@ Exploration provides a peaceful, non-military mechanism for territorial expansio
 ## 3. Mathematical Formulas & Algorithms
 
 ### 3.1 Exploration Cost Curve
-Exploration money cost scales progressively with total land:
+Exploration money cost per acre scales with total land:
 
-$$\text{Exploration Cost per Acre} = \text{BaseRate} \times \left(1 + \frac{\text{Total Land}}{\text{ScalingFactor}}\right)$$
+$$\text{Exploration Cost per Acre} = \text{round}\left(\sqrt{\text{Total Land}} \times 111\right)$$
 
-*(Early exploration costs are significantly cheaper than mid-game exploration, incentivizing maximum exploration during the 72h Newbie Mode window).*
+*(Early exploration costs are significantly cheaper than mid-game exploration, incentivizing maximum exploration during peaceful development).*
 
 ### 3.2 Daily Exploration Cap Formula
 $$\text{Max Explored Land / 24h} = \left\lfloor \text{Total Land} \times 0.10 \right\rfloor$$
@@ -47,9 +47,9 @@ $$\text{Effective Exploration Cost} = \text{Exploration Cost} \times (1 - \text{
 
 | Metric / Parameter | Value / Range | Constraint & Trigger |
 |---|---|---|
-| **Daily Land Exploration Ceiling** | Max **10% of current Total Land** | Resets every 24 hours |
+| **Daily Land Exploration Ceiling** | Max **10% of current Total Land** | Resets every 24 hours (ticks) |
 | **Land Condition on Arrival** | 100% Unbuilt / Free Land | Requires construction allocation |
-| **Exploration Queue Duration** | Fixed batch delay *(1 to 3 hours)* | Queued operations lock treasury funds |
+| **Exploration Queue Duration** | Fixed batch delay of **24 ticks (hours)** | Queued operations lock treasury funds |
 | **Sector Growth Synergy** | Up to -75% Cost Reduction | Gated by Sector Leader political declaration |
 
 ---
