@@ -1,5 +1,6 @@
 import type React from "react";
 import { Fragment } from "react";
+import { getPlanetDisplayName } from "../constants/game.constants";
 import type { KingdomResearch } from "../types/game.types";
 
 export {
@@ -31,7 +32,7 @@ export interface SpyReportSOKProps {
 	kdName: string;
 	rulerName: string;
 	planetType: string;
-	raceType: string;
+	raceType?: string;
 	level: number;
 	land: number;
 	networth: number;
@@ -99,11 +100,20 @@ export const SpyReportSOK: React.FC<SpyReportSOKProps> = ({
 				<span className="text-secondary">Ruler Name:</span>
 				<span style={{ fontWeight: 600 }}>{rulerName}</span>
 				<span className="text-secondary">Planet Type:</span>
-				<span>{planetType}</span>
-				<span className="text-secondary">Race:</span>
-				<span>
-					{raceType} (Level {level})
-				</span>
+				<span>{getPlanetDisplayName(planetType)}</span>
+				{raceType ? (
+					<>
+						<span className="text-secondary">Race:</span>
+						<span>
+							{raceType} (Level {level})
+						</span>
+					</>
+				) : (
+					<>
+						<span className="text-secondary">Realm Level:</span>
+						<span>Level {level}</span>
+					</>
+				)}
 				<span className="text-secondary">Land:</span>
 				<span style={{ color: "var(--accent-secondary)" }}>
 					{land.toLocaleString()} acres

@@ -26,7 +26,7 @@ export const SelfTickButton: React.FC<SelfTickButtonProps> = ({
 
 	const remaining = newbiemode ?? 0;
 	const phaseOk = gamePhase === "registration" || gamePhase === "in-progress";
-	const budgetOk = remaining >= 8;
+	const budgetOk = remaining >= 24;
 	const exhausted = !budgetOk;
 	const disabled = isLoading || !phaseOk || !budgetOk;
 
@@ -36,7 +36,7 @@ export const SelfTickButton: React.FC<SelfTickButtonProps> = ({
 			? gamePhase === "registration"
 				? "Newbie mode exhausted — restart it for a fresh cycle"
 				: "Newbie mode exhausted"
-			: `Advance your kingdom 8 ticks (${remaining} newbie ticks left)`;
+			: `Advance your kingdom 24 ticks (${remaining} newbie ticks left)`;
 
 	const reportError = (fallback: string, error: unknown) => {
 		console.error(fallback, error);
@@ -161,15 +161,15 @@ export const SelfTickButton: React.FC<SelfTickButtonProps> = ({
 				fill="currentColor"
 				stroke="none"
 			>
-				<title>Self-Tick 8 Ticks</title>
+				<title>Self-Tick 24 Ticks</title>
 				<polygon points="3 3 11 12 3 21 3 3" />
 				<polygon points="11 3 21 12 11 21 11 3" />
 			</svg>
 			{showText && (
 				<span>
 					{isLoading
-						? "Advancing 8 ticks..."
-						: `Advance 8 ticks (${remaining} left)`}
+						? "Advancing 24 ticks..."
+						: `Advance 24 ticks (${remaining} left)`}
 				</span>
 			)}
 		</button>

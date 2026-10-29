@@ -48,7 +48,7 @@ export interface CreateKingdomPayload {
 	kdName: string;
 	rulerName: string;
 	planetType: string;
-	raceType: string;
+	raceType?: string;
 	botNames?: string[];
 }
 

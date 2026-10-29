@@ -2,16 +2,14 @@ import type React from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CreateKingdomForm } from "../components/create-kingdom-form";
+import { NewbieStepView } from "../components/newbie-step-view";
 import { useAuth } from "../context/use-auth.hook";
 import { useKingdom } from "../hooks/use-kingdom.hook";
-import { pb } from "../lib/pocketbase";
 
 export const HomePage: React.FC = () => {
 	const { user, isAuthenticated } = useAuth();
 	const { kingdom, hasKingdom, isLoading: kdLoading, refetch } = useKingdom();
 
-	const [stepLoading, setStepLoading] = useState(false);
-	const [stepMessage, setStepMessage] = useState<string | null>(null);
 	const [showFoundingForm, setShowFoundingForm] = useState(false);
 
 	// Unauthenticated Welcome View
@@ -166,98 +164,10 @@ export const HomePage: React.FC = () => {
 		(military.t || 0) +
 		(military.tf || 0);
 
-	const isNewbie = kingdom.is_newbie !== false;
-	const newbieStep = kingdom.newbie_step || 0;
-
-	const handleAdvanceStep = async () => {
-		setStepLoading(true);
-		setStepMessage(null);
-		try {
-			// Advance step via self-tick endpoint
-			await pb.send("/api/kingdoms/self-tick", { method: "POST" });
-			setStepMessage("✓ Advanced simulation by 8 ticks. Telemetry updated.");
-			refetch();
-		} catch (err: unknown) {
-			const message =
-				err instanceof Error ? err.message : "Could not advance simulation";
-			setStepMessage(`⚠️ Error: ${message}`);
-		} finally {
-			setStepLoading(false);
-		}
-	};
-
 	return (
 		<div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-			{/* ─── NEWBIE MODE BANNER ─── */}
-			{isNewbie && (
-				<article
-					style={{
-						borderLeft: "4px solid #38bdf8",
-						padding: "1rem 1.25rem",
-						margin: 0,
-						background: "#0e1626",
-					}}
-				>
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "space-between",
-							alignItems: "center",
-							flexWrap: "wrap",
-							gap: "1rem",
-						}}
-					>
-						<div>
-							<h3
-								style={{
-									margin: "0 0 0.25rem 0",
-									fontSize: "1.05rem",
-									color: "#38bdf8",
-								}}
-							>
-								🔰 Newbie Protection Protocol (Phase 1)
-							</h3>
-							<p
-								style={{
-									margin: 0,
-									fontSize: "0.85rem",
-									color: "var(--pico-muted-color)",
-								}}
-							>
-								Your realm is immune to hostile invasions. Advance simulation
-								steps to grow population and complete building queues.
-							</p>
-						</div>
-						<div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-							<span style={{ fontSize: "0.9rem", fontWeight: 600 }}>
-								Progress:{" "}
-								<strong className="land-text">Step {newbieStep} / 8</strong>
-							</span>
-							<button
-								type="button"
-								onClick={handleAdvanceStep}
-								disabled={stepLoading}
-								style={{ padding: "0.45rem 1rem", margin: 0, fontWeight: 600 }}
-							>
-								{stepLoading ? "Simulating..." : "⏩ Advance Step (Self-Tick)"}
-							</button>
-						</div>
-					</div>
-					{stepMessage && (
-						<p
-							style={{
-								margin: "0.6rem 0 0 0",
-								fontSize: "0.85rem",
-								color: stepMessage.startsWith("✓")
-									? "var(--sk-land)"
-									: "var(--sk-combat)",
-							}}
-						>
-							{stepMessage}
-						</p>
-					)}
-				</article>
-			)}
+			{/* ─── NEWBIE MODE STEP RUNNER ─── */}
+			<NewbieStepView />
 
 			{/* ─── 4-CARD METRIC GRID ─── */}
 			<div className="grid">

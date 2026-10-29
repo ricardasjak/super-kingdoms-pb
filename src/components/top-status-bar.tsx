@@ -1,5 +1,6 @@
 import type React from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { getPlanetDisplayName } from "../constants/game.constants";
 import { useAuth } from "../context/use-auth.hook";
 import { useGameStatus } from "../hooks/use-game-status.hook";
 import { useKingdom } from "../hooks/use-kingdom.hook";
@@ -66,8 +67,11 @@ export const TopStatusBar: React.FC = () => {
 							🏛️ {kingdom?.name || kingdom?.kdName || "Sovereign Realm"}
 						</span>
 						<span style={{ color: "var(--pico-muted-color)" }}>
-							[{kingdom?.planet_type || "Terran"} Homeworld &bull; Sector{" "}
-							{kingdom?.sector_slot ?? 0}]
+							[
+							{getPlanetDisplayName(
+								kingdom?.planet_type || kingdom?.planetType,
+							)}{" "}
+							Homeworld &bull; Sector {kingdom?.sector_slot ?? 0}]
 						</span>
 					</div>
 

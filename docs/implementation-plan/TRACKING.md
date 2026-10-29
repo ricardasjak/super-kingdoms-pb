@@ -11,8 +11,8 @@
 | Milestone | Scope | Status | Test Coverage |
 |---|---|---|---|
 | **Milestone 1** | **Foundation, Schema & Discord Auth** | **[x] Completed** | `tests/api/auth.test.ts` |
-| **Milestone 2** | **Kingdom Creation & Newbie Step Engine** | **[/] Next Up** | `tests/api/kingdoms.test.ts` |
-| **Milestone 3** | **Buildings, Exploration & Research Tech Tree** | `[ ] Pending` | `tests/api/growth.test.ts` |
+| **Milestone 2** | **Kingdom Creation & Newbie Step Engine** | **[x] Completed** | `tests/api/kingdoms.test.ts`, `tests/api/self-tick.test.ts` |
+| **Milestone 3** | **Buildings, Exploration & Research Tech Tree** | `[/] Next Up` | `tests/api/growth.test.ts` |
 | **Milestone 4** | **Military Logistics & Invasions (Combat Engine)**| `[ ] Pending` | `tests/api/combat.test.ts` |
 | **Milestone 5** | **Espionage Probes, Missiles & Planetary Shields** | `[ ] Pending` | `tests/api/probes.test.ts` |
 | **Milestone 6** | **Sector Politics, Alliances, Emergency Aid & Scores** | `[ ] Pending` | `tests/api/sector.test.ts` |
@@ -47,19 +47,20 @@
 
 ### Milestone 2: Kingdom Creation, Economy & Newbie Step-Engine
 
-- [ ] **2.1 Kingdom Founding Endpoint & Logic**
-  - [ ] Implement `POST /api/kingdoms/create` in `pb/pb_hooks/routes/kingdoms.pb.js`
-  - [ ] Enforce 8 archetype bonus stats and initial assets (250 land, 2,250 civs, 300k gold, 10k power)
-  - [ ] Assign sector and sector slot (0..9)
-- [ ] **2.2 Go Engine Core Simulation (Phases 4, 5, 6)**
-  - [ ] Implement `pkg/engine/types.go` matching JSON schema
-  - [ ] Implement civilian growth, power consumption/generation, and tax calculations
-  - [ ] Implement step tick endpoint `POST /api/kingdoms/self-tick/step` (24 ticks per step)
-- [ ] **2.3 UI: Creation & Status Screens**
-  - [ ] Build `src/pages/create-kingdom.page.tsx` with archetype preview
-  - [ ] Build `src/pages/status.page.tsx` with resource counters and `NewbieStepView` banner
-- [ ] **2.4 Milestone 2 Verification**
-  - [ ] Write `tests/api/kingdoms.test.ts` covering founding and 8 Newbie steps
+- [x] **2.1 Kingdom Founding Endpoint & Logic**
+  - [x] Implement `POST /api/kingdoms/create` in `pb/pb_hooks/kingdoms.pb.js`
+  - [x] Enforce 8 archetype bonus stats and initial assets (250 land, 2,250 civs, 300k gold, 10k power, 200 sol, 300 sci)
+  - [x] Assign sector and sector slot (0..9) with Torus distribution
+- [x] **2.2 Go Engine Core Simulation (Phases 4, 5, 6)**
+  - [x] Implement `pkg/engine/types.go` matching clean-slate schema
+  - [x] Implement civilian growth, power consumption/generation, and tax calculations
+  - [x] Implement step tick endpoint `POST /api/kingdoms/self-tick/step` (24 ticks per step)
+- [x] **2.3 UI: Creation & Status Screens**
+  - [x] Build `src/pages/create-kingdom.page.tsx` & `src/components/create-kingdom-form.tsx` with live 8-archetype preview
+  - [x] Build `src/pages/kingdom-status.page.tsx` with resource counters and `NewbieStepView` banner
+- [x] **2.4 Milestone 2 Verification**
+  - [x] Write `tests/api/kingdoms.test.ts` covering founding and 8 Newbie steps
+  - [x] Write `tests/api/self-tick.test.ts` covering 192 ticks across 8 steps, reset, and unauthenticated checks
 
 ---
 

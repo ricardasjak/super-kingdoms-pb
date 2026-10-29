@@ -28,32 +28,26 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
     // Expected when no kingdom exists
   }
 
-  const rawPlanet = (data.planet_type || data.planetType || "Terra Form").trim().toLowerCase()
-  const PLANET_MAP = {
-    "mountainous": "arid",
-    "forest and wilderness": "jungle",
-    "herbal jungle": "jungle",
-    "terra form": "terran",
-    "mystical lands": "boreal",
-    "volcanic inferno": "volcanic",
-    "jagged tundra": "glacial",
-    "oceanic": "aquatic",
-    "desert wasteland": "desert",
-    "ice giant": "glacial",
-    "shadow lands": "boreal",
-    "multiple terrain": "glacial",
-    "helium": "terran",
-    "eternal plains": "terran",
-    "aquatic": "aquatic",
-    "arid": "arid",
-    "boreal": "boreal",
-    "desert": "desert",
-    "glacial": "glacial",
-    "jungle": "jungle",
-    "terran": "terran",
-    "volcanic": "volcanic"
+  const PLANET_CODE_MAP = {
+    "fw": "FW",
+    "forest and wilderness": "FW",
+    "vi": "VI",
+    "volcanic inferno": "VI",
+    "oc": "Oc",
+    "oceanic": "Oc",
+    "mo": "Mo",
+    "mountainous": "Mo",
+    "mt": "MT",
+    "multiple terrain": "MT",
+    "tf": "TF",
+    "terra form": "TF",
+    "dw": "DW",
+    "desert wasteland": "DW",
+    "ml": "ML",
+    "mystical lands": "ML"
   }
-  const planetType = PLANET_MAP[rawPlanet] || "terran"
+  const rawPlanet = (data.planet_type || data.planetType || "TF").trim().toLowerCase()
+  const planetType = PLANET_CODE_MAP[rawPlanet] || "TF"
 
   // Find next available sector and slot
   let sectorRecord = null
@@ -147,22 +141,22 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
   }
 
   // Planetary Archetype starter advantages
-  if (planetType === "jungle") {
+  if (planetType === "FW") {
     military.sol += 500
-  } else if (planetType === "desert") {
+  } else if (planetType === "DW") {
     research.t_dragoons = true
-  } else if (planetType === "volcanic" || planetType === "boreal") {
+  } else if (planetType === "VI" || planetType === "ML") {
     research.t_fusion = true
-  } else if (planetType === "arid") {
+  } else if (planetType === "Mo") {
     research.t_laser_dragoons = true
-  } else if (planetType === "aquatic") {
+  } else if (planetType === "Oc") {
     military.lt = 250
-  } else if (planetType === "terran") {
+  } else if (planetType === "TF") {
     research.r_pop = 1500
     research.r_power = 1500
     research.r_mil = 1500
     research.r_money = 1500
-  } else if (planetType === "glacial") {
+  } else if (planetType === "MT") {
     research.t_dragoons = true
     research.t_laser_dragoons = true
     research.t_tactical_fighters = true
@@ -210,8 +204,8 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
   const res = playerKd.publicExport()
   res.kdName = playerKd.getString("name")
   res.rulerName = (data.rulerName || "").trim() || playerKd.getString("name")
-  res.planetType = (data.planetType || data.planet_type || "Terra Form").trim()
-  res.raceType = (data.raceType || "Terran").trim()
+  res.planetType = planetType
+  res.planet_type = planetType
   res.nw = playerKd.getInt("networth")
   res.newbiemode = 192
   return e.json(200, res)
@@ -314,7 +308,7 @@ routerAdd("POST", "/api/kingdoms/build-buildings", (e) => {
     money: money,
     probes: kingdom.getInt("probes")
   })
-  kingdom.set("nw", newNw)
+  kingdom.set("networth", newNw)
 
   $app.save(kingdom)
   return e.json(200, { success: true, kingdom })
@@ -373,7 +367,7 @@ routerAdd("POST", "/api/kingdoms/raze-buildings", (e) => {
     money: money,
     probes: kingdom.getInt("probes")
   })
-  kingdom.set("nw", newNw)
+  kingdom.set("networth", newNw)
 
   $app.save(kingdom)
   return e.json(200, { success: true, kingdom })
@@ -437,7 +431,7 @@ routerAdd("POST", "/api/kingdoms/explore", (e) => {
   const land = kingdom.getInt("land")
 
   const jsonUtils = require(`${__hooks}/utils/json.js`)
-  let landQueue = jsonUtils.parseJsonArray(kingdom.get("landQueue"), kingdom, "landQueue")
+  let landQueue = jsonUtils.parseJsonArray(kingdom.get("land_queue") || kingdom.get("landQueue"), kingdom, "land_queue")
   const currentQueueSum = landQueue.reduce((a, b) => a + (Number(b) || 0), 0)
   const maxPossibleExplore = Math.floor(land * 0.1)
   const maxExplore = Math.max(0, maxPossibleExplore - currentQueueSum)
@@ -461,7 +455,7 @@ routerAdd("POST", "/api/kingdoms/explore", (e) => {
 
   money -= totalCost
   kingdom.set("money", money)
-  kingdom.set("landQueue", newQueue)
+  kingdom.set("land_queue", newQueue)
 
   const newNw = tickEngine.calculateNetworth({
     military: jsonUtils.parseJsonObject(kingdom.get("military"), kingdom, "military"),
@@ -471,7 +465,7 @@ routerAdd("POST", "/api/kingdoms/explore", (e) => {
     money: money,
     probes: kingdom.getInt("probes")
   })
-  kingdom.set("nw", newNw)
+  kingdom.set("networth", newNw)
 
   $app.save(kingdom)
   return e.json(200, {
@@ -571,7 +565,7 @@ routerAdd("POST", "/api/kingdoms/train-military", (e) => {
     money,
     probes: kingdom.getInt("probes")
   })
-  kingdom.set("nw", newNw)
+  kingdom.set("networth", newNw)
 
   $app.save(kingdom)
   return e.json(200, { success: true, kingdom })
@@ -626,7 +620,7 @@ routerAdd("POST", "/api/kingdoms/disband-military", (e) => {
     money,
     probes: kingdom.getInt("probes")
   })
-  kingdom.set("nw", newNw)
+  kingdom.set("networth", newNw)
 
   $app.save(kingdom)
   return e.json(200, { success: true, kingdom })
@@ -705,31 +699,8 @@ routerAdd("POST", "/api/kingdoms/reset", (e) => {
   const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
-  kingdom.set("land", 250)
-  kingdom.set("population", 2250)
-  kingdom.set("popChange", 0)
-  kingdom.set("money", 300000)
-  kingdom.set("power", 10000)
-  kingdom.set("probes", 0)
-  kingdom.set("researchPts", 0)
-  kingdom.set("state", "active")
-  kingdom.set("newbiemode", 96)
-  kingdom.set("landQueue", [])
-  kingdom.set("research", {})
-  kingdom.set("researchAutoAssign", [])
-  kingdom.set("buildings", {
-    res: 80, plants: 40, rax: 10, sm: 30, pf: 10, tc: 0, asb: 0, ach: 0, rubble: 0,
-    queue: { res: [], plants: [], rax: [], sm: [], pf: [], tc: [], asb: [], ach: [] },
-    target: { res: 32, plants: 16, rax: 4, sm: 12, pf: 4, tc: 0, asb: 0, ach: 0 }
-  })
-  kingdom.set("military", {
-    sol: 200, tr: 0, dr: 0, ft: 0, tf: 0, lt: 0, ld: 0, lf: 0, f74: 0, t: 0, ht: 0, sci: 300,
-    queue: { sol: [], tr: [], dr: [], ft: [], tf: [], lt: [], ld: [], lf: [], f74: [], t: [], ht: [], sci: [] },
-    target: { sol: 0, tr: 0, dr: 0, ft: 0, tf: 0, lt: 0, ld: 0, lf: 0, f74: 0, t: 0, ht: 0, sci: 0 }
-  })
-
-  $app.save(kingdom)
-  return e.json(200, { success: true, kingdom })
+  $app.delete(kingdom)
+  return e.json(200, { success: true })
 })
 
 // ─── 13. DELETE KINGDOM ─────────────────────────────────────────────────────
@@ -862,12 +833,11 @@ routerAdd("GET", "/api/kingdoms/targets", (e) => {
 
   const sanitized = records.map((r) => ({
     id: r.id,
-    kdName: r.getString("kdName"),
-    rulerName: r.getString("rulerName"),
-    planetType: r.getString("planetType"),
-    raceType: r.getString("raceType"),
+    kdName: r.getString("name"),
+    rulerName: r.getString("ruler_name"),
+    planetType: r.getString("planet_type"),
     land: r.getInt("land"),
-    nw: r.getInt("nw"),
+    nw: r.getInt("networth"),
     state: r.getString("state")
   }))
 

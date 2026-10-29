@@ -127,30 +127,30 @@ func main() {
 
 				// Check round lifecycle
 				var statusRecord *core.Record
-				records, err := re.App.FindRecordsByFilter("gameStatus", "", "", 1, 0)
+				records, err := re.App.FindRecordsByFilter("game_status", "", "", 1, 0)
 				if err == nil && len(records) > 0 {
 					statusRecord = records[0]
 				}
 
 				currentTick := 0
-				endTick := 960
+				maxTicks := 960
 				if statusRecord != nil {
-					currentTick = statusRecord.GetInt("currentTick")
-					endTick = statusRecord.GetInt("endTick")
-					if endTick <= 0 {
-						endTick = 960
+					currentTick = statusRecord.GetInt("current_tick")
+					maxTicks = statusRecord.GetInt("max_ticks")
+					if maxTicks <= 0 {
+						maxTicks = 960
 					}
 				}
 
-				if statusRecord != nil && statusRecord.GetString("status") != "in-progress" {
+				if statusRecord != nil && (statusRecord.GetString("phase") != "pvp" || statusRecord.GetBool("is_paused")) {
 					return re.JSON(400, map[string]any{
-						"error": "Ticks run only while the game phase is in-progress (current: \"" + statusRecord.GetString("status") + "\").",
+						"error": "Ticks run only while the game phase is in-progress (pvp).",
 					})
 				}
 
-				if currentTick >= endTick {
+				if currentTick >= maxTicks {
 					if statusRecord != nil {
-						statusRecord.Set("status", "stopped")
+						statusRecord.Set("phase", "concluded")
 						_ = re.App.Save(statusRecord)
 					}
 					return re.JSON(400, map[string]any{
@@ -160,17 +160,20 @@ func main() {
 
 				nextTick := currentTick + 1
 				if statusRecord != nil {
-					statusRecord.Set("currentTick", nextTick)
-					statusRecord.Set("status", "in-progress")
+					statusRecord.Set("current_tick", nextTick)
 					_ = re.App.Save(statusRecord)
 				}
 
 				// Load all kingdoms directly via fast dbx mapping
 				var kingdoms []*engine.Kingdom
 				err = re.App.DB().Select(
-					"id", "kdName", "state", "land", "landQueue", "buildings", "military", "research",
-					"researchPts", "researchAutoAssign", "population", "popChange", "money",
-					"moneyIncome", "power", "powerIncome", "probes", "nw", "autoBuild", "autoExplore", "botSettings", "newbiemode",
+					"id", "user", "name", "planet_type", "sector", "sector_slot", "state",
+					"trouble_until_tick", "ma_protection", "land", "free_land", "population",
+					"money", "power", "probes", "probe_credits", "networth", "honor",
+					"newbie_step", "is_newbie", "last_daily_reward_tick", "daily_explored_land",
+					"daily_drafted_soldiers", "vote_kingdom_id",
+					"shields", "buildings", "building_queue", "land_queue", "military",
+					"training_queue", "research", "auto_research_allocation",
 				).From("kingdoms").All(&kingdoms)
 				if err != nil {
 					return re.JSON(500, map[string]any{
@@ -201,13 +204,8 @@ func main() {
 				})
 			})
 
-			// Register single-kingdom newbie-mode self-tick endpoint.
-			// Advances ONLY the caller's own kingdom by exactly 8 ticks and
-			// deducts 8 from its newbiemode budget. Available while the game
-			// phase is "registration" or "in-progress" and newbiemode >= 8.
-			e.Router.POST("/api/kingdoms/self-tick", func(re *core.RequestEvent) error {
-				const selfTickSteps = 8
-
+			// Handle single-kingdom newbie-mode step advance (24 ticks per step)
+			handleNewbieStep := func(re *core.RequestEvent) error {
 				if re.Auth == nil {
 					return re.JSON(401, map[string]any{
 						"error": "Authentication required",
@@ -216,7 +214,7 @@ func main() {
 
 				kingdom, err := re.App.FindFirstRecordByFilter(
 					"kingdoms",
-					"userId = {:userId}",
+					"user = {:userId}",
 					dbx.Params{"userId": re.Auth.Id},
 				)
 				if err != nil {
@@ -231,44 +229,36 @@ func main() {
 				}
 
 				var statusRecord *core.Record
-				statusRecords, err := re.App.FindRecordsByFilter("gameStatus", "", "", 1, 0)
+				statusRecords, err := re.App.FindRecordsByFilter("game_status", "", "", 1, 0)
 				if err == nil && len(statusRecords) > 0 {
 					statusRecord = statusRecords[0]
 				}
 
-				phase := "registration"
-				currentTick := 0
-				if statusRecord != nil {
-					if s := statusRecord.GetString("status"); s != "" {
-						phase = s
-					}
-					currentTick = statusRecord.GetInt("currentTick")
-				}
-				if phase != "registration" && phase != "in-progress" {
+				if statusRecord != nil && (statusRecord.GetString("phase") == "concluded" || statusRecord.GetBool("is_paused")) {
 					return re.JSON(400, map[string]any{
-						"error": "Self-ticking is available only while the game phase is registration or in-progress (current: \"" + phase + "\").",
+						"error": "Self-ticking is not available while game is paused or concluded.",
 					})
 				}
 
-				newbieMode := kingdom.GetInt("newbiemode")
-				if newbieMode < selfTickSteps {
+				newbieStep := kingdom.GetInt("newbie_step")
+				isNewbie := kingdom.GetBool("is_newbie")
+				if !isNewbie || newbieStep >= 8 {
 					return re.JSON(400, map[string]any{
-						"error": "Newbie mode exhausted: self-ticking requires at least 8 newbie-mode ticks.",
+						"error": "Newbie mode exhausted: all 8 steps have been completed.",
 					})
 				}
 
 				var kingdoms []*engine.Kingdom
 				err = re.App.DB().Select(
-					"id", "kdName", "state", "land", "landQueue", "buildings", "military", "research",
-					"researchPts", "researchAutoAssign", "population", "popChange", "money",
-					"moneyIncome", "power", "powerIncome", "probes", "nw", "autoBuild", "autoExplore", "botSettings", "newbiemode",
+					"id", "user", "name", "planet_type", "sector", "sector_slot", "state",
+					"trouble_until_tick", "ma_protection", "land", "free_land", "population",
+					"money", "power", "probes", "probe_credits", "networth", "honor",
+					"newbie_step", "is_newbie", "last_daily_reward_tick", "daily_explored_land",
+					"daily_drafted_soldiers", "vote_kingdom_id",
+					"shields", "buildings", "building_queue", "land_queue", "military",
+					"training_queue", "research", "auto_research_allocation",
 				).From("kingdoms").Where(dbx.HashExp{"id": kingdom.Id}).All(&kingdoms)
-				if err != nil {
-					return re.JSON(500, map[string]any{
-						"error": "Failed to query kingdom: " + err.Error(),
-					})
-				}
-				if len(kingdoms) == 0 {
+				if err != nil || len(kingdoms) == 0 {
 					return re.JSON(404, map[string]any{
 						"error": "Kingdom not found",
 					})
@@ -276,59 +266,55 @@ func main() {
 
 				kd := kingdoms[0]
 				kd.UnmarshalJSONFields()
-				kd.Newbiemode = newbieMode
-				for i := 0; i < selfTickSteps; i++ {
-					if kd.State == "dead" {
-						break
-					}
-					engine.ProcessKingdomTick(kd, currentTick+i+1)
-					kd.Newbiemode--
-				}
+				engine.AdvanceKingdomNewbieStep(kd)
 				kd.MarshalJSONFields()
-				newbieMode -= selfTickSteps
 
 				err = re.App.RunInTransaction(func(txApp core.App) error {
 					_, err := txApp.DB().NewQuery(`
 					UPDATE kingdoms SET
 						land = {:land},
-						landQueue = {:landQueue},
-						buildings = {:buildings},
-						military = {:military},
-						research = {:research},
-						researchPts = {:researchPts},
-						researchAutoAssign = {:researchAutoAssign},
+						free_land = {:free_land},
 						population = {:population},
-						popChange = {:popChange},
 						money = {:money},
-						moneyIncome = {:moneyIncome},
 						power = {:power},
-						powerIncome = {:powerIncome},
 						probes = {:probes},
-						nw = {:nw},
+						probe_credits = {:probe_credits},
+						networth = {:networth},
+						honor = {:honor},
+						newbie_step = {:newbie_step},
+						is_newbie = {:is_newbie},
 						state = {:state},
-						newbiemode = {:newbiemode},
-						autoExplore = {:autoExplore}
+						buildings = {:buildings},
+						building_queue = {:building_queue},
+						land_queue = {:land_queue},
+						military = {:military},
+						training_queue = {:training_queue},
+						research = {:research},
+						auto_research_allocation = {:auto_research_allocation},
+						shields = {:shields}
 					WHERE id = {:id}
 				`).Bind(dbx.Params{
-						"id":                 kd.ID,
-						"land":               kd.Land,
-						"landQueue":          kd.RawLandQueue,
-						"buildings":          kd.RawBuildings,
-						"military":           kd.RawMilitary,
-						"research":           kd.RawResearch,
-						"researchPts":        kd.ResearchPts,
-						"researchAutoAssign": kd.RawResearchAutoAssign,
-						"population":         kd.Population,
-						"popChange":          kd.PopChange,
-						"money":              kd.Money,
-						"moneyIncome":        kd.MoneyIncome,
-						"power":              kd.Power,
-						"powerIncome":        kd.PowerIncome,
-						"probes":             kd.Probes,
-						"nw":                 kd.NW,
-						"state":              kd.State,
-						"newbiemode":         newbieMode,
-						"autoExplore":        kd.AutoExplore,
+						"id":                       kd.ID,
+						"land":                     kd.Land,
+						"free_land":                kd.FreeLand,
+						"population":               kd.Population,
+						"money":                    kd.Money,
+						"power":                    kd.Power,
+						"probes":                   kd.Probes,
+						"probe_credits":            kd.ProbeCredits,
+						"networth":                 kd.NW,
+						"honor":                    kd.Honor,
+						"newbie_step":              kd.NewbieStep,
+						"is_newbie":                kd.IsNewbie,
+						"state":                    kd.State,
+						"buildings":                kd.RawBuildings,
+						"building_queue":          kd.RawBuildingQueue,
+						"land_queue":              kd.RawLandQueue,
+						"military":                kd.RawMilitary,
+						"training_queue":          kd.RawTrainingQueue,
+						"research":                kd.RawResearch,
+						"auto_research_allocation": kd.RawAutoResearchAllocation,
+						"shields":                 kd.RawShields,
 					}).Execute()
 					return err
 				})
@@ -347,15 +333,19 @@ func main() {
 
 				return re.JSON(200, map[string]any{
 					"success":       true,
-					"ticksAdvanced": selfTickSteps,
-					"newbiemode":    newbieMode,
+					"step":          kd.NewbieStep,
+					"ticksAdvanced": 24,
+					"newbiemode":    (8 - kd.NewbieStep) * 24,
+					"isNewbie":      kd.IsNewbie,
 					"kingdom":       updatedKingdom,
 				})
-			})
+			}
+
+			// Register POST /api/kingdoms/self-tick/step and POST /api/kingdoms/self-tick
+			e.Router.POST("/api/kingdoms/self-tick/step", handleNewbieStep)
+			e.Router.POST("/api/kingdoms/self-tick", handleNewbieStep)
 
 			// Register update-bot-profile endpoint.
-			// Saves botSettings and immediately recalculates building targets,
-			// military targets, and exploration settings via HandleBotParams.
 			e.Router.POST("/api/kingdoms/update-bot-profile", func(re *core.RequestEvent) error {
 				if re.Auth == nil {
 					return re.JSON(401, map[string]any{"error": "Authentication required"})
@@ -370,7 +360,7 @@ func main() {
 
 				kingdom, err := re.App.FindFirstRecordByFilter(
 					"kingdoms",
-					"userId = {:userId}",
+					"user = {:userId}",
 					dbx.Params{"userId": re.Auth.Id},
 				)
 				if err != nil {
@@ -379,9 +369,13 @@ func main() {
 
 				var kingdoms []*engine.Kingdom
 				err = re.App.DB().Select(
-					"id", "kdName", "state", "land", "landQueue", "buildings", "military", "research",
-					"researchPts", "researchAutoAssign", "population", "popChange", "money",
-					"moneyIncome", "power", "powerIncome", "probes", "nw", "autoBuild", "autoExplore", "botSettings", "newbiemode",
+					"id", "user", "name", "planet_type", "sector", "sector_slot", "state",
+					"trouble_until_tick", "ma_protection", "land", "free_land", "population",
+					"money", "power", "probes", "probe_credits", "networth", "honor",
+					"newbie_step", "is_newbie", "last_daily_reward_tick", "daily_explored_land",
+					"daily_drafted_soldiers", "vote_kingdom_id",
+					"shields", "buildings", "building_queue", "land_queue", "military",
+					"training_queue", "research", "auto_research_allocation",
 				).From("kingdoms").Where(dbx.HashExp{"id": kingdom.Id}).All(&kingdoms)
 				if err != nil || len(kingdoms) == 0 {
 					return re.JSON(404, map[string]any{"error": "Kingdom not found"})
@@ -406,21 +400,17 @@ func main() {
 					_, err := txApp.DB().NewQuery(`
 					UPDATE kingdoms SET
 						buildings = {:buildings},
-						military = {:military},
-						autoExplore = {:autoExplore},
-						botSettings = {:botSettings}
+						military = {:military}
 					WHERE id = {:id}
 					`).Bind(dbx.Params{
-						"id":          kd.ID,
-						"buildings":   kd.RawBuildings,
-						"military":    kd.RawMilitary,
-						"autoExplore": kd.AutoExplore,
-						"botSettings": rawBotSettings,
+						"id":        kd.ID,
+						"buildings": kd.RawBuildings,
+						"military":  kd.RawMilitary,
 					}).Execute()
 					return err
 				})
 				if err != nil {
-					return re.JSON(500, map[string]any{"error": "Failed to update bot profile: " + err.Error()})
+					return re.JSON(500, map[string]any{"error": "Failed to update bot profile: " + err.Error() + rawBotSettings})
 				}
 
 				updatedRecord, err := re.App.FindRecordById("kingdoms", kingdom.Id)

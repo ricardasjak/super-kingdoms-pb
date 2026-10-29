@@ -18,8 +18,8 @@ Every requirement document follows these core rules:
 | ID | Topic | File | Scope | Status |
 |---|---|---|---|---|
 | **REQ-01** | **Auth & Identity** | [`01-auth-and-identity.requirements.md`](01-auth-and-identity.requirements.md) | Discord OAuth2 authentication, superuser fallback, token verification | In Progress |
-| **REQ-02** | **Kingdom Founding & Archetypes** | [`02-kingdom-founding.requirements.md`](02-kingdom-founding.requirements.md) | Kingdom creation, 8 planet archetypes, initial asset grants, slot assignment | Planned |
-| **REQ-03** | **Simulation Engine & Newbie Mode** | [`03-simulation-engine.requirements.md`](03-simulation-engine.requirements.md) | 8-phase deterministic tick engine, civilian growth, power generation, 8-step Newbie Mode | Planned |
+| **REQ-02** | **Kingdom Founding & Archetypes** | [`02-kingdom-founding.requirements.md`](02-kingdom-founding.requirements.md) | Kingdom creation, 8 planet archetypes, initial asset grants, slot assignment | Implemented |
+| **REQ-03** | **Simulation Engine & Newbie Mode** | [`03-simulation-engine.requirements.md`](03-simulation-engine.requirements.md) | 8-phase deterministic tick engine, civilian growth, power generation, 8-step Newbie Mode | Implemented |
 | **REQ-04** | **Territory & Infrastructure** | [`04-territory-and-infrastructure.requirements.md`](04-territory-and-infrastructure.requirements.md) | Land exploration formula, building construction queues (16 ticks), razing refunds | Planned |
 | **REQ-05** | **Research & Technologies** | [`05-research-and-tech.requirements.md`](05-research-and-tech.requirements.md) | Continual research scaling (`weight * land^2`), one-time breakthrough unlocks | Planned |
 | **REQ-06** | **Military Operations & Combat** | [`06-military-and-combat.requirements.md`](06-military-and-combat.requirements.md) | Unit training, Torus travel formula, combat resolution, return waves, plunder | Planned |

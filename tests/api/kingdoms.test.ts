@@ -29,23 +29,14 @@ describe("POST /api/kingdoms/create", () => {
 			body: {
 				kdName: "Nova Avalon",
 				rulerName: "Sovereign Vael",
-				planetType: "Terra Form",
-				raceType: "Terran",
-				botNames: [
-					"Vanguard Alpha 1",
-					"Vanguard Beta 2",
-					"Vanguard Gamma 3",
-					"Vanguard Delta 4",
-					"Vanguard Epsilon 5",
-				],
+				planetType: "TF",
 			},
 		});
 
 		expect(created.id).toBeDefined();
 		expect(created.kdName).toBe("Nova Avalon");
 		expect(created.rulerName).toBe("Sovereign Vael");
-		expect(created.planetType).toBe("Terra Form");
-		expect(created.raceType).toBe("Terran");
+		expect(created.planet_type).toBe("TF");
 		expect(created.land).toBe(250);
 		expect(created.population).toBe(2250);
 		expect(created.money).toBe(300000);
@@ -63,8 +54,10 @@ describe("POST /api/kingdoms/create", () => {
 
 		// Verify subordinate bots were not created (connected bots disabled per user request)
 		const adminPb = await createAdminClient();
-		const allKds = await adminPb.collection("kingdoms").getList(1, 10);
-		expect(allKds.totalItems).toBe(1);
+		const userKdsAndBots = await adminPb.collection("kingdoms").getList(1, 10, {
+			filter: `user = "${pb.authStore.record?.id}"`,
+		});
+		expect(userKdsAndBots.totalItems).toBe(1);
 
 		// Prevent duplicate kingdom for the same user
 		await expect(
@@ -73,10 +66,131 @@ describe("POST /api/kingdoms/create", () => {
 				body: {
 					kdName: "Second Kingdom",
 					rulerName: "Emperor Max",
-					planetType: "Mountainous",
-					raceType: "Ancients",
+					planetType: "Mo",
 				},
 			}),
+		).rejects.toThrow();
+	});
+
+	it("applies distinct starter packages and assigns sector slots for all 8 archetypes", async () => {
+		const archetypes = [
+			{
+				type: "Forest and Wilderness",
+				code: "FW",
+				check: (k: any) => expect(k.military.sol).toBe(700),
+			},
+			{
+				type: "Desert Wasteland",
+				code: "DW",
+				check: (k: any) => expect(k.research.t_dragoons).toBe(true),
+			},
+			{
+				type: "Volcanic Inferno",
+				code: "VI",
+				check: (k: any) => expect(k.research.t_fusion).toBe(true),
+			},
+			{
+				type: "Mystical Lands",
+				code: "ML",
+				check: (k: any) => expect(k.research.t_fusion).toBe(true),
+			},
+			{
+				type: "Mountainous",
+				code: "Mo",
+				check: (k: any) => expect(k.research.t_laser_dragoons).toBe(true),
+			},
+			{
+				type: "Oceanic",
+				code: "Oc",
+				check: (k: any) => expect(k.military.lt).toBe(250),
+			},
+			{
+				type: "Terra Form",
+				code: "TF",
+				check: (k: any) => {
+					expect(k.research.r_pop).toBe(1500);
+					expect(k.research.r_power).toBe(1500);
+					expect(k.research.r_mil).toBe(1500);
+					expect(k.research.r_money).toBe(1500);
+				},
+			},
+			{
+				type: "Multiple Terrain",
+				code: "MT",
+				check: (k: any) => {
+					expect(k.research.t_dragoons).toBe(true);
+					expect(k.research.t_laser_dragoons).toBe(true);
+					expect(k.research.t_tactical_fighters).toBe(true);
+				},
+			},
+		];
+
+		for (let i = 0; i < archetypes.length; i++) {
+			const entry = archetypes[i];
+			const { pb } = await createAuthClient(`archetype_${i}`);
+			const kd = await pb.send<any>("/api/kingdoms/create", {
+				method: "POST",
+				body: {
+					kdName: `Realm of ${entry.type}`,
+					rulerName: `Leader ${i}`,
+					planetType: entry.code,
+				},
+			});
+
+			expect(kd.planet_type).toBe(entry.code);
+			expect(kd.sector).toBeDefined();
+			expect(kd.sector_slot).toBeGreaterThanOrEqual(0);
+			expect(kd.sector_slot).toBeLessThan(10);
+			expect(kd.land).toBe(250);
+			expect(kd.free_land).toBe(80);
+			expect(kd.population).toBe(2250);
+			expect(kd.money).toBe(300000);
+			expect(kd.power).toBe(10000);
+			expect(kd.newbie_step).toBe(0);
+			expect(kd.is_newbie).toBe(true);
+			entry.check(kd);
+		}
+	});
+
+	it("advances through all 8 newbie steps (24 ticks per step) to complete newbie mode", async () => {
+		const { pb } = await createAuthClient("newbie_progression");
+		const kd = await pb.send<any>("/api/kingdoms/create", {
+			method: "POST",
+			body: {
+				kdName: "Progression Realm",
+				rulerName: "Stepping Emperor",
+				planetType: "Terra Form",
+			},
+		});
+
+		expect(kd.is_newbie).toBe(true);
+		expect(kd.newbie_step).toBe(0);
+
+		// Advance through 8 steps (192 ticks total)
+		for (let step = 1; step <= 8; step++) {
+			const res = await pb.send<any>("/api/kingdoms/self-tick/step", {
+				method: "POST",
+			});
+			expect(res.success).toBe(true);
+			expect(res.step).toBe(step);
+			expect(res.ticksAdvanced).toBe(24);
+			if (step < 8) {
+				expect(res.isNewbie).toBe(true);
+			} else {
+				expect(res.isNewbie).toBe(false);
+			}
+		}
+
+		// Re-read kingdom
+		const completed = await pb.collection("kingdoms").getOne(kd.id);
+		expect(completed.newbie_step).toBe(8);
+		expect(completed.is_newbie).toBe(false);
+		expect(completed.money).toBeGreaterThan(300000);
+		expect(completed.population).toBeGreaterThan(2250);
+
+		// Step 9 is refused
+		await expect(
+			pb.send("/api/kingdoms/self-tick/step", { method: "POST" }),
 		).rejects.toThrow();
 	});
 });

@@ -1,5 +1,5 @@
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { type PocketBaseUser, pb } from "../lib/pocketbase";
 import { AuthContext, type RegisterPayload } from "./auth-context-def";
 
@@ -17,6 +17,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 	const [token, setToken] = useState<string>(() => pb.authStore.token);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 
+	const logout = useCallback(() => {
+		pb.authStore.clear();
+		setUser(null);
+		setToken("");
+	}, []);
+
+	const refreshAuth = useCallback(async () => {
+		setIsLoading(true);
+		try {
+			if (pb.authStore.isValid) {
+				const authData = await pb
+					.collection("users")
+					.authRefresh<PocketBaseUser>();
+				setUser(authData.record);
+				setToken(authData.token);
+			}
+		} catch {
+			logout();
+		} finally {
+			setIsLoading(false);
+		}
+	}, [logout]);
+
 	useEffect(() => {
 		// Subscribe to PocketBase authStore state changes (login, logout, token refresh)
 		const unsubscribe = pb.authStore.onChange((newToken, record) => {
@@ -24,10 +47,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 			setUser((record as PocketBaseUser | null) || null);
 		});
 
+		if (pb.authStore.isValid) {
+			refreshAuth();
+		}
+
 		return () => {
 			unsubscribe();
 		};
-	}, []);
+	}, [refreshAuth]);
 
 	const login = async (
 		email: string,
@@ -75,29 +102,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 			setUser(authData.record);
 			setToken(authData.token);
 			return authData.record;
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	const logout = () => {
-		pb.authStore.clear();
-		setUser(null);
-		setToken("");
-	};
-
-	const refreshAuth = async () => {
-		setIsLoading(true);
-		try {
-			if (pb.authStore.isValid) {
-				const authData = await pb
-					.collection("users")
-					.authRefresh<PocketBaseUser>();
-				setUser(authData.record);
-				setToken(authData.token);
-			}
-		} catch {
-			logout();
 		} finally {
 			setIsLoading(false);
 		}

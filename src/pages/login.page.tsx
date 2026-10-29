@@ -1,7 +1,7 @@
 import { ClientResponseError } from "pocketbase";
 import type React from "react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/use-auth.hook";
 import { pb } from "../lib/pocketbase";
 import type { GameStatusRecord } from "../types/pb.model";
@@ -82,6 +82,27 @@ export const LoginPage: React.FC = () => {
 				setError(err.message);
 			} else {
 				setError("Superuser login failed.");
+			}
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleQuickLogin = async (email: string, pass: string) => {
+		setAdminEmail(email);
+		setAdminPassword(pass);
+		setError(null);
+		setIsLoading(true);
+		try {
+			await login(email, pass);
+			navigate("/");
+		} catch (err: unknown) {
+			if (err instanceof ClientResponseError) {
+				setError(err.message || "Login failed.");
+			} else if (err instanceof Error) {
+				setError(err.message);
+			} else {
+				setError("Login failed.");
 			}
 		} finally {
 			setIsLoading(false);
@@ -203,6 +224,97 @@ export const LoginPage: React.FC = () => {
 					</small>
 				</div>
 
+				{/* Quick Test Login Buttons */}
+				<div
+					style={{
+						margin: "1.25rem 0",
+						padding: "1rem",
+						background: "#080e1a",
+						border: "1px solid #1e293b",
+						borderRadius: "6px",
+					}}
+				>
+					<div
+						style={{
+							fontSize: "0.82rem",
+							fontWeight: 600,
+							color: "#7dd3fc",
+							marginBottom: "0.6rem",
+							textTransform: "uppercase",
+							letterSpacing: "0.04em",
+						}}
+					>
+						Quick Dev / Test Login
+					</div>
+					<div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+						<button
+							type="button"
+							onClick={() =>
+								handleQuickLogin("test@example.com", "password123")
+							}
+							disabled={isLoading}
+							style={{
+								flex: "1 1 180px",
+								fontSize: "0.82rem",
+								padding: "0.5rem",
+								margin: 0,
+								background: "#1e293b",
+								border: "1px solid #334155",
+							}}
+						>
+							⚡ test@example.com
+						</button>
+						<button
+							type="button"
+							onClick={() =>
+								handleQuickLogin("admin@superkingdoms.internal", "password123")
+							}
+							disabled={isLoading}
+							style={{
+								flex: "1 1 180px",
+								fontSize: "0.82rem",
+								padding: "0.5rem",
+								margin: 0,
+								background: "#1e293b",
+								border: "1px solid #334155",
+							}}
+						>
+							⚡ admin@superkingdoms
+						</button>
+					</div>
+					<div
+						style={{
+							fontSize: "0.75rem",
+							color: "var(--pico-muted-color)",
+							marginTop: "0.4rem",
+						}}
+					>
+						Password for default dev accounts: <code>password123</code>
+					</div>
+				</div>
+
+				<div
+					style={{
+						margin: "1rem 0",
+						textAlign: "center",
+						fontSize: "0.88rem",
+					}}
+				>
+					<span style={{ color: "var(--pico-muted-color)" }}>
+						Need a new kingdom account?{" "}
+					</span>
+					<Link
+						to="/register"
+						style={{
+							color: "#38bdf8",
+							fontWeight: 600,
+							textDecoration: "underline",
+						}}
+					>
+						Create Account / Register
+					</Link>
+				</div>
+
 				<details
 					style={{
 						marginTop: "1.5rem",
@@ -213,7 +325,7 @@ export const LoginPage: React.FC = () => {
 					<summary
 						style={{ fontSize: "0.85rem", color: "var(--pico-muted-color)" }}
 					>
-						Superuser & Automated Testing Login
+						Custom Credentials Login
 					</summary>
 					<form onSubmit={handleAdminLogin} style={{ marginTop: "1rem" }}>
 						<label htmlFor="admin-email" style={{ fontSize: "0.85rem" }}>

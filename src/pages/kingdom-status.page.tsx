@@ -1,4 +1,4 @@
-import type React from "react";
+import { NewbieStepView } from "../components/newbie-step-view";
 import {
 	calculateLevel,
 	calculateMaxDefPotential,
@@ -9,6 +9,7 @@ import {
 	SpyReportSOK,
 	SpyReportSoE,
 } from "../components/spy-report-sok";
+import { getPlanetDisplayName } from "../constants/game.constants";
 import { GAME_PARAMS } from "../constants/game-params.constants";
 import { useKingdom } from "../hooks/use-kingdom.hook";
 
@@ -71,14 +72,28 @@ export const KingdomStatusPage: React.FC = () => {
 
 	return (
 		<div className="kingdom-status-page" style={{ marginTop: "1rem" }}>
-			<div className="section-header-row" style={{ marginBottom: "1.5rem" }}>
+			<div className="section-header-row" style={{ marginBottom: "1rem" }}>
 				<div>
-					<h1 className="page-heading">{kingdom.kdName}</h1>
-					<p className="page-subheading">
-						Sovereign realm ruled by <strong>{kingdom.rulerName}</strong>
+					<h1 className="page-heading" style={{ margin: 0 }}>
+						{kingdom.name || kingdom.kdName}
+					</h1>
+					<p
+						className="page-subheading"
+						style={{
+							margin: "0.25rem 0 0 0",
+							color: "var(--pico-muted-color)",
+						}}
+					>
+						Sovereign realm ruled by{" "}
+						<strong>{kingdom.rulerName || "Commander"}</strong> &bull; [
+						{getPlanetDisplayName(kingdom.planet_type || kingdom.planetType)}{" "}
+						Homeworld]
 					</p>
 				</div>
 			</div>
+
+			{/* Newbie Mode Step Progression Banner */}
+			<NewbieStepView />
 
 			<div
 				className="grid status-grid"
@@ -103,10 +118,11 @@ export const KingdomStatusPage: React.FC = () => {
 				/>
 
 				<SpyReportSOK
-					kdName={kingdom.kdName}
-					rulerName={kingdom.rulerName}
-					planetType={kingdom.planetType}
-					raceType={kingdom.raceType}
+					kdName={kingdom.name || kingdom.kdName}
+					rulerName={kingdom.rulerName || "Commander"}
+					planetType={getPlanetDisplayName(
+						kingdom.planet_type || kingdom.planetType,
+					)}
 					level={level}
 					land={kingdom.land}
 					networth={networth}

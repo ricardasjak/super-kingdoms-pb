@@ -6,19 +6,13 @@ import {
 	MapPin,
 	Radar,
 	Shield,
-	Sparkles,
 	TrendingUp,
 	Users,
 	Zap,
 } from "lucide-react";
 import type React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-	PLANET_INFO,
-	type PlanetType,
-	RACE_INFO,
-	type RaceType,
-} from "../constants/game.constants";
+import { getPlanetDetail } from "../constants/game.constants";
 import type { TypedKingdom } from "../hooks/use-kingdom.hook";
 
 interface KingdomCardProps {
@@ -28,16 +22,8 @@ interface KingdomCardProps {
 
 export const KingdomCard: React.FC<KingdomCardProps> = ({ kingdom }) => {
 	const navigate = useNavigate();
-	const planet = kingdom.planetType as PlanetType;
-	const race = kingdom.raceType as RaceType;
-	const planetMeta = PLANET_INFO[planet] || {
-		description: "Uncharted World",
-		badgeColor: "#6366f1",
-	};
-	const raceMeta = RACE_INFO[race] || {
-		description: "Unknown Lineage",
-		trait: "Adaptable",
-	};
+	const rawPlanet = kingdom.planet_type || kingdom.planetType || "TF";
+	const planetMeta = getPlanetDetail(rawPlanet);
 
 	return (
 		<div className="kd-overview-card card">
@@ -48,38 +34,38 @@ export const KingdomCard: React.FC<KingdomCardProps> = ({ kingdom }) => {
 				</div>
 				<div className="kd-header-info">
 					<div className="kd-ruler-title">
-						<span>Ruler</span> <strong>{kingdom.rulerName}</strong>
+						<span>Ruler</span>{" "}
+						<strong>{kingdom.rulerName || "Commander"}</strong>
 					</div>
-					<h2 className="kd-name">{kingdom.kdName}</h2>
+					<h2 className="kd-name">{kingdom.name || kingdom.kdName}</h2>
 					<div className="kd-meta-tags">
 						<span
 							className="kd-tag planet-tag"
 							style={{
-								borderColor: `${planetMeta.badgeColor}55`,
-								color: planetMeta.badgeColor,
+								borderColor: `${planetMeta.color}55`,
+								color: planetMeta.color,
 							}}
 						>
 							<Globe2 size={13} />
-							<span>{kingdom.planetType}</span>
-						</span>
-						<span className="kd-tag race-tag">
-							<Sparkles size={13} />
-							<span>{kingdom.raceType}</span>
-							<span className="kd-trait-pill">{raceMeta.trait}</span>
+							<span>{planetMeta.name}</span>
 						</span>
 					</div>
 				</div>
 				<div className="kd-nw-badge">
 					<span className="kd-nw-label">Net Worth</span>
-					<span className="kd-nw-val">{kingdom.nw?.toLocaleString() ?? 0}</span>
+					<span className="kd-nw-val">
+						{kingdom.networth?.toLocaleString() ??
+							kingdom.nw?.toLocaleString() ??
+							0}
+					</span>
 				</div>
 			</div>
 
 			{/* Flavor Descriptions */}
 			<div className="kd-flavor-row">
 				<p className="kd-flavor-text">
-					<strong>Planet:</strong> {planetMeta.description} &bull;{" "}
-					<strong>Species:</strong> {raceMeta.description}
+					<strong>Perks:</strong> {planetMeta.advantage} &bull;{" "}
+					<strong>Tradeoff:</strong> {planetMeta.disadvantage}
 				</p>
 			</div>
 

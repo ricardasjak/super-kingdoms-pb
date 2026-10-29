@@ -1,5 +1,6 @@
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import { getPlanetDisplayName } from "../constants/game.constants";
 import { pb } from "../lib/pocketbase";
 
 interface TargetKingdom {
@@ -7,7 +8,6 @@ interface TargetKingdom {
 	kdName: string;
 	rulerName: string;
 	planetType: string;
-	raceType: string;
 	land: number;
 	nw: number;
 	state?: string;
@@ -64,7 +64,9 @@ export const KingdomTargetsPage: React.FC = () => {
 			t.kdName.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			t.rulerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			t.planetType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			t.raceType.toLowerCase().includes(searchTerm.toLowerCase()),
+			getPlanetDisplayName(t.planetType)
+				.toLowerCase()
+				.includes(searchTerm.toLowerCase()),
 	);
 
 	return (
@@ -111,7 +113,6 @@ export const KingdomTargetsPage: React.FC = () => {
 								<th style={{ textAlign: "left", padding: "0.6rem" }}>
 									Planet Biome
 								</th>
-								<th style={{ textAlign: "left", padding: "0.6rem" }}>Race</th>
 								<th style={{ textAlign: "right", padding: "0.6rem" }}>Land</th>
 								<th style={{ textAlign: "right", padding: "0.6rem" }}>
 									Networth
@@ -148,8 +149,9 @@ export const KingdomTargetsPage: React.FC = () => {
 									>
 										{kd.rulerName}
 									</td>
-									<td style={{ padding: "0.6rem" }}>{kd.planetType}</td>
-									<td style={{ padding: "0.6rem" }}>{kd.raceType}</td>
+									<td style={{ padding: "0.6rem" }}>
+										{getPlanetDisplayName(kd.planetType)}
+									</td>
 									<td
 										style={{
 											textAlign: "right",
