@@ -14,17 +14,13 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
     return e.json(400, { error: "Invalid request body" })
   }
 
-  const kdName = (data.kdName || "").trim()
-  const rulerName = (data.rulerName || "").trim()
-  const planetType = (data.planetType || "").trim()
-  const raceType = (data.raceType || "").trim()
-
-  if (!kdName || !rulerName || !planetType || !raceType) {
-    return e.json(400, { error: "kdName, rulerName, planetType, and raceType are required" })
+  const kdName = (data.name || data.kdName || "").trim()
+  if (!kdName) {
+    return e.json(400, { error: "Kingdom name is required" })
   }
 
   try {
-    const existing = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+    const existing = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
     if (existing) {
       return e.json(400, { error: "Kingdom already exists for this user" })
     }
@@ -32,30 +28,70 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
     // Expected when no kingdom exists
   }
 
-  const PLANET_TYPES = [
-    "Mountainous", "Forest and Wilderness", "Herbal Jungle", "Terra Form", "Mystical Lands",
-    "Volcanic Inferno", "Jagged Tundra", "Oceanic", "Desert Wasteland", "Ice Giant",
-    "Shadow Lands", "Multiple Terrain", "Helium", "Eternal Plains"
-  ]
-
-  const RACE_TYPES = [
-    "Ancients", "Terran", "Xivornai", "Gistrami", "Mafielven", "Qanut", "Shadow"
-  ]
-
-  if (PLANET_TYPES.indexOf(planetType) === -1) {
-    return e.json(400, { error: "Invalid planet type: " + planetType })
+  const rawPlanet = (data.planet_type || data.planetType || "Terra Form").trim().toLowerCase()
+  const PLANET_MAP = {
+    "mountainous": "arid",
+    "forest and wilderness": "jungle",
+    "herbal jungle": "jungle",
+    "terra form": "terran",
+    "mystical lands": "boreal",
+    "volcanic inferno": "volcanic",
+    "jagged tundra": "glacial",
+    "oceanic": "aquatic",
+    "desert wasteland": "desert",
+    "ice giant": "glacial",
+    "shadow lands": "boreal",
+    "multiple terrain": "glacial",
+    "helium": "terran",
+    "eternal plains": "terran",
+    "aquatic": "aquatic",
+    "arid": "arid",
+    "boreal": "boreal",
+    "desert": "desert",
+    "glacial": "glacial",
+    "jungle": "jungle",
+    "terran": "terran",
+    "volcanic": "volcanic"
   }
-  if (RACE_TYPES.indexOf(raceType) === -1) {
-    return e.json(400, { error: "Invalid race type: " + raceType })
+  const planetType = PLANET_MAP[rawPlanet] || "terran"
+
+  // Find next available sector and slot
+  let sectorRecord = null
+  let sectorSlot = 0
+  try {
+    const sectors = $app.findAllRecords("sectors")
+    for (let s = 0; s < sectors.length; s++) {
+      const sec = sectors[s]
+      const existingKds = $app.findRecordsByFilter("kingdoms", "sector = {:sec}", "-created", 10, 0, { sec: sec.id })
+      if (existingKds.length < 10) {
+        sectorRecord = sec
+        const used = {}
+        for (let k = 0; k < existingKds.length; k++) {
+          used[existingKds[k].getInt("sector_slot")] = true
+        }
+        for (let slot = 0; slot < 10; slot++) {
+          if (!used[slot]) {
+            sectorSlot = slot
+            break
+          }
+        }
+        break
+      }
+    }
+  } catch {
+    // fallback
+  }
+
+  if (!sectorRecord) {
+    sectorRecord = $app.findFirstRecordByFilter("sectors", "")
   }
 
   const land = 250
+  const freeLand = 80
   const population = 2250
-  const popChange = 0
   const money = 300000
   const power = 10000
   const probes = 0
-  const researchPts = 0
 
   const buildings = {
     res: 80,
@@ -64,137 +100,121 @@ routerAdd("POST", "/api/kingdoms/create", (e) => {
     sm: 30,
     pf: 10,
     tc: 0,
-    asb: 0,
-    ach: 0,
-    rubble: 0,
-    queue: { res: [], plants: [], rax: [], sm: [], pf: [], tc: [], asb: [], ach: [] },
-    target: { res: 32, plants: 16, rax: 4, sm: 12, pf: 4, tc: 0, asb: 0, ach: 0 }
+    asb: 0
   }
 
   const military = {
     sol: 200,
     tr: 0,
     dr: 0,
-    ft: 0,
-    tf: 0,
     lt: 0,
     ld: 0,
-    lf: 0,
-    f74: 0,
+    ft: 0,
     t: 0,
-    ht: 0,
-    sci: 300,
-    queue: { sol: [], tr: [], dr: [], ft: [], tf: [], lt: [], ld: [], lf: [], f74: [], t: [], ht: [], sci: [] },
-    target: { sol: 0, tr: 0, dr: 0, ft: 0, tf: 0, lt: 0, ld: 0, lf: 0, f74: 0, t: 0, ht: 0, sci: 0 }
+    tf: 0,
+    sci: 300
   }
 
-  const moneyIncome = Math.round(buildings.sm * 140 + population * 2)
-  const powerConsumption = population * 0.25 + military.sol * 0.7 + military.sci * 0.7
-  const powerIncome = Math.round(buildings.plants * 100 - powerConsumption)
-
-  const totalBuildings = buildings.res + buildings.plants + buildings.rax + buildings.sm + buildings.pf + buildings.tc + buildings.asb + buildings.ach
-  const militaryNw = military.sol * 3 + military.sci * 8
-  const nw = Math.floor(militaryNw + (land * 25) + (totalBuildings * 25) + (population * 1) + Math.floor(money / 500))
-
-  const botSettings = {
-    defenseRatio: 0.5,
-    growthFocus: "balanced"
+  const shields = {
+    missile: 0,
+    military: 0,
+    probe: 0
   }
+
+  const research = {
+    r_pop: 0,
+    r_power: 0,
+    r_mil: 0,
+    r_money: 0,
+    r_warp: 0,
+    r_fdc: 0,
+    t_fusion: false,
+    t_energy_core: false,
+    t_dragoons: false,
+    t_probe_armor: false,
+    t_laser_dragoons: false,
+    t_tactical_fighters: false,
+    t_heavy_tanks: false
+  }
+
+  const autoResearch = {
+    pop: 0,
+    power: 0,
+    mil: 0,
+    money: 0,
+    warp: 0,
+    fdc: 0
+  }
+
+  // Planetary Archetype starter advantages
+  if (planetType === "jungle") {
+    military.sol += 500
+  } else if (planetType === "desert") {
+    research.t_dragoons = true
+  } else if (planetType === "volcanic" || planetType === "boreal") {
+    research.t_fusion = true
+  } else if (planetType === "arid") {
+    research.t_laser_dragoons = true
+  } else if (planetType === "aquatic") {
+    military.lt = 250
+  } else if (planetType === "terran") {
+    research.r_pop = 1500
+    research.r_power = 1500
+    research.r_mil = 1500
+    research.r_money = 1500
+  } else if (planetType === "glacial") {
+    research.t_dragoons = true
+    research.t_laser_dragoons = true
+    research.t_tactical_fighters = true
+  }
+
+  const militaryNw = military.sol * 3 + military.sci * 8 + (military.lt || 0) * 8
+  const nw = Math.floor(militaryNw + (land * 25) + (50 * 25) + (population * 1) + Math.floor(money / 500))
 
   const kingdomsCollection = $app.findCollectionByNameOrId("kingdoms")
   const playerKd = new Record(kingdomsCollection, {
-    userId: authRecord.id,
-    kdName: kdName,
-    rulerName: rulerName,
-    planetType: planetType,
-    raceType: raceType,
-    population: population,
-    popChange: popChange,
+    user: authRecord.id,
+    name: kdName,
+    planet_type: planetType,
+    sector: sectorRecord.id,
+    sector_slot: sectorSlot,
+    state: "normal",
+    trouble_until_tick: 0,
+    ma_protection: 0,
     land: land,
+    free_land: freeLand,
+    population: population,
     money: money,
     power: power,
     probes: probes,
-    moneyIncome: moneyIncome,
-    powerIncome: powerIncome,
-    nw: nw,
-    tier: 10,
-    radius: Math.floor(Math.random() * 360),
-    sector: 0,
-    autoExplore: 10,
-    autoBuild: false,
-    landQueue: [],
-    military: military,
+    probe_credits: 10,
+    networth: nw,
+    honor: 1500,
+    newbie_step: 0,
+    is_newbie: true,
+    last_daily_reward_tick: 0,
+    daily_explored_land: 0,
+    daily_drafted_soldiers: 0,
+    shields: shields,
     buildings: buildings,
-    researchPts: researchPts,
-    research: {},
-    researchAutoAssign: [],
-    state: "active",
-    newbiemode: 96,
-    botSettings: botSettings
+    building_queue: [],
+    land_queue: [],
+    military: military,
+    training_queue: [],
+    research: research,
+    auto_research_allocation: autoResearch
   })
 
   $app.save(playerKd)
 
-  // Subordinate bots (disabled per request to create single kd without connected bots; code preserved)
-  const ENABLE_SUBORDINATE_BOTS = false
-  const BOT_NAME_PREFIXES = ["Alpha", "Beta", "Gamma", "Delta", "Omega", "Sector", "Void", "Star", "Nova", "Cosmic", "Orion", "Astra", "Centauri"]
-  const BOT_NAME_SUFFIXES = ["Prime", "Major", "Minor", "Outpost", "Colony", "Nexus", "Station", "Bastion", "Redoubt", "Keep"]
-  const botLimit = ENABLE_SUBORDINATE_BOTS ? 5 : 0
-  const userBotNames = Array.isArray(data.botNames) ? data.botNames : []
-
-  for (let i = 0; i < botLimit; i++) {
-    const randomPlanet = PLANET_TYPES[Math.floor(Math.random() * PLANET_TYPES.length)]
-    const randomRace = RACE_TYPES[Math.floor(Math.random() * RACE_TYPES.length)]
-    const prefix = kdName.split(" ")[0] || BOT_NAME_PREFIXES[Math.floor(Math.random() * BOT_NAME_PREFIXES.length)]
-    const suffix = BOT_NAME_SUFFIXES[Math.floor(Math.random() * BOT_NAME_SUFFIXES.length)]
-    const botName = (userBotNames[i] && userBotNames[i].trim()) || (prefix + " " + suffix + " " + (Math.floor(Math.random() * 900) + 100))
-
-    const botKd = new Record(kingdomsCollection, {
-      kdName: botName,
-      rulerName: rulerName,
-      planetType: randomPlanet,
-      raceType: randomRace,
-      population: population,
-      popChange: popChange,
-      land: land,
-      money: money,
-      power: power,
-      probes: probes,
-      moneyIncome: moneyIncome,
-      powerIncome: powerIncome,
-      nw: nw,
-      tier: 10,
-      radius: Math.floor(Math.random() * 360),
-      sector: 0,
-      autoExplore: 10,
-      autoBuild: true,
-      landQueue: [],
-      military: military,
-      buildings: buildings,
-      researchPts: researchPts,
-      research: {},
-      researchAutoAssign: [],
-      state: "active",
-      newbiemode: 96,
-      botOwnerKd: playerKd.id,
-      botSettings: botSettings
-    })
-
-    $app.save(botKd)
-  }
-
-  try {
-    const statusRecord = $app.findFirstRecordByFilter("gameStatus", "")
-    if (statusRecord) {
-      const currentCount = statusRecord.getInt("kingdomCount") || 0
-      statusRecord.set("kingdomCount", currentCount + 1 + botLimit)
-      $app.save(statusRecord)
-    }
-  } catch {
-    // ignore
-  }
-
-  return e.json(200, playerKd)
+  const res = playerKd.publicExport()
+  res.kdName = playerKd.getString("name")
+  res.rulerName = (data.rulerName || "").trim() || playerKd.getString("name")
+  res.planetType = (data.planetType || data.planet_type || "Terra Form").trim()
+  res.raceType = (data.raceType || "Terran").trim()
+  res.nw = playerKd.getInt("networth")
+  res.newbiemode = 192
+  return e.json(200, res)
 })
 
 // ─── 2. UPDATE RULER NAME ───────────────────────────────────────────────────
@@ -206,7 +226,7 @@ routerAdd("POST", "/api/kingdoms/update-ruler-name", (e) => {
   const rulerName = (data && data.rulerName ? data.rulerName : "").trim()
   if (!rulerName) return e.json(400, { error: "Ruler name cannot be empty" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   kingdom.set("rulerName", rulerName)
@@ -219,7 +239,7 @@ routerAdd("POST", "/api/kingdoms/build-buildings", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -305,7 +325,7 @@ routerAdd("POST", "/api/kingdoms/raze-buildings", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -364,7 +384,7 @@ routerAdd("POST", "/api/kingdoms/toggle-auto-build", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -377,7 +397,7 @@ routerAdd("POST", "/api/kingdoms/save-auto-build", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -401,7 +421,7 @@ routerAdd("POST", "/api/kingdoms/explore", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   if (kingdom.getString("state") === "dead") {
@@ -467,7 +487,7 @@ routerAdd("POST", "/api/kingdoms/toggle-auto-explore", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -482,7 +502,7 @@ routerAdd("POST", "/api/kingdoms/train-military", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -562,7 +582,7 @@ routerAdd("POST", "/api/kingdoms/disband-military", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -617,7 +637,7 @@ routerAdd("POST", "/api/kingdoms/save-military-targets", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -638,7 +658,7 @@ routerAdd("POST", "/api/kingdoms/buy-scientists", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -667,7 +687,7 @@ routerAdd("POST", "/api/kingdoms/save-research-auto-assign", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const data = e.requestInfo().body || {}
@@ -682,7 +702,7 @@ routerAdd("POST", "/api/kingdoms/reset", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   kingdom.set("land", 250)
@@ -717,7 +737,7 @@ routerAdd("POST", "/api/kingdoms/delete", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   const kdId = kingdom.id
@@ -745,7 +765,7 @@ routerAdd("POST", "/api/kingdoms/restart-newbie-mode", (e) => {
   const authRecord = e.requestInfo().auth
   if (!authRecord) return e.json(401, { error: "Authentication required" })
 
-  const kingdom = $app.findFirstRecordByFilter("kingdoms", "userId = {:userId}", { userId: authRecord.id })
+  const kingdom = $app.findFirstRecordByFilter("kingdoms", "user = {:user}", { user: authRecord.id })
   if (!kingdom) return e.json(404, { error: "Kingdom not found" })
 
   let phase = "registration"

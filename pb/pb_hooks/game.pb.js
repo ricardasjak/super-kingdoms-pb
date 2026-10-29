@@ -4,21 +4,25 @@
 routerAdd("GET", "/api/game/status", (e) => {
   let statusRecord = null
   try {
-    statusRecord = $app.findFirstRecordByFilter("gameStatus", "")
+    statusRecord = $app.findFirstRecordByFilter("game_status", "")
   } catch {
     // ignore
   }
 
   if (!statusRecord) {
-    const col = $app.findCollectionByNameOrId("gameStatus")
-    statusRecord = new Record(col, {
-      currentTick: 0,
-      endTick: 960,
-      roundNumber: 1,
-      kingdomCount: 0,
-      status: "registration",
-    })
-    $app.save(statusRecord)
+    try {
+      const col = $app.findCollectionByNameOrId("game_status")
+      statusRecord = new Record(col, {
+        current_tick: 0,
+        max_ticks: 960,
+        round_number: 1,
+        phase: "newbie",
+        is_paused: false,
+      })
+      $app.save(statusRecord)
+    } catch {
+      // ignore
+    }
   }
 
   let totalKingdoms = 0
@@ -29,19 +33,19 @@ routerAdd("GET", "/api/game/status", (e) => {
     // ignore
   }
 
-  let gameStatus = null
-  try {
-    gameStatus = statusRecord.getString("status") || null
-  } catch {
-    // ignore
-  }
+  const currentTick = statusRecord ? statusRecord.getInt("current_tick") : 0
+  const maxTicks = statusRecord ? (statusRecord.getInt("max_ticks") || 960) : 960
+  const roundNumber = statusRecord ? (statusRecord.getInt("round_number") || 1) : 1
+  const phase = statusRecord ? (statusRecord.getString("phase") || "newbie") : "newbie"
 
   return e.json(200, {
-    currentTick: statusRecord.getInt("currentTick"),
-    endTick: statusRecord.getInt("endTick") || 960,
-    roundNumber: statusRecord.getInt("roundNumber") || 1,
+    currentTick: currentTick,
+    endTick: maxTicks,
+    maxTicks: maxTicks,
+    roundNumber: roundNumber,
     kingdomCount: totalKingdoms,
-    status: gameStatus,
+    phase: phase,
+    status: phase,
   })
 })
 

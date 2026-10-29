@@ -1,10 +1,11 @@
-import React, { useState } from "react";
-import { useKingdom } from "../hooks/use-kingdom.hook";
+import { AlertCircle, Check } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
 import {
 	BOT_PROFILES,
 	type BotProfile,
 } from "../constants/bot-params.constants";
-import { Check, AlertCircle } from "lucide-react";
+import { useKingdom } from "../hooks/use-kingdom.hook";
 
 export const KingdomSettingsPage: React.FC = () => {
 	const { kingdom, updateBotProfile } = useKingdom();
