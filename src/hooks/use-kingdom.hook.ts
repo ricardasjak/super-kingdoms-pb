@@ -56,7 +56,7 @@ export function useKingdom() {
 	const { user, isAuthenticated } = useAuth();
 	const queryClient = useQueryClient();
 	const [isCreating, setIsCreating] = useState<boolean>(false);
-	const [_actionError, setActionError] = useState<string | null>(null);
+	const [actionError, setActionError] = useState<string | null>(null);
 
 	const kingdomKey = ["kingdom", user?.id] as const;
 
