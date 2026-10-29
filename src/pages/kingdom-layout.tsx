@@ -156,10 +156,6 @@ export const KingdomLayout: React.FC = () => {
 		);
 	}
 
-	const isPopDying =
-		(kingdom.popChange || 0) < 0 &&
-		kingdom.population + 3 * (kingdom.popChange || 0) <= 0;
-
 	const navLinks = [
 		{ to: "/kingdom/status", label: "Status" },
 		{ to: "/kingdom/growth", label: "Growth" },
@@ -173,77 +169,17 @@ export const KingdomLayout: React.FC = () => {
 
 	return (
 		<div className="kingdom-shell">
-			{/* ─── Kingdom Telemetry Header ─── */}
-			<header className="kingdom-header">
+			<header
+				className="kingdom-header"
+				style={{
+					borderBottom: "1px solid var(--pico-muted-border-color)",
+					marginBottom: "1.5rem",
+					background: "rgba(15, 23, 42, 0.4)",
+				}}
+			>
 				<div className="container">
-					<div className="top-stats-nav">
-						<div className="brand-container">
-							<strong className="kd-name-brand">{kingdom.kdName}</strong>
-							<span
-								className="kd-ruler-sub"
-								style={{
-									marginLeft: "0.5rem",
-									color: "var(--text-secondary)",
-									fontSize: "0.85rem",
-								}}
-							>
-								(Lord {kingdom.rulerName})
-							</span>
-						</div>
-
-						<ul className="stats-list">
-							{gameStatus && (
-								<li className="game-tick-info" title="Round and Tick">
-									<strong>R{gameStatus.roundNumber}</strong>, T
-									{gameStatus.currentTick} / {gameStatus.endTick}
-								</li>
-							)}
-							<li className="desktop-only-stat" title="Treasury Balance">
-								<span className="text-secondary">$</span>{" "}
-								{kingdom.money.toLocaleString()}
-							</li>
-							<li title="Territory Land and Estimated Networth">
-								<span className="text-secondary">L:</span>{" "}
-								{kingdom.land.toLocaleString()} ({Math.round(kingdom.nw / 1000)}
-								k NW)
-							</li>
-							<li
-								className={isPopDying ? "danger-text" : ""}
-								title="Sovereign Population"
-							>
-								<span className="text-secondary">P:</span>{" "}
-								{kingdom.population.toLocaleString()}
-								{(kingdom.popChange || 0) !== 0 && (
-									<small
-										style={{
-											marginLeft: "4px",
-											color:
-												(kingdom.popChange || 0) > 0
-													? "var(--accent-emerald)"
-													: "var(--accent-rose)",
-										}}
-									>
-										(
-										{(kingdom.popChange || 0) > 0
-											? `+${kingdom.popChange}`
-											: kingdom.popChange}
-										)
-									</small>
-								)}
-							</li>
-							<li title="Power Storage">
-								<span className="text-secondary">W:</span>{" "}
-								{kingdom.power.toLocaleString()} MWh
-							</li>
-						</ul>
-					</div>
-
 					{/* Navigation bar */}
 					<nav className={`main-nav ${isMenuOpen ? "open" : ""}`}>
-						<div className="mobile-only-footer-stats">
-							<strong>$: {kingdom.money.toLocaleString()}</strong>
-						</div>
-
 						<div className="mobile-toggle-wrap mobile-footer-toggle">
 							<button
 								type="button"
