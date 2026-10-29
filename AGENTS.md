@@ -65,4 +65,5 @@ An earlier implementation of Super Kingdoms built with **Convex DB** exists loca
 7. **Migrations** in `pb/pb_migrations/` ARE committed. Filename prefix must be a Unix timestamp in seconds.
 8. **Convex reference parity**: When porting or updating game features, refer to the original Convex implementation at `/home/rija/Projects/super-kingdoms/` for authoritative game mechanics and math.
 9. **Document requirements**: When implementing a feature or behavior change, record its requirements in `docs/requirements/<topic>.requirements.md` (see `docs/requirements/README.md` for the convention) — phrased as "shall" statements describing what the system does, never as build commands. Amend the existing file when the behavior changes; add a new file when the topic is new.
+10. **Quality Gate (Lint & Typecheck)**: ALWAYS run `npm run lint:fix` (or `npm run lint`) and `npm run typecheck` (`tsc --build --noEmit`) before completing any task, committing, or presenting code changes. Never leave TypeScript compiler errors or unformatted/failing Biome linter diagnostics.
 
