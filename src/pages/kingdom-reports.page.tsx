@@ -12,7 +12,30 @@ import {
 import { useAuth } from "../context/use-auth.hook";
 import { useKingdom } from "../hooks/use-kingdom.hook";
 import { pb } from "../lib/pocketbase";
-import type { SpyReportsResponse } from "../types/pb.model";
+export interface SpyReportsResponse {
+	id: string;
+	created?: string;
+	spiedAt?: number | string;
+	targetKdName?: string;
+	targetRulerName?: string;
+	targetPlanetType?: string;
+	targetRaceType?: string;
+	targetLevel?: number;
+	land?: number;
+	networth?: number;
+	honor?: number;
+	money?: number;
+	population?: number;
+	power?: number;
+	probes?: number;
+	scientists?: number;
+	maProtection?: number;
+	military?: Record<string, number>;
+	maxDefPotential?: number;
+	maxOffPotential?: number;
+	minDefPotential?: number;
+	[key: string]: unknown;
+}
 
 export const KingdomReportsPage: React.FC = () => {
 	const { kingdom } = useKingdom();
@@ -63,7 +86,6 @@ export const KingdomReportsPage: React.FC = () => {
 		asb: 0,
 		ach: 0,
 		rubble: 0,
-		queue: {},
 	};
 
 	const level = calculateLevel(kingdom.land);
@@ -107,7 +129,7 @@ export const KingdomReportsPage: React.FC = () => {
 					probes={kingdom.probes || 0}
 					scientists={military.sci || 0}
 					maProtection={0}
-					military={military as Record<string, number>}
+					military={military as unknown as Record<string, number>}
 					maxDefPotential={maxDef}
 					maxOffPotential={maxOff}
 					minDefPotential={minDef}
@@ -169,17 +191,17 @@ export const KingdomReportsPage: React.FC = () => {
 								return (
 									<SpyReportSOK
 										key={report.id}
-										kdName={report.targetKdName}
-										rulerName={report.targetRulerName}
-										planetType={report.targetPlanetType}
-										raceType={report.targetRaceType}
-										level={report.targetLevel}
-										land={report.land}
-										networth={report.networth}
+										kdName={report.targetKdName || "Unknown"}
+										rulerName={report.targetRulerName || "Unknown"}
+										planetType={report.targetPlanetType || "Terra Form"}
+										raceType={report.targetRaceType || "Terran"}
+										level={report.targetLevel || 1}
+										land={report.land || 0}
+										networth={report.networth || 0}
 										honor={report.honor || 0}
-										money={report.money}
-										population={report.population}
-										power={report.power}
+										money={report.money || 0}
+										population={report.population || 0}
+										power={report.power || 0}
 										probes={report.probes || 0}
 										scientists={report.scientists || 0}
 										maProtection={report.maProtection || 0}

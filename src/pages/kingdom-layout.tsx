@@ -146,7 +146,7 @@ export const KingdomLayout: React.FC = () => {
 						probes={kingdom.probes || 0}
 						scientists={mil.sci || 0}
 						maProtection={0}
-						military={mil as Record<string, number>}
+						military={mil as unknown as Record<string, number>}
 						maxDefPotential={calculateMaxDefPotential(mil)}
 						maxOffPotential={calculateMaxOffPotential(mil)}
 						minDefPotential={calculateMinDefPotential(mil)}

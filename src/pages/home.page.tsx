@@ -3,14 +3,12 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CreateKingdomForm } from "../components/create-kingdom-form";
 import { useAuth } from "../context/use-auth.hook";
-import { useGameStatus } from "../hooks/use-game-status.hook";
 import { useKingdom } from "../hooks/use-kingdom.hook";
 import { pb } from "../lib/pocketbase";
 
 export const HomePage: React.FC = () => {
 	const { user, isAuthenticated } = useAuth();
 	const { kingdom, hasKingdom, isLoading: kdLoading, refetch } = useKingdom();
-	const { status: gameStatus } = useGameStatus();
 
 	const [stepLoading, setStepLoading] = useState(false);
 	const [stepMessage, setStepMessage] = useState<string | null>(null);

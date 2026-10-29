@@ -473,7 +473,8 @@ export const SpyReportSOB: React.FC<SpyReportSOBProps> = ({
 					))}
 
 					{buildingKeys.map((key) => {
-						const count = (buildings as Record<string, number>)[key] || 0;
+						const count =
+							(buildings as unknown as Record<string, number>)[key] || 0;
 						const pct = totalBuildings > 0 ? (count / totalBuildings) * 100 : 0;
 						return (
 							<Fragment key={key}>

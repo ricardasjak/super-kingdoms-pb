@@ -19,10 +19,10 @@ import {
 	RACE_INFO,
 	type RaceType,
 } from "../constants/game.constants";
-import type { KingdomsResponse } from "../types/pb.model";
+import type { TypedKingdom } from "../hooks/use-kingdom.hook";
 
 interface KingdomCardProps {
-	kingdom: KingdomsResponse;
+	kingdom: TypedKingdom;
 	onRefresh?: () => void;
 }
 
@@ -146,10 +146,10 @@ export const KingdomCard: React.FC<KingdomCardProps> = ({ kingdom }) => {
 							{kingdom.power?.toLocaleString()} <small>MWh</small>
 						</span>
 						<span
-							className={`kd-metric-sub ${kingdom.powerIncome >= 0 ? "positive" : "negative"}`}
+							className={`kd-metric-sub ${(kingdom.powerIncome ?? 0) >= 0 ? "positive" : "negative"}`}
 						>
-							{kingdom.powerIncome >= 0
-								? `+${kingdom.powerIncome}`
+							{(kingdom.powerIncome ?? 0) >= 0
+								? `+${kingdom.powerIncome ?? 0}`
 								: kingdom.powerIncome}
 							/tick
 						</span>

@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { pb } from "../lib/pocketbase";
-import type { GameStatusStatusOptions } from "../types/pb.model";
+import type { GameStatusPhaseOptions } from "../types/pb.model";
 
-export type GamePhase = GameStatusStatusOptions;
+export type GamePhase =
+	| GameStatusPhaseOptions
+	| "registration"
+	| "in-progress"
+	| "stopped";
 
 export interface GameStatusData {
 	currentTick: number;

@@ -9,7 +9,7 @@ import { RESEARCH_TOOLTIPS } from "./research-tooltips";
 
 export interface TechnicalResearchTreeProps {
 	myKingdom: {
-		research?: KingdomResearch;
+		research?: KingdomResearch | null;
 		researchAutoAssign?: string[];
 	};
 	handleAutoToggle: (key: string) => Promise<void>;

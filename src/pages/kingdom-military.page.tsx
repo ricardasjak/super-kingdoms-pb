@@ -44,7 +44,6 @@ export const KingdomMilitaryPage: React.FC = () => {
 		useState<Record<MilitaryUnitType, string>>(INITIAL_TRAIN_QUEUE);
 	const [targetQueue, setTargetQueue] =
 		useState<Record<MilitaryUnitType, string>>(INITIAL_TRAIN_QUEUE);
-	const [targetInitialized, setTargetInitialized] = useState(false);
 	const [isTraining, setIsTraining] = useState(false);
 	const [isDisbandMode, setIsDisbandMode] = useState(false);
 	const [isSavingTargets, setIsSavingTargets] = useState(false);
@@ -53,15 +52,15 @@ export const KingdomMilitaryPage: React.FC = () => {
 	const isAutomatedProfile = Boolean(kingdom?.botSettings?.label);
 
 	useEffect(() => {
-		if (military?.target) {
+		const target = military?.target;
+		if (target) {
 			setTargetQueue(
 				Object.fromEntries(
-					UNIT_KEYS.map((k) => [k, (military.target[k] || 0).toString()]),
+					UNIT_KEYS.map((k) => [k, (target[k] || 0).toString()]),
 				) as Record<MilitaryUnitType, string>,
 			);
-			setTargetInitialized(true);
 		}
-	}, [targetStr]);
+	}, [targetStr, military?.target]);
 
 	if (!kingdom || !military || !buildings) return null;
 

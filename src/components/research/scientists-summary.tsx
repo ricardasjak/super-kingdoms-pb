@@ -6,7 +6,7 @@ export interface ScientistsSummaryProps {
 		researchAutoAssign?: string[];
 		military?: {
 			sci?: number;
-		};
+		} | null;
 		land: number;
 	};
 }

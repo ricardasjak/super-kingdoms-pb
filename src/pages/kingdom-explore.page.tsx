@@ -112,9 +112,10 @@ export const KingdomExplorePage: React.FC = () => {
 	const exploreRatio = currentExploreLevel * 0.01;
 	const projectedHourlyExpense =
 		(1.5 * exploreRatio * land * (autoExploreCostPerLand + buildingCost)) / 24;
+	const moneyIncome = kingdom.moneyIncome ?? 0;
 	const projectedExpensePercent =
-		kingdom.moneyIncome > 0 && exploreRatio > 0
-			? Math.min(100, (projectedHourlyExpense / kingdom.moneyIncome) * 100)
+		moneyIncome > 0 && exploreRatio > 0
+			? Math.min(100, (projectedHourlyExpense / moneyIncome) * 100)
 			: 0;
 
 	// Handle Manual Exploration Dispatch

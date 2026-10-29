@@ -22,7 +22,7 @@
     "test:watch": "vitest --config vitest.config.ts",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --build --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -41,7 +41,6 @@ export const KingdomStatusPage: React.FC = () => {
 		asb: 0,
 		ach: 0,
 		rubble: 0,
-		queue: {},
 	};
 
 	const raxUsage =
@@ -118,7 +117,7 @@ export const KingdomStatusPage: React.FC = () => {
 					probes={kingdom.probes || 0}
 					scientists={military.sci || 0}
 					maProtection={0}
-					military={military as Record<string, number>}
+					military={military as unknown as Record<string, number>}
 					maxDefPotential={maxDef}
 					maxOffPotential={maxOff}
 					minDefPotential={minDef}

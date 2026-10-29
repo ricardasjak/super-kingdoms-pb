@@ -4,20 +4,45 @@ import { useAuth } from "../context/use-auth.hook";
 import { pb } from "../lib/pocketbase";
 import type {
 	BotSettings,
+	BuildingsQueue,
 	KingdomBuildings,
 	KingdomMilitary,
 	KingdomResearch,
+	MilitaryQueue,
 } from "../types/game.types";
 import type { KingdomsResponse } from "../types/pb.model";
 
-export type TypedKingdom = KingdomsResponse<
-	BotSettings,
-	KingdomBuildings,
-	number[],
-	KingdomMilitary,
-	KingdomResearch,
-	string[]
->;
+export type TypedKingdom = Omit<
+	KingdomsResponse<
+		Record<string, number>,
+		BuildingsQueue,
+		KingdomBuildings,
+		number[],
+		KingdomMilitary,
+		KingdomResearch,
+		Record<string, number>,
+		MilitaryQueue
+	>,
+	"military" | "research" | "buildings"
+> & {
+	buildings?: KingdomBuildings;
+	military?: KingdomMilitary;
+	research?: KingdomResearch;
+	kdName: string;
+	rulerName: string;
+	planetType: string;
+	raceType: string;
+	nw: number;
+	newbiemode: number;
+	autoBuild?: boolean;
+	autoExplore?: number;
+	researchAutoAssign?: string[];
+	botSettings?: BotSettings;
+	landQueue?: number[];
+	moneyIncome?: number;
+	powerIncome?: number;
+	popChange?: number;
+};
 
 export interface CreateKingdomPayload {
 	kdName: string;
@@ -71,10 +96,17 @@ export function useKingdom() {
 					});
 				const item = result.items[0];
 				if (!item) return null;
-				if (!item.kdName) item.kdName = item.name;
-				if (!item.nw) item.nw = item.networth || 0;
-				if (item.newbiemode === undefined)
-					item.newbiemode = Math.max(0, 192 - (item.newbie_step || 0) * 24);
+				const raw = item as unknown as Record<string, unknown>;
+				if (!raw.kdName) raw.kdName = item.name;
+				if (!raw.rulerName) raw.rulerName = item.ruler_name;
+				if (!raw.planetType) raw.planetType = item.planet_type;
+				if (!raw.raceType) raw.raceType = item.race_type;
+				if (!raw.nw) raw.nw = item.networth || 0;
+				if (!raw.landQueue) raw.landQueue = item.land_queue || [];
+				if (raw.autoBuild === undefined)
+					raw.autoBuild = (item.auto_build as boolean) ?? false;
+				if (raw.newbiemode === undefined)
+					raw.newbiemode = Math.max(0, 192 - (item.newbie_step || 0) * 24);
 				return item as TypedKingdom;
 			} catch (err) {
 				console.warn("Failed to fetch kingdom record:", err);

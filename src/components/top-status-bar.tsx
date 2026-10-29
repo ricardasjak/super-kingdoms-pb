@@ -27,11 +27,7 @@ export const TopStatusBar: React.FC = () => {
 	const tick = gameStatus?.currentTick ?? 0;
 	const maxTicks = gameStatus?.endTick ?? 960;
 	const roundNum = gameStatus?.roundNumber ?? 1;
-	const phase = (
-		gameStatus?.status ||
-		gameStatus?.phase ||
-		"newbie"
-	).toUpperCase();
+	const phase = (gameStatus?.status || "newbie").toUpperCase();
 
 	return (
 		<header

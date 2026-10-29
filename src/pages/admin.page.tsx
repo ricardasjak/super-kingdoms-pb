@@ -4,12 +4,22 @@ import { useState } from "react";
 import { PlayButton } from "../components/play-button";
 import { type GamePhase, useGameStatus } from "../hooks/use-game-status.hook";
 
-const GAME_PHASES: GamePhase[] = ["registration", "in-progress", "stopped"];
+const GAME_PHASES: GamePhase[] = [
+	"registration",
+	"in-progress",
+	"stopped",
+	"newbie",
+	"pvp",
+	"concluded",
+];
 
-const PHASE_HINTS: Record<GamePhase, string> = {
+const PHASE_HINTS: Record<string, string> = {
 	registration: "Kingdoms may register. Ticks do not advance the round.",
 	"in-progress": "The round is live. Ticks advance the simulation.",
 	stopped: "The galaxy is paused.",
+	newbie: "Newbie protection phase: kingdoms cannot be attacked.",
+	pvp: "Full warfare enabled across all torus sectors.",
+	concluded: "The galaxy round has concluded.",
 };
 
 export const AdminPage: React.FC = () => {
