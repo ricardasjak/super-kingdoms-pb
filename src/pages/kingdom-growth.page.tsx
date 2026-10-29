@@ -58,7 +58,6 @@ export const KingdomGrowthPage: React.FC = () => {
 	const [isBuilding, setIsBuilding] = useState(false);
 	const [isRazeMode, setIsRazeMode] = useState(false);
 
-	const targetStr = JSON.stringify(buildings?.target);
 	const isAutomatedProfile = Boolean(kingdom?.botSettings?.label);
 
 	useEffect(() => {
@@ -90,8 +89,7 @@ export const KingdomGrowthPage: React.FC = () => {
 			}
 			setTargetInitialized(true);
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps, we only want to update the target queue when the target is updated, not when any other state changes.
-	}, [targetStr, kingdom?.land]);
+	}, [buildings, kingdom?.land, targetInitialized]);
 
 	if (!kingdom || !buildings) return null;
 

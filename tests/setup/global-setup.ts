@@ -1,6 +1,6 @@
-import type { ChildProcess } from "child_process";
-import { execSync, spawn } from "child_process";
-import { mkdirSync, rmSync } from "fs";
+import type { ChildProcess } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
+import { mkdirSync, rmSync } from "node:fs";
 
 let pbProcess: ChildProcess;
 

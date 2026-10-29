@@ -177,10 +177,10 @@ export const HomePage: React.FC = () => {
 			await pb.send("/api/kingdoms/self-tick", { method: "POST" });
 			setStepMessage("✓ Advanced simulation by 8 ticks. Telemetry updated.");
 			refetch();
-		} catch (err: any) {
-			setStepMessage(
-				`⚠️ Error: ${err?.message || "Could not advance simulation"}`,
-			);
+		} catch (err: unknown) {
+			const message =
+				err instanceof Error ? err.message : "Could not advance simulation";
+			setStepMessage(`⚠️ Error: ${message}`);
 		} finally {
 			setStepLoading(false);
 		}

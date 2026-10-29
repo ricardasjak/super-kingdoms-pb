@@ -24,11 +24,11 @@
 		"rules": {
 			"recommended": true,
 			"correctness": {
-				"useExhaustiveDependencies": "warn"
+				"useExhaustiveDependencies": "error"
 			},
 			"suspicious": {
 				"noArrayIndexKey": "off",
-				"noExplicitAny": "warn"
+				"noExplicitAny": "error"
 			},
 			"complexity": {
 				"noImportantStyles": "off"
@@ -51,5 +51,17 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["tests/**"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		}
+	]
 }

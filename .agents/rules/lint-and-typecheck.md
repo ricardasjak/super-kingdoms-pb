@@ -16,5 +16,7 @@ Before finalizing changes:
    Ensures `tsc --build --noEmit` runs with 0 compiler errors across all project references and typings.
 
 ## Constraints
-- Never commit or declare a task finished if `npm run lint` or `npm run typecheck` fails.
-- Never use `any` to silence type errors when domain types (`TypedKingdom`, `GameStatusData`, etc.) should be accurately modeled.
+- Never commit or declare a task finished if `npm run lint` or `npm run typecheck` emits errors or warnings.
+- **No `any`**: The use of `any` is strictly prohibited (`noExplicitAny: "error"`). Always use domain models, typed records, or `unknown` with runtime type narrowing.
+- **Exhaustive Dependencies**: React hooks must strictly declare all dependencies (`useExhaustiveDependencies: "error"`). Never suppress with linter ignore comments unless mathematically required by simulation mechanics, in which case document the exact invariant.
+- Run `npm run lint:fix` to automatically format before validation.

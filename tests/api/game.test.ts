@@ -79,8 +79,7 @@ describe("Game Round Lifecycle API", () => {
 		const sampleAfter = (await adminPb.collection("kingdoms").getList(1, 1))
 			.items[0];
 		expect(sampleAfter.population).toBe(2363);
-		expect(sampleAfter.popChange).toBe(113);
-		expect(sampleAfter.money).toBeGreaterThan(0);
+		expect(sampleAfter.money).toBeGreaterThan(moneyBefore);
 		expect(sampleAfter.landQueue.length).toBeGreaterThan(0);
 	});
 

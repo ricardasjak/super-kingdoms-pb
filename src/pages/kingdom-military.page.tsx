@@ -48,7 +48,6 @@ export const KingdomMilitaryPage: React.FC = () => {
 	const [isDisbandMode, setIsDisbandMode] = useState(false);
 	const [isSavingTargets, setIsSavingTargets] = useState(false);
 
-	const targetStr = JSON.stringify(military?.target);
 	const isAutomatedProfile = Boolean(kingdom?.botSettings?.label);
 
 	useEffect(() => {
@@ -60,7 +59,7 @@ export const KingdomMilitaryPage: React.FC = () => {
 				) as Record<MilitaryUnitType, string>,
 			);
 		}
-	}, [targetStr, military?.target]);
+	}, [military?.target]);
 
 	if (!kingdom || !military || !buildings) return null;
 
